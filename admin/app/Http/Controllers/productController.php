@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Facades\Greeting;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -13,8 +14,9 @@ class productController extends Controller
     public function index()
     {
            
+        $greeting =  Greeting::greet('Product Section');
         $products = Product::all();
-        return view('product.index', compact('products'));
+        return view('product.index', compact('products','greeting'));
     }
 
     /**
