@@ -4,8 +4,6 @@
         <h1 class="text-blue-500 text-lg mb-4">
             Hello, Admin 👋
         </h1>
-
-       
     
     </div>
 </x-app-layout>
