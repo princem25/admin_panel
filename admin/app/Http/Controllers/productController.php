@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Facades\Greeting;
+use App\Http\Requests\formReq;
 use App\Models\Product;
 use App\Services\ProductService;
 use Illuminate\Http\Request;
@@ -63,20 +64,10 @@ class ProductController extends Controller
         return view('product.create');
     }
 
-    public function store(Request $request)
+    public function store(formReq $request)
     {
-
-        // Validation
-        $request->validate([
-            'name' => 'required',
-            'price' => 'required|numeric',
-            'description' => 'required',
-            'file' => 'required|image|mimes:jpg,jpeg,png|max:2048'
-        ]);
-
         try {
-
-            $data = $request->only(['name', 'price', 'description']);
+            $data = $request->validated();
 
             // Image upload
             if ($request->hasFile('file')) {
@@ -92,12 +83,10 @@ class ProductController extends Controller
 
             Log::info('Product created', ['id' => $product->id]);
 
-
-
-            return redirect()->route('products.index')->with('success', 'Product created!');
+            return redirect()->route('products.index')
+                ->with('success', 'Product created!');
 
         } catch (\Exception $e) {
-
 
             Log::error('Product creation failed', ['error' => $e->getMessage()]);
 
@@ -115,21 +104,11 @@ class ProductController extends Controller
         return view('product.edit', compact('product'));
     }
 
-    public function update(Request $request, Product $product)
+    public function update(formReq $request, Product $product)
     {
-
-        // Validation
-        $request->validate([
-            'name' => 'required',
-            'price' => 'required|numeric',
-            'description' => 'required',
-            'file' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
-        ]);
         try {
+            $data = $request->validated();
 
-            $data = $request->only(['name', 'price', 'description']);
-
-            // If new image uploaded
             if ($request->hasFile('file')) {
 
                 // Delete old image
@@ -151,7 +130,8 @@ class ProductController extends Controller
 
             Log::info('Product updated', ['id' => $product->id]);
 
-            return redirect()->route('products.index')->with('success', 'Updated!');
+            return redirect()->route('products.index')
+                ->with('success', 'Updated!');
 
         } catch (\Exception $e) {
 

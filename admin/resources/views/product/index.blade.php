@@ -46,126 +46,130 @@
 
 </head>
 
-<body>
-    <div class="p-5">
+<body class="bg-gray-100">
 
-        {{-- Create Button --}}
-        <div class="mb-5">
-            <h5>{{$greeting}}</h5>
-            <form method="GET" action="{{ route('products.index') }}"
-                class="mb-6 flex flex-wrap gap-4 items-end bg-white p-4 rounded shadow">
+<div class="max-w-7xl mx-auto p-6">
 
-                {{-- 🔍 Name --}}
-                <div>
-                    <label class="text-sm font-medium">Product Name</label>
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Enter name"
-                        class="border p-2 rounded w-40">
-                </div>
+    {{-- 🔝 Header --}}
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-semibold">{{$greeting}}</h2>
 
-                {{-- 📂 Category --}}
-                <div>
-                    <label class="text-sm font-medium">Category</label>
-                    <select name="category" class="border p-2 rounded w-40">
-                        <option value="">Select</option>
-                        <option value="electronics" {{ request('category') == 'electronics' ? 'selected' : '' }}>
-                            Electronics</option>
-                        <option value="fashion" {{ request('category') == 'fashion' ? 'selected' : '' }}>Fashion</option>
-                        <option value="books" {{ request('category') == 'books' ? 'selected' : '' }}>Books</option>
-                    </select>
-                </div>
+        <a href="{{ route('products.create') }}">
+            <button class="px-5 py-2 bg-black text-white rounded-lg shadow hover:bg-gray-800 transition">
+                + Create Product
+            </button>
+        </a>
+    </div>
 
-                {{-- 💰 Price --}}
-                <div>
-                    <label class="text-sm font-medium">Price</label>
-                    <input type="number" name="price" value="{{ request('price') }}" placeholder="Exact price"
-                        class="border p-2 rounded w-32">
-                </div>
+    {{-- 🔍 Search Box --}}
+    <form method="GET" action="{{ route('products.index') }}"
+        class="mb-8 flex flex-wrap gap-4 items-end bg-white p-5 rounded-xl shadow-md w-[75%]">
 
-                {{-- 🔘 Buttons --}}
-                <div class="flex gap-2">
-                    <button type="submit" class="px-4 py-2 bg-black text-white rounded hover:bg-gray-800">
-                        Search
-                    </button>
-
-                    <a href="{{ route('products.index') }}" class="px-4 py-2 border rounded">
-                        Reset
-                    </a>
-                </div>
-
-            </form>
-            <a href="{{ route('products.create') }}">
-                <button class="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 mt-10 absolute top-0 right-60">
-                    + Create Product
-                </button>
-            </a>
+        <div>
+            <label class="text-sm text-gray-600">Product Name</label>
+            <input type="text" name="search" value="{{ request('search') }}"
+                class="border p-2 rounded-lg w-44 focus:ring-2 focus:ring-black outline-none">
         </div>
 
-        @if(count($products) > 0)
+        <div>
+            <label class="text-sm text-gray-600">Category</label>
+            <select name="category"
+                class="border p-2 rounded-lg w-44 focus:ring-2 focus:ring-black outline-none">
+                <option value="">All</option>
+                <option value="electronics" {{ request('category')=='electronics'?'selected':'' }}>Electronics</option>
+                <option value="fashion" {{ request('category')=='fashion'?'selected':'' }}>Fashion</option>
+                <option value="books" {{ request('category')=='books'?'selected':'' }}>Books</option>
+            </select>
+        </div>
 
-            <div class="flex flex-wrap gap-5">
+        <div>
+            <label class="text-sm text-gray-600">Price</label>
+            <input type="number" name="price" value="{{ request('price') }}"
+                class="border p-2 rounded-lg w-32 focus:ring-2 focus:ring-black outline-none">
+        </div>
 
-                @foreach($products as $product)
-                    <div class="w-64 border border-gray-200 rounded-lg overflow-hidden shadow">
+        <div class="flex gap-2">
+            <button type="submit"
+                class="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition">
+                Search
+            </button>
 
-                        {{-- Image --}}
-                        <img src="{{ $product->image ? asset('images/' . $product->image) : 'https://via.placeholder.com/250' }}"
-                            class="w-full h-44 object-cover">
+            <a href="{{ route('products.index') }}"
+                class="px-4 py-2 border rounded-lg hover:bg-gray-100 transition">
+                Reset
+            </a>
+        </div>
+    </form>
 
-                        {{-- Info --}}
-                        <div class="p-4">
+    {{-- 📦 Product Grid --}}
+    @if(count($products) > 0)
 
-                            <h3 class="mb-2 text-lg font-semibold">
-                                {{ $product->name }}
-                            </h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 
-                            <p class="text-sm text-gray-600">
-                                {{ $product->description }}
-                            </p>
+        @foreach($products as $product)
+        <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition">
 
-                            <p class="font-bold mt-2">
-                                {{ $product->price}}
-                            </p>
+            {{-- Image --}}
+            <img src="{{ $product->image ? asset('images/'.$product->image) : 'https://via.placeholder.com/250' }}"
+                class="w-full h-44 object-cover">
 
-                            {{-- Buttons --}}
-                            <div class="mt-4 flex gap-2">
+            {{-- Info --}}
+            <div class="p-4">
 
-                                {{-- Edit --}}
-                                <a href="{{ route('products.edit', $product->id) }}">
-                                    <button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
-                                        Edit
-                                    </button>
-                                </a>
+                <h3 class="text-lg font-semibold mb-1">
+                    {{ $product->name }}
+                </h3>
 
-                                {{-- Delete --}}
-                                <form action="{{ route('products.destroy', $product->id) }}" method="POST">
-                                    @csrf
-                                    @method('DELETE')
+                <p class="text-sm text-gray-500 line-clamp-2">
+                    {{ $product->description }}
+                </p>
 
-                                    <button onclick="return confirm('Are you sure?')"
-                                        class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">
-                                        Delete
-                                    </button>
-                                </form>
+                <p class="font-bold mt-2 text-black">
+                    ₹{{ $product->price }}
+                </p>
 
-                            </div>
+                {{-- Buttons --}}
+                <div class="mt-4 flex justify-between">
 
-                        </div>
-                    </div>
-                @endforeach
+                    <a href="{{ route('products.edit', $product->id) }}">
+                        <button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition">
+                            Edit
+                        </button>
+                    </a>
 
+                    <form action="{{ route('products.destroy', $product->id) }}" method="POST">
+                        @csrf
+                        @method('DELETE')
+
+                        <button onclick="return confirm('Are you sure?')"
+                            class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition">
+                            Delete
+                        </button>
+                    </form>
+
+                </div>
             </div>
-
-        @else
-            <p class="text-gray-700">No products to display</p>
-        @endif
-        <a href="{{ route('admin.dashboard') }}"
-            class="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 absolute top-10 right-10">
-            Back to
-            Dashboard
-
-        </a>
+        </div>
+        @endforeach
 
     </div>
+
+    @else
+        <div class="text-center text-gray-500 mt-10">
+            No products found
+        </div>
+    @endif
+
+    {{-- 🔙 Back Button --}}
+    <div class="mt-10 text-right">
+        <a href="{{ route('admin.dashboard') }}"
+            class="px-5 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition">
+            ← Dashboard
+        </a>
+    </div>
+
+</div>
+
 </body>
 
 </html>
