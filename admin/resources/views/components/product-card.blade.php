@@ -16,7 +16,7 @@
         </p>
 
         <p class="font-bold mt-2 text-black">
-            ₹{{ $product->price }}
+             @currency($product->price)
         </p>
 
         {{-- Buttons --}}

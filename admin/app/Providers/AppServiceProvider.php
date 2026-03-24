@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Services\greetingService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -29,5 +30,8 @@ class AppServiceProvider extends ServiceProvider
             $view->with('current_logged_user', Auth::user());
         });
 
+        Blade::directive('currency', function ($expression) {
+            return "<?php echo '₹' . number_format($expression, 2); ?>";
+        });
     }
 }
