@@ -4,20 +4,26 @@ namespace App\Http\Controllers;
 
 use App\Facades\Greeting;
 use App\Models\Product;
+use App\Services\ProductService;
 use Illuminate\Http\Request;
 
 class productController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    protected $productService;
+
+    public function __construct(ProductService $productService)
+    {
+        $this->productService = $productService;
+    }
+
     public function index()
     {
-           
-        $greeting =  Greeting::greet('Product Section');
-        $products = Product::all();
-        return view('product.index', compact('products','greeting'));
+
+        $greeting = Greeting::greet('Product Section');
+        $products = $this->productService->all();
+        return view('product.index', compact('products', 'greeting'));
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -62,7 +68,7 @@ class productController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    
+
     public function destroy(Product $product)
     {
         $product->delete();
