@@ -79,6 +79,12 @@
         @else
         <p class="text-gray-700">No products to display</p>
         @endif
+         <a href="{{ route('admin.dashboard') }}" 
+           class="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 absolute top-10 right-10">
+             Back to
+            Dashboard
+         
+        </a> 
 
     </div>
 </body>
