@@ -10,6 +10,12 @@ Route::get('/', function () {
 
 // --------------------------------------AUTH BREEZ----------------------------------//
 
+//● Named routes 
+// ● Route groups 
+// ● Prefix groups 
+// ● Middleware groups 
+// ● Fallback route 
+
 Route::get('/admin/dashboard', function () {
     return view('admin.dashboard');
 })->middleware(['auth', 'verified','role:admin'])->name('admin.dashboard');
@@ -28,4 +34,8 @@ require __DIR__.'/auth.php';
 
 Route::prefix('admin')->middleware('role:admin')->group(function () {
     Route::resource('products', productController::class);
+});
+
+route::fallback(function () {
+    return view('404');
 });
