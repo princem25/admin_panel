@@ -36,6 +36,9 @@ Route::prefix('admin')->middleware(['role:admin'])->group(function () {
     Route::resource('products', productController::class);
 });
 
+Route::get('/products/{product}/download', [ProductController::class, 'download'])
+    ->name('products.download');
+
 route::fallback(function () {
     return view('404');
 });

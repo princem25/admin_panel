@@ -156,4 +156,15 @@ class ProductController extends Controller
 
         return redirect()->route('products.index');
     }
+
+    public function download(Product $product)
+    {
+        $path = public_path('images/' . $product->image);
+
+        if (!File::exists($path)) {
+            abort(404);
+        }
+
+        return response()->download($path);
+    }
 }
