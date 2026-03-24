@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Services\greetingService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -12,7 +14,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-         $this->app->bind('greeting', function () {
+        $this->app->bind('greeting', function () {
             return new greetingService();
         });
     }
@@ -22,6 +24,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        View::share('company_name', 'Intern Training App');
+        View::composer('*', function ($view) {
+            $view->with('current_logged_user', Auth::user());
+        });
+
     }
 }

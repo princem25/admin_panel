@@ -21,25 +21,20 @@ class ProductController extends Controller
         $this->productService = $productService;
     }
 
-    public function index(Request $request)
-    {
-        $greeting = Greeting::greet('Product Section');
+   public function index(Request $request)
+{
+    $greeting = Greeting::greet('Product Section');
 
-        // Get query params
-        $search = $request->query('search');
-        $category = $request->query('category');
-        $price = $request->query('price');
+    $search   = $request->query('search');
+    $category = $request->query('category');
+    $price    = $request->query('price');
 
-        // If no filters → return all (cached)
-        if (!$search && !$category && !$price) {
-            $products = Cache::remember('products_list', 60, function () {
-                return $this->productService->all();
-            });
-
-            return view('product.index', compact('products', 'greeting'));
-        }
-
-        // 🔍 OR-based search
+    // Decide products
+    if (!$search && !$category && !$price) {
+        $products = Cache::remember('products_list', 60, function () {
+            return $this->productService->all();
+        });
+    } else {
         $products = Product::where(function ($query) use ($search, $category, $price) {
 
             if (!empty($search)) {
@@ -55,9 +50,17 @@ class ProductController extends Controller
             }
 
         })->latest()->get();
-
-        return view('product.index', compact('products', 'greeting'));
     }
+
+    // ✅ ALWAYS define
+    $total_products = $products->count();
+
+    return view('product.index', compact(
+        'products',
+        'greeting',
+        'total_products'
+    ));
+}
 
     public function create()
     {
