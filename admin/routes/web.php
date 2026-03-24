@@ -32,7 +32,7 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
-Route::prefix('admin')->middleware(['role:admin'])->group(function () {
+Route::prefix('admin')->middleware(['role:admin','throttle:10,1'])->group(function () {
     Route::resource('products', productController::class);
 });
 
