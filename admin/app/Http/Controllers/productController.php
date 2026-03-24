@@ -162,6 +162,7 @@ class ProductController extends Controller
 
     public function download(Product $product)
     {
+        
         $path = public_path('images/' . $product->image);
 
         if (!File::exists($path)) {

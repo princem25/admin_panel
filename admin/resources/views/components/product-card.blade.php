@@ -43,7 +43,7 @@
             </form>
 
             <!-- Download -->
-            <a href="{{ route('products.download', $product->id) }}"
+            <a href="{{ url('products/' . $product->id . '/download') }}"
                 class="btn-download px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm"
                 data-id="{{ $product->id }}">
                 ⬇ Download
