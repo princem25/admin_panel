@@ -20,15 +20,40 @@ class ProductController extends Controller
         $this->productService = $productService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $greeting = Greeting::greet('Product Section');
 
-        $products = Cache::remember('products_list', 60, function () {
-            return $this->productService->all();
-        });
+        // Get query params
+        $search = $request->query('search');
+        $category = $request->query('category');
+        $price = $request->query('price');
 
-        Log::info('Products page visited');
+        // If no filters → return all (cached)
+        if (!$search && !$category && !$price) {
+            $products = Cache::remember('products_list', 60, function () {
+                return $this->productService->all();
+            });
+
+            return view('product.index', compact('products', 'greeting'));
+        }
+
+        // 🔍 OR-based search
+        $products = Product::where(function ($query) use ($search, $category, $price) {
+
+            if (!empty($search)) {
+                $query->orWhere('name', 'like', '%' . $search . '%');
+            }
+
+            if (!empty($category)) {
+                $query->orWhere('category', $category);
+            }
+
+            if (!empty($price)) {
+                $query->orWhere('price', '<=', $price);
+            }
+
+        })->latest()->get();
 
         return view('product.index', compact('products', 'greeting'));
     }
@@ -40,7 +65,7 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-       
+
         // Validation
         $request->validate([
             'name' => 'required',
@@ -67,12 +92,12 @@ class ProductController extends Controller
 
             Log::info('Product created', ['id' => $product->id]);
 
-             
+
 
             return redirect()->route('products.index')->with('success', 'Product created!');
 
         } catch (\Exception $e) {
-            
+
 
             Log::error('Product creation failed', ['error' => $e->getMessage()]);
 
@@ -92,7 +117,7 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
-         
+
         // Validation
         $request->validate([
             'name' => 'required',
@@ -128,8 +153,8 @@ class ProductController extends Controller
 
             return redirect()->route('products.index')->with('success', 'Updated!');
 
-        } catch (\Exception $e) { 
-            
+        } catch (\Exception $e) {
+
             Log::error('Product update failed', ['error' => $e->getMessage()]);
 
             return back()->with('error', 'Something went wrong!');
