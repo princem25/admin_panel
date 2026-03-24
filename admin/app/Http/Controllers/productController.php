@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Facades\Greeting;
-use App\Http\Requests\formReq;
 use App\Models\Product;
 use App\Services\ProductService;
 use Illuminate\Http\Request;
@@ -12,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 
-class productController extends Controller
+class ProductController extends Controller
 {
     protected $productService;
 
@@ -25,44 +24,55 @@ class productController extends Controller
     {
         $greeting = Greeting::greet('Product Section');
 
-        // Cache products for 60 seconds
         $products = Cache::remember('products_list', 60, function () {
             return $this->productService->all();
         });
 
-        // Log info
         Log::info('Products page visited');
 
         return view('product.index', compact('products', 'greeting'));
     }
 
-
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        return view('product.create'); // view response
+        return view('product.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(formReq $request)
+    public function store(Request $request)
     {
-        DB::beginTransaction();
+       
+        // Validation
+        $request->validate([
+            'name' => 'required',
+            'price' => 'required|numeric',
+            'description' => 'required',
+            'file' => 'required|image|mimes:jpg,jpeg,png|max:2048'
+        ]);
 
         try {
-            $product = Product::create($request->validated());
+
+            $data = $request->only(['name', 'price', 'description']);
+
+            // Image upload
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $filename = time() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('images'), $filename);
+                $data['image'] = $filename;
+            }
+
+            $product = Product::create($data);
+
+            Cache::forget('products_list');
 
             Log::info('Product created', ['id' => $product->id]);
 
-            DB::commit();
+             
 
             return redirect()->route('products.index')->with('success', 'Product created!');
 
         } catch (\Exception $e) {
-            DB::rollBack();
+            
 
             Log::error('Product creation failed', ['error' => $e->getMessage()]);
 
@@ -70,53 +80,71 @@ class productController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(Product $product)
     {
-        //
+        return view('product.show', compact('product'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Product $product)
     {
         return view('product.edit', compact('product'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(formReq $request, Product $product)
+    public function update(Request $request, Product $product)
     {
-        DB::transaction(function () use ($request, $product) {
-            $product->update($request->validated());
-        });
+         
+        // Validation
+        $request->validate([
+            'name' => 'required',
+            'price' => 'required|numeric',
+            'description' => 'required',
+            'file' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
+        ]);
+        try {
 
-        // Clear cache after update
-        Cache::forget('products_list');
+            $data = $request->only(['name', 'price', 'description']);
 
-        Log::info('Product updated', ['id' => $product->id]);
+            // If new image uploaded
+            if ($request->hasFile('file')) {
 
-        return redirect()->route('products.index')->with('success', 'Updated!');
+                // Delete old image
+                if ($product->image && File::exists(public_path('images/' . $product->image))) {
+                    File::delete(public_path('images/' . $product->image));
+                }
+
+                // Upload new image
+                $file = $request->file('file');
+                $filename = time() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('images'), $filename);
+
+                $data['image'] = $filename;
+            }
+
+            $product->update($data);
+
+            Cache::forget('products_list');
+
+            Log::info('Product updated', ['id' => $product->id]);
+
+            return redirect()->route('products.index')->with('success', 'Updated!');
+
+        } catch (\Exception $e) { 
+            
+            Log::error('Product update failed', ['error' => $e->getMessage()]);
+
+            return back()->with('error', 'Something went wrong!');
+        }
     }
-
-    /**
-     * Remove the specified resource from storage.
-     */
 
     public function destroy(Product $product)
     {
-        // Delete file if exists
-        if ($product->file && File::exists(storage_path('images/' . $product->file))) {
-            File::delete(storage_path('images/' . $product->file));
+        // Delete image if exists
+        if ($product->image && File::exists(public_path('images/' . $product->image))) {
+            File::delete(public_path('images/' . $product->image));
         }
 
         $product->delete();
 
-        // Clear cache
         Cache::forget('products_list');
 
         Log::warning('Product deleted', ['id' => $product->id]);

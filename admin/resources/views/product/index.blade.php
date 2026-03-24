@@ -1,3 +1,42 @@
+{{-- ✅ Success Message --}}
+@if(session('success'))
+    <div id="flash-success"
+         class="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 
+         max-w-sm w-full text-center p-3 bg-green-100 text-green-700 rounded shadow-lg transition-opacity duration-500">
+        {{ session('success') }}
+    </div>
+
+    <script>
+        setTimeout(() => {
+            const el = document.getElementById('flash-success');
+            if (el) {
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 500);
+            }
+        }, 3000);
+    </script>
+@endif
+
+
+{{-- ❌ Error Message --}}
+@if(session('error'))
+    <div id="flash-error"
+         class="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 
+         max-w-sm w-full text-center p-3 bg-red-100 text-red-700 rounded shadow-lg transition-opacity duration-500">
+        {{ session('error') }}
+    </div>
+
+    <script>
+        setTimeout(() => {
+            const el = document.getElementById('flash-error');
+            if (el) {
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 500);
+            }
+        }, 3000);
+    </script>
+@endif 
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -44,7 +83,7 @@
                     </p>
 
                     <p class="font-bold mt-2">
-                        @currency($product->price)
+                           {{ $product->price}}
                     </p>
 
                     {{-- Buttons --}}
