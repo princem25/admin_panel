@@ -1,7 +1,7 @@
 <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition">
 
     {{-- Image --}}
-    <img src="{{ $product->image ? asset('images/'.$product->image) : 'https://via.placeholder.com/250' }}"
+    <img src="{{ $product->image ? asset('images/' . $product->image) : 'https://via.placeholder.com/250' }}"
         class="w-full h-44 object-cover">
 
     {{-- Info --}}
@@ -16,30 +16,36 @@
         </p>
 
         <p class="font-bold mt-2 text-black">
-             @currency($product->price)
+            @currency($product->price)
         </p>
 
         {{-- Buttons --}}
         <div class="mt-4 flex items-center gap-2 flex-wrap">
 
+            <!-- Edit -->
             <a href="{{ route('products.edit', $product->id) }}">
-                <button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm">
+                <button class="btn-edit px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+                    data-id="{{ $product->id }}">
                     Edit
                 </button>
             </a>
 
+            <!-- Delete -->
             <form action="{{ route('products.destroy', $product->id) }}" method="POST" class="inline">
                 @csrf
                 @method('DELETE')
 
                 <button onclick="return confirm('Are you sure?')"
-                    class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm">
+                    class="btn-delete px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
+                    data-id="{{ $product->id }}">
                     Delete
                 </button>
             </form>
 
+            <!-- Download -->
             <a href="{{ route('products.download', $product->id) }}"
-                class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm">
+                class="btn-download px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm"
+                data-id="{{ $product->id }}">
                 ⬇ Download
             </a>
 
