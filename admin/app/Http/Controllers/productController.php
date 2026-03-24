@@ -24,7 +24,7 @@ class productController extends Controller
      */
     public function create()
     {
-        //
+        return view('product.create'); // view response
     }
 
     /**
@@ -46,9 +46,9 @@ class productController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Product $product)
     {
-        //
+        return view('product.edit', compact('product'));
     }
 
     /**
@@ -62,8 +62,11 @@ class productController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    
+    public function destroy(Product $product)
     {
-        //
+        $product->delete();
+
+        return redirect()->route('products.index');
     }
 }
