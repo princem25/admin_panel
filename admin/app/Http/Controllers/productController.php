@@ -7,6 +7,10 @@ use App\Http\Requests\formReq;
 use App\Models\Product;
 use App\Services\ProductService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 class productController extends Controller
 {
@@ -19,9 +23,16 @@ class productController extends Controller
 
     public function index()
     {
-
         $greeting = Greeting::greet('Product Section');
-        $products = $this->productService->all();
+
+        // Cache products for 60 seconds
+        $products = Cache::remember('products_list', 60, function () {
+            return $this->productService->all();
+        });
+
+        // Log info
+        Log::info('Products page visited');
+
         return view('product.index', compact('products', 'greeting'));
     }
 
@@ -39,7 +50,24 @@ class productController extends Controller
      */
     public function store(formReq $request)
     {
-        //
+        DB::beginTransaction();
+
+        try {
+            $product = Product::create($request->validated());
+
+            Log::info('Product created', ['id' => $product->id]);
+
+            DB::commit();
+
+            return redirect()->route('products.index')->with('success', 'Product created!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            Log::error('Product creation failed', ['error' => $e->getMessage()]);
+
+            return back()->with('error', 'Something went wrong!');
+        }
     }
 
     /**
@@ -61,9 +89,18 @@ class productController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(formReq $request, string $id)
+    public function update(formReq $request, Product $product)
     {
-        //
+        DB::transaction(function () use ($request, $product) {
+            $product->update($request->validated());
+        });
+
+        // Clear cache after update
+        Cache::forget('products_list');
+
+        Log::info('Product updated', ['id' => $product->id]);
+
+        return redirect()->route('products.index')->with('success', 'Updated!');
     }
 
     /**
@@ -72,7 +109,17 @@ class productController extends Controller
 
     public function destroy(Product $product)
     {
+        // Delete file if exists
+        if ($product->file && File::exists(storage_path('images/' . $product->file))) {
+            File::delete(storage_path('images/' . $product->file));
+        }
+
         $product->delete();
+
+        // Clear cache
+        Cache::forget('products_list');
+
+        Log::warning('Product deleted', ['id' => $product->id]);
 
         return redirect()->route('products.index');
     }
