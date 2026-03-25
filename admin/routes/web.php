@@ -41,17 +41,18 @@ Route::get('/products/{product}/download', [productController::class, 'download'
 
 //------------------------------CART ROUTES------------------------------//
 
-Route::prefix('user')->middleware(['role:user'])->group(function () {
+Route::prefix('user')->middleware(['role:user','auth'])->group(function () {
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::get('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
-    Route::get('/cart/remove/{product}', [CartController::class, 'remove'])->name('cart.remove');
-    Route::get('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+    Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
+    Route::delete('/cart/remove/{product}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+
+    //for all products listing
     Route::get('/products', [productController::class, 'userProducts'])->name('user.products');
    
 });
+
  
-
-
 Route::fallback(function () {
     return view('404');
 });

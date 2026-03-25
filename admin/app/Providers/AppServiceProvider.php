@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Cart;
 use App\Services\greetingService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
@@ -28,6 +29,16 @@ class AppServiceProvider extends ServiceProvider
         View::share('company_name', 'Intern Training App');
         View::composer('*', function ($view) {
             $view->with('current_logged_user', Auth::user());
+        });
+
+        View::composer('*', function ($view) {
+            if (auth()->check()) {
+                $count = Cart::where('user_id', auth()->id())->sum('quantity');
+            } else {
+                $count = 0;
+            }
+
+            $view->with('cartCount', $count);
         });
 
         Blade::directive('currency', function ($expression) {

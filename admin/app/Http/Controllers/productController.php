@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Facades\Greeting;
 use App\Http\Requests\formReq;
+use App\Models\Cart;
 use App\Models\Product;
 use App\Services\ProductService;
 use Illuminate\Http\Request;
@@ -157,7 +158,7 @@ class ProductController extends Controller
 
         Log::warning('Product deleted', ['id' => $product->id]);
 
-        return redirect()->route('products.index');
+        return redirect()->route('products.index')->with('error', 'Deleted!!');
     }
 
     public function download(Product $product)
@@ -171,7 +172,7 @@ class ProductController extends Controller
 
         return response()->download($path);
     }
-    
+
     //------------------USER SIDE------------------//
     public function userProducts(Request $request)
     {
@@ -195,6 +196,10 @@ class ProductController extends Controller
 
         $products = $query->latest()->get();
 
-        return view('user.products', compact('products'));
+        $cartProductIds = Cart::where('user_id', auth()->id())
+            ->pluck('product_id')
+            ->toArray();
+
+        return view('user.products', compact('products', 'cartProductIds'));
     }
 }

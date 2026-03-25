@@ -1,25 +1,7 @@
 <x-app-layout>
 
     {{-- 🔔 Flash Message --}}
-    @if(session('success') || session('error'))
-        <div id="flash-message"
-            class="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 
-            max-w-sm w-full text-center p-3 rounded shadow-lg transition-opacity duration-500
-            {{ session('success') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
-
-            {{ session('success') ?? session('error') }}
-        </div>
-
-        <script>
-            setTimeout(() => {
-                const el = document.getElementById('flash-message');
-                if (el) {
-                    el.style.opacity = '0';
-                    setTimeout(() => el.remove(), 500);
-                }
-            }, 3000);
-        </script>
-    @endif
+   <x-flash-message /> 
 
     <!-- 🌌 Background -->
     <div class="relative min-h-screen overflow-x-hidden 
