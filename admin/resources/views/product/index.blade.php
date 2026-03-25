@@ -22,13 +22,14 @@
     @endif
 
     <!-- 🌌 Background -->
-    <div class="relative min-h-screen 
-        bg-gradient-to-br from-[#0f2027] via-[#203a43] to-[#2c5364] 
-        text-white overflow-x-hidden">
+    <div class="relative min-h-screen overflow-x-hidden 
 
-        <!-- 🌟 Glow Effects -->
-        <div class="absolute w-[500px] h-[500px] bg-cyan-400 opacity-20 blur-3xl rounded-full top-10 left-10"></div>
-        <div class="absolute w-[500px] h-[500px] bg-blue-500 opacity-20 blur-3xl rounded-full bottom-10 right-10"></div>
+    bg-white text-gray-900
+    dark:bg-gradient-to-br dark:from-[#0f2027] dark:via-[#203a43] dark:to-[#2c5364] dark:text-white">
+
+        <!-- 🌟 Glow Effects (dark only) -->
+        <div class="hidden dark:block absolute w-[500px] h-[500px] bg-cyan-400 opacity-20 blur-3xl rounded-full top-10 left-10"></div>
+        <div class="hidden dark:block absolute w-[500px] h-[500px] bg-blue-500 opacity-20 blur-3xl rounded-full bottom-10 right-10"></div>
 
         <div class="relative max-w-7xl mx-auto p-6">
 
@@ -40,44 +41,56 @@
                         {{ $greeting }}
                     </h2>
 
-                    <p class="text-sm text-white/70">
+                    <p class="text-sm text-gray-600 dark:text-white/70">
                         Total Products: {{ $total_products }}
                     </p>
 
                     @if($current_logged_user)
-                        <p class="text-xs text-white/50">
+                        <p class="text-xs text-gray-500 dark:text-white/50">
                             Welcome, {{ $current_logged_user->name }}
                         </p>
                     @endif
+
                     <!-- Create -->
-                <a href="{{ route('products.create') }}">
-                    <button class="px-5 py-2 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg shadow mt-5 block ">
-                        + Create Product
-                    </button>
-                </a>        
+                    <a href="{{ route('products.create') }}">
+                        <button class="px-5 py-2 rounded-lg shadow mt-5 block text-white
+                        bg-blue-600 hover:bg-blue-700
+                        dark:bg-cyan-500 dark:hover:bg-cyan-600">
+                            + Create Product
+                        </button>
+                    </a>        
                 </div>
- 
+
             </div>
 
-            <!-- 🔍 Search + Create -->
+            <!-- 🔍 Search -->
             <div class="flex justify-between gap-4 flex-wrap">
 
-                <!-- Search -->
                 <form method="GET" action="{{ route('products.index') }}"
                     class="mb-8 flex flex-wrap gap-4 items-end 
-                    bg-white/10 backdrop-blur-xl border border-white/20 
-                    p-5 rounded-xl shadow-md w-full md:w-[80%]">
 
+                    bg-white border border-gray-200 shadow-md
+                    dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 
+                    p-5 rounded-xl w-full md:w-[80%]">
+
+                    <!-- Name -->
                     <div>
-                        <label class="text-sm text-white/70">Product Name</label>
+                        <label class="text-sm text-gray-600 dark:text-white/70">Product Name</label>
                         <input type="text" name="search" value="{{ request('search') }}"
-                            class="border border-white/20 bg-white/10 text-white p-2 rounded-lg w-44">
+                            class="border p-2 rounded-lg w-44 
+
+                            bg-white border-gray-300 text-gray-900
+                            dark:bg-white/10 dark:border-white/20 dark:text-white">
                     </div>
 
+                    <!-- Category -->
                     <div>
-                        <label class="text-sm text-white/70">Category</label>
+                        <label class="text-sm text-gray-600 dark:text-white/70">Category</label>
                         <select name="category"
-                            class="border border-white/20 bg-white/10 text-white p-2 rounded-lg w-44">
+                            class="border p-2 rounded-lg w-44 
+
+                            bg-white border-gray-300 text-gray-900
+                            dark:bg-white/10 dark:border-white/20 dark:text-white">
                             <option value="">All</option>
                             <option value="electronics" {{ request('category') == 'electronics' ? 'selected' : '' }}>Electronics</option>
                             <option value="fashion" {{ request('category') == 'fashion' ? 'selected' : '' }}>Fashion</option>
@@ -85,26 +98,36 @@
                         </select>
                     </div>
 
+                    <!-- Price -->
                     <div>
-                        <label class="text-sm text-white/70">Max Price</label>
+                        <label class="text-sm text-gray-600 dark:text-white/70">Max Price</label>
                         <input type="number" name="price" value="{{ request('price') }}"
-                            class="border border-white/20 bg-white/10 text-white p-2 rounded-lg w-32">
+                            class="border p-2 rounded-lg w-32 
+
+                            bg-white border-gray-300 text-gray-900
+                            dark:bg-white/10 dark:border-white/20 dark:text-white">
                     </div>
 
+                    <!-- Buttons -->
                     <div class="flex gap-2">
                         <button type="submit"
-                            class="px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg">
+                            class="px-4 py-2 rounded-lg text-white
+
+                            bg-blue-600 hover:bg-blue-700
+                            dark:bg-cyan-500 dark:hover:bg-cyan-600">
                             Search
                         </button>
 
                         <a href="{{ route('products.index') }}"
-                            class="px-4 py-2 border border-white/20 rounded-lg hover:bg-white/10">
+                            class="px-4 py-2 rounded-lg 
+
+                            border border-gray-300 hover:bg-gray-100
+                            dark:border-white/20 dark:hover:bg-white/10">
                             Reset
                         </a>
                     </div>
+
                 </form>
-
-
 
             </div>
 
@@ -114,8 +137,10 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 
                     @foreach($products as $product)
-                        <div class="bg-white/10 backdrop-blur-xl border border-white/20 
-                                    rounded-xl shadow-lg hover:scale-105 transition p-3">
+                        <div class="rounded-xl p-3 transition
+
+                        bg-white border border-gray-200 shadow hover:scale-105
+                        dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-lg">
 
                             <x-product-card :product="$product" />
 
@@ -125,7 +150,8 @@
                 </div>
 
             @else
-                <div class="text-center text-white/60 mt-10">
+                <div class="text-center mt-10 
+                text-gray-500 dark:text-white/60">
                     No products found
                 </div>
             @endif

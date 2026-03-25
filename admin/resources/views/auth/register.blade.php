@@ -1,7 +1,5 @@
-<!-- resources/views/auth/register.blade.php -->
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark"> <!-- remove "dark" for white theme -->
 <head>
     <meta charset="UTF-8">
     <title>Register</title>
@@ -9,42 +7,45 @@
 </head>
 
 <body class="min-h-screen flex items-center justify-center 
-bg-gradient-to-br from-[#0f2027] via-[#203a43] to-[#2c5364]">
+bg-white text-gray-900
+dark:bg-gradient-to-br dark:from-[#0f2027] dark:via-[#203a43] dark:to-[#2c5364]">
 
-    <!-- Glow Background -->
-    <div class="absolute w-[500px] h-[500px] bg-cyan-400 opacity-20 blur-3xl rounded-full top-10 left-10"></div>
-    <div class="absolute w-[500px] h-[500px] bg-blue-500 opacity-20 blur-3xl rounded-full bottom-10 right-10"></div>
+    <!-- Glow Background (only dark mode) -->
+    <div class="hidden dark:block absolute w-[500px] h-[500px] bg-cyan-400 opacity-20 blur-3xl rounded-full top-10 left-10"></div>
+    <div class="hidden dark:block absolute w-[500px] h-[500px] bg-blue-500 opacity-20 blur-3xl rounded-full bottom-10 right-10"></div>
 
-    <!-- Glass Card -->
+    <!-- Card -->
     <div class="relative w-full max-w-sm p-8 rounded-2xl 
-    bg-white/10 backdrop-blur-xl border border-white/20 
-    shadow-[0_10px_40px_rgba(0,0,0,0.6)] text-white">
 
-        <!-- Icon (SAME) -->
+    bg-white border border-gray-200 shadow-lg text-gray-900
+    dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 
+    dark:shadow-[0_10px_40px_rgba(0,0,0,0.6)] dark:text-white">
+
+        <!-- Icon -->
         <div class="flex justify-center mb-4">
-            <div class="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center">
+            <div class="w-10 h-10 rounded-full border border-gray-300 dark:border-white/30 flex items-center justify-center">
                 🔑
             </div>
         </div>
 
-        <!-- Title (SAME STYLE) -->
+        <!-- Title -->
         <h2 class="text-2xl font-semibold text-center mb-1">
             Register
         </h2>
 
-        <!-- Description (SAME STYLE) -->
-        <p class="text-center text-sm text-white/70 mb-6">
+        <!-- Description -->
+        <p class="text-center text-sm text-gray-600 dark:text-white/70 mb-6">
             Please enter your details to create an account.
         </p>
 
-        <!-- Session Status (SAME POSITION) -->
+        <!-- Session Status -->
         @if (session('status'))
-            <div class="mb-4 text-green-400 text-sm text-center">
+            <div class="mb-4 text-green-500 text-sm text-center">
                 {{ session('status') }}
             </div>
         @endif
 
-        <!-- FORM (SAME STRUCTURE, ONLY MORE INPUTS) -->
+        <!-- Form -->
         <form method="POST" action="{{ route('register') }}" class="space-y-4">
             @csrf
 
@@ -53,9 +54,13 @@ bg-gradient-to-br from-[#0f2027] via-[#203a43] to-[#2c5364]">
                 <input type="text" name="name" value="{{ old('name') }}"
                     placeholder="Name"
                     class="w-full px-4 py-2 rounded-lg 
-                    bg-white/10 border border-white/20 
-                    placeholder-white/60 text-white 
-                    focus:outline-none focus:ring-2 focus:ring-cyan-400">
+
+                    bg-white border border-gray-300 placeholder-gray-500 text-gray-900
+                    focus:outline-none focus:ring-2 focus:ring-blue-500
+
+                    dark:bg-white/10 dark:border-white/20 
+                    dark:placeholder-white/60 dark:text-white 
+                    dark:focus:ring-cyan-400">
             </div>
 
             <!-- Email -->
@@ -63,9 +68,13 @@ bg-gradient-to-br from-[#0f2027] via-[#203a43] to-[#2c5364]">
                 <input type="email" name="email" value="{{ old('email') }}"
                     placeholder="Email"
                     class="w-full px-4 py-2 rounded-lg 
-                    bg-white/10 border border-white/20 
-                    placeholder-white/60 text-white 
-                    focus:outline-none focus:ring-2 focus:ring-cyan-400">
+
+                    bg-white border border-gray-300 placeholder-gray-500 text-gray-900
+                    focus:outline-none focus:ring-2 focus:ring-blue-500
+
+                    dark:bg-white/10 dark:border-white/20 
+                    dark:placeholder-white/60 dark:text-white 
+                    dark:focus:ring-cyan-400">
             </div>
 
             <!-- Password -->
@@ -73,9 +82,13 @@ bg-gradient-to-br from-[#0f2027] via-[#203a43] to-[#2c5364]">
                 <input type="password" name="password"
                     placeholder="Password"
                     class="w-full px-4 py-2 rounded-lg 
-                    bg-white/10 border border-white/20 
-                    placeholder-white/60 text-white 
-                    focus:outline-none focus:ring-2 focus:ring-cyan-400">
+
+                    bg-white border border-gray-300 placeholder-gray-500 text-gray-900
+                    focus:outline-none focus:ring-2 focus:ring-blue-500
+
+                    dark:bg-white/10 dark:border-white/20 
+                    dark:placeholder-white/60 dark:text-white 
+                    dark:focus:ring-cyan-400">
             </div>
 
             <!-- Confirm Password -->
@@ -83,25 +96,31 @@ bg-gradient-to-br from-[#0f2027] via-[#203a43] to-[#2c5364]">
                 <input type="password" name="password_confirmation"
                     placeholder="Confirm Password"
                     class="w-full px-4 py-2 rounded-lg 
-                    bg-white/10 border border-white/20 
-                    placeholder-white/60 text-white 
-                    focus:outline-none focus:ring-2 focus:ring-cyan-400">
+
+                    bg-white border border-gray-300 placeholder-gray-500 text-gray-900
+                    focus:outline-none focus:ring-2 focus:ring-blue-500
+
+                    dark:bg-white/10 dark:border-white/20 
+                    dark:placeholder-white/60 dark:text-white 
+                    dark:focus:ring-cyan-400">
             </div>
 
-            <!-- Button (SAME) -->
+            <!-- Button -->
             <button type="submit"
-                class="w-full py-2 rounded-lg 
-                bg-cyan-500 hover:bg-cyan-600 
-                transition duration-300 font-semibold shadow-md">
+                class="w-full py-2 rounded-lg font-semibold transition duration-300 shadow-md
+
+                bg-blue-600 hover:bg-blue-700 text-white
+
+                dark:bg-cyan-500 dark:hover:bg-cyan-600">
                 Register
             </button>
 
         </form>
 
-        <!-- Footer (SAME STYLE) -->
-        <p class="text-center text-sm text-white/60 mt-6">
+        <!-- Footer -->
+        <p class="text-center text-sm text-gray-600 dark:text-white/60 mt-6">
             Already have an account?
-            <a href="{{ route('login') }}" class="text-cyan-400 hover:underline">
+            <a href="{{ route('login') }}" class="text-blue-600 hover:underline dark:text-cyan-400">
                 Sign In
             </a>
         </p>
@@ -109,4 +128,4 @@ bg-gradient-to-br from-[#0f2027] via-[#203a43] to-[#2c5364]">
     </div>
 
 </body>
-</html>
+</html> 
