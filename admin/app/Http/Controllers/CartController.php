@@ -3,37 +3,56 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Cart;
+use App\Models\Product;
 
 class CartController extends Controller
 {
+    //  View Cart
     public function index()
     {
-        $cart = session()->get('cart', []);
-        return view('cart.index', compact('cart'));
+        $cartItems = Cart::with('product')
+            ->where('user_id', auth()->id())
+            ->get();
+
+        return view('cart.index', compact('cartItems'));
     }
 
-    public function add($productId)
+    //  Add to Cart
+    public function add(Product $product)
     {
-        $cart = session()->get('cart', []);
-        $cart[$productId] = ($cart[$productId] ?? 0) + 1;
-        session()->put('cart', $cart);
-        return redirect()->back()->with('success', 'Product added to cart!');
-    }
+        $cart = Cart::where('user_id', auth()->id())
+            ->where('product_id', $product->id)
+            ->first();
 
-    public function remove($productId)
-    {
-        $cart = session()->get('cart', []);
-        if (isset($cart[$productId])) {
-            unset($cart[$productId]);
-            session()->put('cart', $cart);
-            return redirect()->back()->with('success', 'Product removed from cart!');
+        if ($cart) {
+            $cart->increment('quantity');
+        } else {
+            Cart::create([
+                'user_id' => auth()->id(),
+                'product_id' => $product->id,
+                'quantity' => 1
+            ]);
         }
-        return redirect()->back()->with('error', 'Product not found in cart!');
+
+        return back()->with('success', 'Product added to cart!');
     }
 
+    //  Remove from Cart
+    public function remove(Product $product)
+    {
+        Cart::where('user_id', auth()->id())
+            ->where('product_id', $product->id)
+            ->delete();
+
+        return back()->with('success', 'Product removed from cart!');
+    }
+
+    //  Clear Cart
     public function clear()
     {
-        session()->forget('cart');
-        return redirect()->back()->with('success', 'Cart cleared!');
+        Cart::where('user_id', auth()->id())->delete();
+
+        return back()->with('success', 'Cart cleared!');
     }
 }
