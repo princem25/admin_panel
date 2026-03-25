@@ -21,46 +21,46 @@ class ProductController extends Controller
         $this->productService = $productService;
     }
 
-   public function index(Request $request)
-{
-    $greeting = Greeting::greet('Product Section');
+    public function index(Request $request)
+    {
+        $greeting = Greeting::greet('Product Section');
 
-    $search   = $request->query('search');
-    $category = $request->query('category');
-    $price    = $request->query('price');
+        $search = $request->query('search');
+        $category = $request->query('category');
+        $price = $request->query('price');
 
-    // Decide products
-    if (!$search && !$category && !$price) {
-        $products = Cache::remember('products_list', 60, function () {
-            return $this->productService->all();
-        });
-    } else {
-        $products = Product::where(function ($query) use ($search, $category, $price) {
+        // Decide products
+        if (!$search && !$category && !$price) {
+            $products = Cache::remember('products_list', 60, function () {
+                return $this->productService->all();
+            });
+        } else {
+            $products = Product::where(function ($query) use ($search, $category, $price) {
 
-            if (!empty($search)) {
-                $query->orWhere('name', 'like', '%' . $search . '%');
-            }
+                if (!empty($search)) {
+                    $query->orWhere('name', 'like', '%' . $search . '%');
+                }
 
-            if (!empty($category)) {
-                $query->orWhere('category', $category);
-            }
+                if (!empty($category)) {
+                    $query->orWhere('category', $category);
+                }
 
-            if (!empty($price)) {
-                $query->orWhere('price', '<=', $price);
-            }
+                if (!empty($price)) {
+                    $query->orWhere('price', '<=', $price);
+                }
 
-        })->latest()->get();
+            })->latest()->get();
+        }
+
+        // ✅ ALWAYS define
+        $total_products = $products->count();
+
+        return view('product.index', compact(
+            'products',
+            'greeting',
+            'total_products'
+        ));
     }
-
-    // ✅ ALWAYS define
-    $total_products = $products->count();
-
-    return view('product.index', compact(
-        'products',
-        'greeting',
-        'total_products'
-    ));
-}
 
     public function create()
     {
@@ -162,7 +162,7 @@ class ProductController extends Controller
 
     public function download(Product $product)
     {
-        
+
         $path = public_path('images/' . $product->image);
 
         if (!File::exists($path)) {
@@ -170,5 +170,31 @@ class ProductController extends Controller
         }
 
         return response()->download($path);
+    }
+    
+    //------------------USER SIDE------------------//
+    public function userProducts(Request $request)
+    {
+        $search = $request->query('search');
+        $category = $request->query('category');
+        $price = $request->query('price');
+
+        $query = Product::query();
+
+        if ($search) {
+            $query->where('name', 'like', "%$search%");
+        }
+
+        if ($category) {
+            $query->where('category', $category);
+        }
+
+        if ($price) {
+            $query->where('price', '<=', $price);
+        }
+
+        $products = $query->latest()->get();
+
+        return view('user.products', compact('products'));
     }
 }
