@@ -1,13 +1,15 @@
 <!-- form layout used -->
 @extends('layouts.form')
-
 @section('form')
 
-<h2 class="text-center mb-5 text-xl font-semibold">Edit Product</h2>
+<h2 class="text-center mb-6 text-2xl font-semibold">
+    Edit Product
+</h2>
 
-{{-- 🔴 Global Errors --}}
+{{-- 🔴 Errors --}}
 @if ($errors->any())
-    <div class="max-w-md mx-auto mb-4 p-3 bg-red-100 text-red-700 rounded">
+    <div class="mb-4 p-3 rounded-xl 
+    bg-red-500/20 text-red-200 border border-red-400/30">
         <ul>
             @foreach ($errors->all() as $error)
                 <li>• {{ $error }}</li>
@@ -19,76 +21,62 @@
 <form method="POST" 
       action="{{ route('products.update', $product->id) }}" 
       enctype="multipart/form-data"
-      class="max-w-md mx-auto px-12 py-6 bg-white rounded-lg shadow">
+      class="space-y-4">
 
     @csrf
     @method('PUT')
 
     {{-- Name --}}
-    <label class="block">Name</label>
-    <input type="text" name="name" value="{{ old('name', $product->name) }}"
-        class="w-full p-2 my-2 mb-1 border rounded focus:outline-none focus:ring-2 
-        @error('name') border-red-500 @enderror focus:ring-black">
-
-    @error('name')
-        <p class="text-red-500 text-sm mb-2">{{ $message }}</p>
-    @enderror
-
+    <div>
+        <label class="text-sm text-white/70">Name</label>
+        <input type="text" name="name" value="{{ old('name', $product->name) }}"
+            class="w-full p-2 mt-1 rounded-lg 
+            bg-white/10 border border-white/20 text-white 
+            focus:outline-none focus:ring-2 focus:ring-cyan-400">
+    </div>
 
     {{-- Price --}}
-    <label class="block">Price</label>
-    <input type="number" name="price" value="{{ old('price', $product->price) }}"
-        class="w-full p-2 my-2 mb-1 border rounded focus:outline-none focus:ring-2 
-        @error('price') border-red-500 @enderror focus:ring-black">
-
-    @error('price')
-        <p class="text-red-500 text-sm mb-2">{{ $message }}</p>
-    @enderror
-
+    <div>
+        <label class="text-sm text-white/70">Price</label>
+        <input type="number" name="price" value="{{ old('price', $product->price) }}"
+            class="w-full p-2 mt-1 rounded-lg 
+            bg-white/10 border border-white/20 text-white 
+            focus:outline-none focus:ring-2 focus:ring-cyan-400">
+    </div>
 
     {{-- Description --}}
-    <label class="block">Description</label>
-    <textarea name="description" rows="2"
-        oninput="this.style.height='auto'; this.style.height=this.scrollHeight+'px';"
-        class="w-full p-2 my-2 mb-1 border rounded resize-none overflow-hidden focus:outline-none focus:ring-2 
-        @error('description') border-red-500 @enderror focus:ring-black">{{ old('description', $product->description) }}</textarea>
+    <div>
+        <label class="text-sm text-white/70">Description</label>
+        <textarea name="description"
+            class="w-full p-2 mt-1 rounded-lg 
+            bg-white/10 border border-white/20 text-white">{{ old('description', $product->description) }}</textarea>
+    </div>
 
-    @error('description')
-        <p class="text-red-500 text-sm mb-2">{{ $message }}</p>
-    @enderror
-
-
-    {{-- Current Image --}}
+    {{-- Image --}}
     @if($product->image)
-        <div class="mb-4">
-            <p class="text-sm text-gray-600">Current Image:</p>
+        <div>
+            <p class="text-sm text-white/60">Current Image:</p>
             <img src="{{ asset('images/'.$product->image) }}" 
-                 class="w-32 h-32 object-cover rounded mt-2">
+                 class="w-32 h-32 object-cover rounded-lg mt-2 border border-white/20">
         </div>
     @endif
 
-
-    {{-- Upload New Image --}}
-    <label class="block">Change Image</label>
-    <input type="file" name="file"
-        class="w-full p-2 my-2 mb-1 border rounded 
-        @error('file') border-red-500 @enderror">
-
-    @error('file')
-        <p class="text-red-500 text-sm mb-2">{{ $message }}</p>
-    @enderror
-
+    <div>
+        <label class="text-sm text-white/70">Change Image</label>
+        <input type="file" name="file"
+            class="w-full mt-1 text-sm text-white file:bg-cyan-500 file:text-white file:px-3 file:py-1 file:rounded">
+    </div>
 
     {{-- Buttons --}}
-    <div class="flex justify-between items-center mt-3">
+    <div class="flex justify-between items-center mt-4">
 
         <a href="{{ route('products.index') }}" 
-           class="text-gray-600 hover:underline">
+           class="text-white/70 hover:text-white">
             ← Back
         </a>
 
         <button type="submit"
-            class="px-4 py-2 bg-black text-white rounded hover:bg-gray-800">
+            class="px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg">
             Update
         </button>
 
