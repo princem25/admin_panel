@@ -1,8 +1,9 @@
 <?php
 
+use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\CartController;
-use App\Http\Controllers\productController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\User\ProductController as UserProductController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -11,11 +12,11 @@ Route::get('/', function () {
 
 // --------------------------------------AUTH BREEZ----------------------------------//
 
-//● Named routes 
-// ● Route groups 
-// ● Prefix groups 
-// ● Middleware groups 
-// ● Fallback route 
+// ● Named routes
+// ● Route groups
+// ● Prefix groups
+// ● Middleware groups
+// ● Fallback route
 
 Route::get('/admin/dashboard', function () {
     return view('admin.dashboard');
@@ -31,15 +32,15 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';
 
 Route::prefix('admin')->middleware(['role:admin', 'throttle:100,1'])->group(function () {
-    Route::resource('products', productController::class);
+    Route::resource('products', AdminProductController::class);
 });
 
-Route::get('/products/{product}/download', [productController::class, 'download']);
+Route::get('/products/{product}/download', [AdminProductController::class, 'download'])->name('products.download');
 
-//------------------------------CART ROUTES------------------------------//
+// ------------------------------CART ROUTES------------------------------//
 
 Route::prefix('user')->middleware(['role:user', 'auth'])->group(function () {
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
@@ -49,10 +50,9 @@ Route::prefix('user')->middleware(['role:user', 'auth'])->group(function () {
     Route::patch('/cart/increase/{id}', [CartController::class, 'increase'])->name('cart.increase');
     Route::patch('/cart/decrease/{id}', [CartController::class, 'decrease'])->name('cart.decrease');
 
-    //for all products listing
-    Route::get('/products', [productController::class, 'userProducts'])->name('user.products');
+    // for all products listing
+    Route::get('/products', [UserProductController::class, 'index'])->name('user.products');
 });
-
 
 Route::fallback(function () {
     return view('404');
