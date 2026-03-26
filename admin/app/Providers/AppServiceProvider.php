@@ -6,6 +6,7 @@ use App\Models\Cart;
 use App\Services\greetingService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -39,6 +40,17 @@ class AppServiceProvider extends ServiceProvider
             }
 
             $view->with('cartCount', $count);
+        });
+
+        View::composer('*', function ($view) {
+
+            $categorySummary = DB::table('products')
+                ->join('categories', 'products.category_id', '=', 'categories.id')
+                ->select('categories.name', DB::raw('count(products.id) as total'))
+                ->groupBy('categories.name')
+                ->get();
+
+            $view->with('categorySummary', $categorySummary);
         });
 
         Blade::directive('currency', function ($expression) {

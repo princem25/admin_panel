@@ -4,9 +4,9 @@
 
         <div
             class="w-full max-w-5xl 
-            bg-white dark:bg-white/10 
-            shadow-lg rounded-xl p-6 
-            border border-gray-200 dark:border-white/20">
+                bg-white dark:bg-white/10 
+                shadow-lg rounded-xl p-6 
+                border border-gray-200 dark:border-white/20">
 
             <h2 class="text-2xl font-bold mb-6 text-center 
                 text-gray-800 dark:text-white">
@@ -42,11 +42,20 @@
 
                                 <tr
                                     class="text-center border-t 
-                                    border-gray-200 dark:border-white/10 
-                                    text-gray-800 dark:text-white">
+                                        border-gray-200 dark:border-white/10 
+                                        text-gray-800 dark:text-white">
 
-                                    <td class="p-3">{{ $item->product->name }}</td>
-                                    <td class="p-3">₹{{ $item->product->price }}</td>
+                                    <!-- Product -->
+                                    <td class="p-3">
+                                        {{ $item->product->name }}
+                                    </td>
+
+                                    <!-- Price -->
+                                    <td class="p-3">
+                                        ₹{{ $item->product->price }}
+                                    </td>
+
+                                    <!-- Quantity -->
                                     <td class="p-3">
                                         <div class="flex items-center justify-center gap-2">
 
@@ -55,22 +64,30 @@
                                                 method="POST">
                                                 @csrf
                                                 @method('PATCH')
+
                                                 <button
-                                                    class="px-2 py-1 bg-gray-300 dark:bg-white/20 rounded hover:bg-gray-400">
+                                                    class="px-2 py-1 rounded 
+                                                        bg-gray-300 hover:bg-gray-400 
+                                                        dark:bg-white/20">
                                                     -
                                                 </button>
                                             </form>
 
                                             {{-- Quantity --}}
-                                            <span class="px-3">{{ $item->quantity }}</span>
+                                            <span class="px-3">
+                                                {{ $item->quantity }}
+                                            </span>
 
                                             {{-- Increase --}}
                                             <form action="{{ route('cart.increase', $item->product_id) }}"
                                                 method="POST">
                                                 @csrf
                                                 @method('PATCH')
+
                                                 <button
-                                                    class="px-2 py-1 bg-gray-300 dark:bg-white/20 rounded hover:bg-gray-400">
+                                                    class="px-2 py-1 rounded 
+                                                        bg-gray-300 hover:bg-gray-400 
+                                                        dark:bg-white/20">
                                                     +
                                                 </button>
                                             </form>
@@ -78,25 +95,29 @@
                                         </div>
                                     </td>
 
+                                    <!-- Total -->
                                     <td
                                         class="p-3 font-semibold 
                                         text-green-600 dark:text-green-400">
                                         ₹{{ $total }}
                                     </td>
 
+                                    <!-- Remove -->
                                     <td class="p-3">
                                         <form action="{{ route('cart.remove', $item->product_id) }}" method="POST">
                                             @csrf
                                             @method('DELETE')
 
                                             <button
-                                                class="bg-red-500 hover:bg-red-600 
-                                                dark:bg-red-600 dark:hover:bg-red-700
-                                                text-white px-3 py-1 rounded transition">
+                                                class="px-3 py-1 rounded transition
+                                                    bg-red-500 hover:bg-red-600 
+                                                    dark:bg-red-600 dark:hover:bg-red-700
+                                                    text-white">
                                                 Remove
                                             </button>
                                         </form>
                                     </td>
+
                                 </tr>
                             @endforeach
 
@@ -122,18 +143,19 @@
                         @method('DELETE')
 
                         <button
-                            class="bg-yellow-500 hover:bg-yellow-600 
-                            dark:bg-yellow-600 dark:hover:bg-yellow-700
-                            text-white px-5 py-2 rounded transition">
+                            class="px-5 py-2 rounded transition
+                                bg-yellow-500 hover:bg-yellow-600 
+                                dark:bg-yellow-600 dark:hover:bg-yellow-700
+                                text-white">
                             Clear Cart
                         </button>
                     </form>
                 </div>
             @else
-                <p class="text-center 
-                    text-gray-500 dark:text-white/70">
+                <p class="text-center text-gray-500 dark:text-white/70">
                     Your cart is empty 😢
                 </p>
+
             @endif
 
         </div>
