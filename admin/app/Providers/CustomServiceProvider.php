@@ -12,9 +12,9 @@ class CustomServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-         $this->app->singleton(PriceCalculatorService::class, function () {
-        return new PriceCalculatorService();
-    });
+        $this->app->singleton(PriceCalculatorService::class, function () {
+            return new PriceCalculatorService;
+        });
     }
 
     /**
