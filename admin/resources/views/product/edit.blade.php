@@ -39,6 +39,31 @@
             dark:bg-white/10 dark:border-white/20 dark:text-white 
             dark:focus:ring-cyan-400">
     </div>
+ <!-- Category -->
+        <div>
+            <label class="text-sm text-gray-600 dark:text-white/70">Category</label>
+
+            <select name="category_id"
+                class="w-full p-2 mt-1 rounded-lg transition
+        
+        bg-white text-gray-900 border border-gray-300
+        focus:outline-none focus:ring-2 focus:ring-blue-500
+        
+        dark:bg-white/10 dark:text-white dark:border-white/20
+        dark:focus:ring-cyan-400">
+
+                <option value="" class="text-gray-500 dark:text-gray-300">
+                    Select Category
+                </option>
+
+                @foreach ($categories as $category)
+                    <option value="{{ $category->id }}" class="bg-white text-black dark:bg-gray-800 dark:text-white">
+                        {{ $category->name }}
+                    </option>
+                @endforeach
+
+            </select>
+        </div>
 
     {{-- Price --}}
     <div>

@@ -18,7 +18,7 @@
             text-gray-900 dark:text-white">
                 {{ $product->name }}
             </h3>
-
+ 
             <p class="text-sm line-clamp-2 
             text-gray-600 dark:text-white/60">
                 {{ $product->description }}
