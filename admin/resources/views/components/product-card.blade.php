@@ -7,7 +7,7 @@
     hover:shadow-md dark:hover:shadow-lg">
 
     {{-- Image --}}
-    <img src="{{ $product->image ? asset('images/' . $product->image) : 'https://via.placeholder.com/250' }}"
+    <img src="{{ $product->image ? asset('storage/images/' . $product->image) : 'https://via.placeholder.com/250' }}"
         class="w-full h-44 object-cover">
 
     {{-- Info --}}
@@ -53,7 +53,7 @@
             </form>
 
             <!-- Download -->
-            <a href="{{ url('products/' . $product->id . '/download') }}" 
+            <a href="{{ route('products.download', $product->id) }}" 
                class="flex-1 text-center py-1 rounded-md text-sm 
                bg-emerald-500 hover:bg-emerald-600 text-white transition">
                 ⬇

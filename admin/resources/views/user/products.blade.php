@@ -91,7 +91,7 @@
 
                                                                 bg-gray-100
                                                                 dark:bg-white/10">
-                                <img src="{{ $product->image ? asset('images/' . $product->image) : 'https://via.placeholder.com/150' }}"
+                                <img src="{{ $product->image ? asset('storage/images/' . $product->image) : 'https://via.placeholder.com/150' }}"
                                     alt="{{ $product->name }}"
                                     class="h-full object-contain transition duration-200 hover:scale-105">
                             </div>
@@ -107,7 +107,7 @@
                             <p
                                 class="text-sm 
                                                                 text-gray-600 dark:text-white/70">
-                                {{ $product->category }}
+                                {{ $product->category?->name ?? 'Uncategorized' }}
                             </p>
 
                             <!-- Price -->

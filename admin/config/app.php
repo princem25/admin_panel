@@ -1,5 +1,7 @@
 <?php
 
+use App\Facades\Greeting;
+
 return [
 
     /*
@@ -122,7 +124,7 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
-    
-    'Greeting' => App\Facades\Greeting::class,
+
+    'Greeting' => Greeting::class,
 
 ];

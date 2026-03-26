@@ -10,7 +10,7 @@
 </head>
 
 <body
-    class="min-h-screen bg-white text-gray-900dark:bg-gradient-to-br dark:from-[#0f2027] dark:via-[#203a43] 
+    class="min-h-screen bg-white text-gray-900 dark:bg-gradient-to-br dark:from-[#0f2027] dark:via-[#203a43] 
             dark:to-[#2c5364] dark:text-white overflow-x-hidden">
 
     <!-- 🌟 Glow Effects (only dark mode) -->
