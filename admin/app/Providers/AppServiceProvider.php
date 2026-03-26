@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Cart;
+use App\Models\Category;
 use App\Services\greetingService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
@@ -51,6 +52,13 @@ class AppServiceProvider extends ServiceProvider
                 ->get();
 
             $view->with('categorySummary', $categorySummary);
+        });
+
+        View::composer('*', function ($view) {
+
+            $categories = Category::all();
+
+            $view->with('categories', $categories);
         });
 
         Blade::directive('currency', function ($expression) {

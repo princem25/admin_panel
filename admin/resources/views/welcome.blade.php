@@ -37,7 +37,7 @@ dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20">
             <div class="space-x-4 flex items-center">
 
                 @auth
-                    <a href="#"
+                   <a href="{{ auth()->user()->role === 'admin' ? route('admin.dashboard') : route('dashboard') }}"
                         class="text-gray-600 hover:text-blue-600 dark:text-white/80 dark:hover:text-cyan-400 transition">
                         Dashboard
                     </a>

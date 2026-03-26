@@ -70,21 +70,32 @@
                     </div>
 
                     <!-- Category -->
+                    <!-- Category -->
                     <div>
-                        <label class="text-sm text-gray-600 dark:text-white/70">Category</label>
+                        <label class="text-sm text-gray-600 dark:text-white/70">
+                            Category
+                        </label>
+
                         <select name="category"
-                            class="border p-2 rounded-lg w-44 
-                            bg-white border-gray-300 text-gray-900
+                            c class="border p-2 rounded-lg w-44 bg-white border-gray-300 text-gray-900
                             dark:bg-white/10 dark:border-white/20 dark:text-white">
-                            <option value="">All</option>
-                            <option value="electronics" {{ request('category') == 'electronics' ? 'selected' : '' }}>
-                                Electronics</option>
-                            <option value="fashion" {{ request('category') == 'fashion' ? 'selected' : '' }}>Fashion
+
+                            <option value="" class="text-gray-500 dark:text-gray-300">
+                                All Categories
                             </option>
-                            <option value="books" {{ request('category') == 'books' ? 'selected' : '' }}>Books</option>
+
+                            @foreach ($categories as $category)
+                                <option value="{{ $category->id }}"
+                                    {{ request('category') == $category->id ? 'selected' : '' }}
+                                    class="bg-white text-black dark:bg-gray-800 dark:text-white">
+
+                                    {{ $category->name }}
+
+                                </option>
+                            @endforeach
+
                         </select>
                     </div>
-
                     <!-- Price -->
                     <div>
                         <label class="text-sm text-gray-600 dark:text-white/70">Max Price</label>

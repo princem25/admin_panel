@@ -22,49 +22,80 @@
                 🛍️ Browse Products
             </h2>
 
-            <!-- 🔍 Filter Form -->
-            <form method="GET" action="{{ route('user.products') }}"
-                class="mb-8 flex flex-wrap gap-3 p-4 rounded-xl shadow w-[65%]
+              <!-- 🔍 Filter Form -->
 
-                bg-white border border-gray-200
-                dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20">
+            <div class="flex justify-between gap-4 flex-wrap">
 
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search product..."
-                    class="px-3 py-2 rounded 
+                <form method="GET" action="{{ route('user.products') }}"
+                    class="mb-8 flex flex-wrap gap-4 items-end 
 
-                    bg-white border border-gray-300 text-gray-900 placeholder-gray-500
-                    dark:bg-white/20 dark:border-white/30 dark:text-white dark:placeholder-gray-300">
+                    bg-white border border-gray-200 shadow-md
+                    dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 
+                    p-5 rounded-xl w-full md:w-[80%]">
 
-                <input type="text" name="category" value="{{ request('category') }}" placeholder="Category"
-                    class="px-3 py-2 rounded 
+                    <!-- Name -->
+                    <div>
+                        <label class="text-sm text-gray-600 dark:text-white/70">Product Name</label>
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            class="border p-2 rounded-lg w-44 bg-white border-gray-300 text-gray-900
+                            dark:bg-white/10 dark:border-white/20 dark:text-white">
+                    </div>
+ 
+                    <!-- Category -->
+                    <div>
+                        <label class="text-sm text-gray-600 dark:text-white/70">
+                            Category
+                        </label>
 
-                    bg-white border border-gray-300 text-gray-900 placeholder-gray-500
-                    dark:bg-white/20 dark:border-white/30 dark:text-white dark:placeholder-gray-300">
+                        <select name="category"
+                            class="border p-2 rounded-lg w-44 bg-white border-gray-300 text-gray-900
+                            dark:bg-white/10 dark:border-white/20 dark:text-white">
 
-                <input type="number" name="price" value="{{ request('price') }}" placeholder="Max Price"
-                    class="px-3 py-2 rounded 
+                            <option value="" class="text-gray-500 dark:text-gray-300">
+                                All Categories
+                            </option>
 
-                    bg-white border border-gray-300 text-gray-900 placeholder-gray-500
-                    dark:bg-white/20 dark:border-white/30 dark:text-white dark:placeholder-gray-300">
+                            @foreach ($categories as $category)
+                                <option value="{{ $category->id }}"
+                                    {{ request('category') == $category->id ? 'selected' : '' }}
+                                    class="bg-white text-black dark:bg-gray-800 dark:text-white">
 
-                <button
-                    class="px-4 py-2 rounded-lg text-white
+                                    {{ $category->name }}
 
-                bg-blue-600 hover:bg-blue-700
-                dark:bg-cyan-500 dark:hover:bg-cyan-600">
-                    Filter
-                </button>
+                                </option>
+                            @endforeach
 
-                <a href="{{ route('user.products') }}"
-                    class="px-4 py-2 rounded-lg 
+                        </select>
+                    </div>
+                    <!-- Price -->
+                    <div>
+                        <label class="text-sm text-gray-600 dark:text-white/70">Max Price</label>
+                        <input type="number" name="price" value="{{ request('price') }}"
+                            class="border p-2 rounded-lg w-32 
+                            bg-white border-gray-300 text-gray-900
+                            dark:bg-white/10 dark:border-white/20 dark:text-white">
+                    </div>
 
-                    bg-gray-200 text-gray-700 hover:bg-gray-300
-                    dark:bg-gray-400/30 dark:text-white">
-                    Reset
-                </a>
+                    <!-- Buttons -->
+                    <div class="flex gap-2">
+                        <button type="submit"
+                            class="px-4 py-2 rounded-lg text-white
+                            bg-blue-600 hover:bg-blue-700
+                            dark:bg-cyan-500 dark:hover:bg-cyan-600">
+                            Search
+                        </button>
 
-            </form>
+                        <a href="{{ route('user.products') }}"
+                            class="px-4 py-2 rounded-lg 
+                            border border-gray-300 hover:bg-gray-100
+                            dark:border-white/20 dark:hover:bg-white/10">
+                            Reset
+                        </a>
+                    </div>
 
+                </form>
+
+            </div>
             <!-- Flash Message -->
             <x-flash-message />
 
