@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Facades\Greeting;
 use App\Http\Requests\formReq;
 use App\Models\Cart;
+use App\Models\Category;
 use App\Models\Product;
 use App\Services\ProductService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -39,17 +41,16 @@ class ProductController extends Controller
             $products = Product::where(function ($query) use ($search, $category, $price) {
 
                 if (!empty($search)) {
-                    $query->orWhere('name', 'like', '%' . $search . '%');
+                    $query->Where('name', 'like', '%' . $search . '%');
                 }
 
                 if (!empty($category)) {
-                    $query->orWhere('category', $category);
+                    $query->Where('category', $category);
                 }
 
                 if (!empty($price)) {
-                    $query->orWhere('price', '<=', $price);
+                    $query->Where('price', '<=', $price);
                 }
-
             })->latest()->get();
         }
 
@@ -65,7 +66,9 @@ class ProductController extends Controller
 
     public function create()
     {
-        return view('product.create');
+        $categories = Category::all(); // fetch all categories
+
+        return view('product.create', compact('categories'));
     }
 
     public function store(formReq $request)
@@ -89,7 +92,6 @@ class ProductController extends Controller
 
             return redirect()->route('products.index')
                 ->with('success', 'Product created!');
-
         } catch (\Exception $e) {
 
             Log::error('Product creation failed', ['error' => $e->getMessage()]);
@@ -105,7 +107,8 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        return view('product.edit', compact('product'));
+          $categories = Category::all();
+        return view('product.edit', compact('product','categories'));
     }
 
     public function update(formReq $request, Product $product)
@@ -136,7 +139,6 @@ class ProductController extends Controller
 
             return redirect()->route('products.index')
                 ->with('success', 'Updated!');
-
         } catch (\Exception $e) {
 
             Log::error('Product update failed', ['error' => $e->getMessage()]);
@@ -196,7 +198,7 @@ class ProductController extends Controller
 
         $products = $query->latest()->get();
 
-        $cartProductIds = Cart::where('user_id', auth()->id())
+        $cartProductIds = Cart::where('user_id', Auth::id())
             ->pluck('product_id')
             ->toArray();
 

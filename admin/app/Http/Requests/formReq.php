@@ -12,8 +12,10 @@ class formReq extends FormRequest
         return [
             'name' => ['required'],
             'price' => ['required', 'numeric'],
+             'category_id' => ['required', 'exists:categories,id'], 
             'description' => ['required', 'max:500'],
             'file' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:2048']
+           
         ];
     }
 }
