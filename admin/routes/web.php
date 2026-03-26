@@ -33,7 +33,7 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__ . '/auth.php';
 
-Route::prefix('admin')->middleware(['role:admin', 'throttle:10,1'])->group(function () {
+Route::prefix('admin')->middleware(['role:admin', 'throttle:100,1'])->group(function () {
     Route::resource('products', productController::class);
 });
 
@@ -41,18 +41,19 @@ Route::get('/products/{product}/download', [productController::class, 'download'
 
 //------------------------------CART ROUTES------------------------------//
 
-Route::prefix('user')->middleware(['role:user','auth'])->group(function () {
+Route::prefix('user')->middleware(['role:user', 'auth'])->group(function () {
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
     Route::delete('/cart/remove/{product}', [CartController::class, 'remove'])->name('cart.remove');
     Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+    Route::patch('/cart/increase/{id}', [CartController::class, 'increase'])->name('cart.increase');
+    Route::patch('/cart/decrease/{id}', [CartController::class, 'decrease'])->name('cart.decrease');
 
     //for all products listing
     Route::get('/products', [productController::class, 'userProducts'])->name('user.products');
-   
 });
 
- 
+
 Route::fallback(function () {
     return view('404');
 });
