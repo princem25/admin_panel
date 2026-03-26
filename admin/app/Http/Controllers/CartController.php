@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Cart;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
@@ -32,7 +31,7 @@ class CartController extends Controller
             Cart::create([
                 'user_id' => Auth::id(),
                 'product_id' => $product->id,
-                'quantity' => 1
+                'quantity' => 1,
             ]);
         }
 
@@ -57,35 +56,33 @@ class CartController extends Controller
         return back()->with('success', 'Cart cleared!');
     }
 
- 
+    public function increase($id)
+    {
+        $cart = Cart::where('product_id', $id)
+            ->where('user_id', Auth::id())
+            ->first();
 
-public function increase($id)
-{
-    $cart = Cart::where('product_id', $id)
-        ->where('user_id', Auth::id())
-        ->first();
-
-    if ($cart) {
-        $cart->increment('quantity');
-    }
-
-    return back();
-}
-
-public function decrease($id)
-{
-    $cart = Cart::where('product_id', $id)
-        ->where('user_id', Auth::id())
-        ->first();
-
-    if ($cart) {
-        if ($cart->quantity > 1) {
-            $cart->decrement('quantity');
-        } else {
-            $cart->delete(); // remove if 0
+        if ($cart) {
+            $cart->increment('quantity');
         }
+
+        return back();
     }
 
-    return back();
-}
+    public function decrease($id)
+    {
+        $cart = Cart::where('product_id', $id)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if ($cart) {
+            if ($cart->quantity > 1) {
+                $cart->decrement('quantity');
+            } else {
+                $cart->delete(); // remove if 0
+            }
+        }
+
+        return back();
+    }
 }
