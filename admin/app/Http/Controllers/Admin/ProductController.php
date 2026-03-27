@@ -9,6 +9,7 @@ use App\Http\Requests\UpdateProductRequest;
 use App\Models\Category;
 use App\Models\Product;
 use App\Services\ProductService;
+use Illuminate\Container\Attributes\Storage as AttributesStorage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -97,8 +98,8 @@ class ProductController extends Controller
 
             if ($request->hasFile('file')) {
                 // Delete old image if it exists
-                if ($product->image && Storage::disk('public')->exists('images/'.$product->image)) {
-                    Storage::disk('public')->delete('images/'.$product->image);
+                if ($product->image && Storage::disk('public')->exists('images/' . $product->image)) {
+                    Storage::disk('public')->delete('images/' . $product->image);
                 }
 
                 $path = $request->file('file')->store('images', 'public');
@@ -122,8 +123,8 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
-        if ($product->image && Storage::disk('public')->exists('images/'.$product->image)) {
-            Storage::disk('public')->delete('images/'.$product->image);
+        if ($product->image && Storage::disk('public')->exists('images/' . $product->image)) {
+            Storage::disk('public')->delete('images/' . $product->image);
         }
 
         $product->delete();
@@ -137,10 +138,10 @@ class ProductController extends Controller
 
     public function download(Product $product)
     {
-        if (! $product->image || ! Storage::disk('public')->exists('images/'.$product->image)) {
+        if (! $product->image || ! Storage::disk('public')->exists('images/' . $product->image)) {
             abort(404);
         }
 
-        return Storage::disk('public')->download('images/'.$product->image);
+        return Storage::disk('public')->download('images/' . $product->image);
     }
 }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\User\ProductController as UserProductController;
 use Illuminate\Support\Facades\Route;
@@ -52,6 +53,9 @@ Route::prefix('user')->middleware(['role:user', 'auth'])->group(function () {
 
     // for all products listing
     Route::get('/products', [UserProductController::class, 'index'])->name('user.products');
+
+    // Generate Invoice from Cart
+    Route::get('/cart/invoice', [InvoiceController::class, 'generate'])->name('cart.invoice');
 });
 
 Route::fallback(function () {

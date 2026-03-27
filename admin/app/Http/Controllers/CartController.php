@@ -4,18 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Cart;
 use App\Models\Product;
+use App\Services\CartService;
 use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
     //  View Cart
-    public function index()
+    public function index(CartService $cartService)
     {
-        $cartItems = Cart::with('product')
-            ->where('user_id', Auth::id())
-            ->get();
+        $summary = $cartService->getCartSummary(Auth::id());
+        $cartItems = $summary['items'];
+        $grandTotal = $summary['grandTotal'];
 
-        return view('cart.index', compact('cartItems'));
+        return view('cart.index', compact('cartItems', 'grandTotal'));
     }
 
     //  Add to Cart

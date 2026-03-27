@@ -32,14 +32,7 @@
                         </thead>
 
                         <tbody>
-                            @php $grandTotal = 0; @endphp
-
                             @foreach ($cartItems as $item)
-                                @php
-                                    $total = $item->product->price * $item->quantity;
-                                    $grandTotal += $total;
-                                @endphp
-
                                 <tr
                                     class="text-center border-t 
                                         border-gray-200 dark:border-white/10 
@@ -99,7 +92,7 @@
                                     <td
                                         class="p-3 font-semibold 
                                         text-green-600 dark:text-green-400">
-                                        ₹{{ $total }}
+                                        ₹{{ $item->total_price }}
                                     </td>
 
                                     <!-- Remove -->
@@ -136,8 +129,8 @@
                     </div>
                 </div>
 
-                {{-- CLEAR CART --}}
-                <div class="flex justify-end mt-4">
+                {{-- ACTIONS: CLEAR CART & INVOICE --}}
+                <div class="flex justify-end mt-4 space-x-4">
                     <form action="{{ route('cart.clear') }}" method="POST">
                         @csrf
                         @method('DELETE')
@@ -150,6 +143,14 @@
                             Clear Cart
                         </button>
                     </form>
+
+                    <a href="{{ route('cart.invoice') }}"
+                        class="px-5 py-2 rounded transition font-semibold
+                            bg-blue-600 hover:bg-blue-700 
+                            dark:bg-cyan-500 dark:hover:bg-cyan-600
+                            text-white text-center">
+                        📄 Generate Invoice
+                    </a>
                 </div>
             @else
                 <p class="text-center text-gray-500 dark:text-white/70">
