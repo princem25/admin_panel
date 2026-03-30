@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
+use App\Listeners\SyncCartOnLogin;
+use App\Listeners\SyncCartOnLogout;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -34,14 +39,14 @@ class AppServiceProvider extends ServiceProvider
         });
 
         View::composer('*', function ($view) {
-            if (auth()->check()) {
-                $count = Cart::where('user_id', auth()->id())->sum('quantity');
-            } else {
-                $count = 0;
-            }
+            $cart = session()->get('cart', []);
+            $count = collect($cart)->count('product_id');
 
             $view->with('cartCount', $count);
         });
+
+        Event::listen(Login::class, SyncCartOnLogin::class);
+        Event::listen(Logout::class, SyncCartOnLogout::class);
 
         View::composer('*', function ($view) {
 

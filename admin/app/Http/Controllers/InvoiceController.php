@@ -13,8 +13,7 @@ class InvoiceController extends Controller
      */
     public function generate(CartService $cartService)
     {
-        $userId = Auth::id();
-        $summary = $cartService->getCartSummary($userId);
+        $summary = $cartService->getCartSummary();
 
         $cartItems = $summary['items'];
         $grandTotal = $summary['grandTotal'];

@@ -2,88 +2,74 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Cart;
 use App\Models\Product;
 use App\Services\CartService;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
-    //  View Cart
-    public function index(CartService $cartService)
+    protected $cartService;
+
+    public function __construct(CartService $cartService)
     {
-        $summary = $cartService->getCartSummary(Auth::id());
+        $this->cartService = $cartService;
+    }
+
+    // View Cart
+    public function index()
+    {
+        $summary = $this->cartService->getCartSummary();
         $cartItems = $summary['items'];
         $grandTotal = $summary['grandTotal'];
+        $sessiondata = session()->get('cart');
 
-        return view('cart.index', compact('cartItems', 'grandTotal'));
+        return view('cart.index', compact('cartItems', 'grandTotal', 'sessiondata'));
     }
 
-    //  Add to Cart
+    // Add to Cart
     public function add(Product $product)
     {
-        $cart = Cart::where('user_id', Auth::id())
-            ->where('product_id', $product->id)
-            ->first();
-
-        if ($cart) {
-            $cart->increment('quantity');
-        } else {
-            Cart::create([
-                'user_id' => Auth::id(),
-                'product_id' => $product->id,
-                'quantity' => 1,
-            ]);
+        try {
+            $this->cartService->addToCart($product->id, 1);
+            return back()->with('success', 'Product added to cart!');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Could not add product to cart.');
         }
-
-        return back()->with('success', 'Product added to cart!');
     }
 
-    //  Remove from Cart
+    // Remove from Cart
     public function remove(Product $product)
     {
-        Cart::where('user_id', Auth::id())
-            ->where('product_id', $product->id)
-            ->delete();
-
-        return back()->with('success', 'Product removed from cart!');
+        try {
+            $this->cartService->remove($product->id);
+            return back()->with('success', 'Product removed from cart!');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Could not remove product from cart.');
+        }
     }
 
-    //  Clear Cart
+    // Clear Cart
     public function clear()
     {
-        Cart::where('user_id', Auth::id())->delete();
-
-        return back()->with('success', 'Cart cleared!');
+        try {
+            $this->cartService->clearCart();
+            return back()->with('success', 'Cart cleared!');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Could not clear cart.');
+        }
     }
 
+    // Increase Quantity
     public function increase($id)
     {
-        $cart = Cart::where('product_id', $id)
-            ->where('user_id', Auth::id())
-            ->first();
-
-        if ($cart) {
-            $cart->increment('quantity');
-        }
-
+        $this->cartService->increase($id);
         return back();
     }
 
+    // Decrease Quantity
     public function decrease($id)
     {
-        $cart = Cart::where('product_id', $id)
-            ->where('user_id', Auth::id())
-            ->first();
-
-        if ($cart) {
-            if ($cart->quantity > 1) {
-                $cart->decrement('quantity');
-            } else {
-                $cart->delete(); // remove if 0
-            }
-        }
-
+        $this->cartService->decrease($id);
         return back();
     }
 }
