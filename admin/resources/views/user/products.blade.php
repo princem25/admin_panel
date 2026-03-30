@@ -166,7 +166,7 @@
                                     </form>
                                 @endif
 
-                                <a href="#"
+                                <a href="{{ route('user.products.show', $product->id) }}"
                                     class="text-sm 
                                    text-gray-500 hover:text-gray-700
                                    dark:text-white/60 dark:hover:text-cyan-400">

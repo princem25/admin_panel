@@ -53,6 +53,7 @@ Route::prefix('user')->middleware(['role:user', 'auth'])->group(function () {
 
     // for all products listing
     Route::get('/products', [UserProductController::class, 'index'])->name('user.products');
+    Route::get('/products/{product}', [UserProductController::class, 'show'])->name('user.products.show');
 
     // Generate Invoice from Cart
     Route::get('/cart/invoice', [InvoiceController::class, 'generate'])->name('cart.invoice');

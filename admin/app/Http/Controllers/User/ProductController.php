@@ -21,4 +21,14 @@ class ProductController extends Controller
 
         return view('user.products', compact('products', 'cartProductIds'));
     }
+
+    public function show(Product $product)
+    {
+        $product->load('category');
+
+        $cart = session()->get('cart', []);
+        $cartProductIds = collect($cart)->pluck('product_id')->toArray();
+
+        return view('user.show', compact('product', 'cartProductIds'));
+    }
 }
