@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
          $middleware->alias([
         'role' => roleMiddleware::class,
     ]);
+         $middleware->append(\App\Http\Middleware\RequestLoggingMiddleware::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
