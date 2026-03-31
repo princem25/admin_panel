@@ -61,6 +61,9 @@ Route::prefix('user')->middleware(['role:user', 'auth'])->group(function () {
     Route::get('/cart/invoice', [InvoiceController::class, 'generate'])->name('cart.invoice');
 });
 
+Route::get('/products/export', [AdminProductController::class, 'export']);
+
 Route::fallback(function () {
     return view('404');
 });
+

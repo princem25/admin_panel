@@ -18,9 +18,17 @@
         <div class="relative max-w-5xl mx-auto px-6 py-10">
 
             <!-- Header -->
-            <h1 class="text-3xl font-bold mb-8">
-                Hello, Admin 👋
-            </h1>
+            <div class="flex justify-between h-10 mb-8">
+                <h1 class="text-3xl font-bold mb-8">
+                    Hello, Admin 👋
+                </h1>
+
+                <a href="/products/export"
+                    class="inline-block px-5 py-2 bg-green-600 text-white font-medium rounded-lg shadow hover:bg-green-700 hover:shadow-md transition duration-200">
+                    Download CSV
+                </a>
+            </div>
+
 
             <!-- 🚀 Action Card -->
             <div
@@ -36,6 +44,7 @@
                     <p class="text-gray-600 dark:text-white/70 text-sm">
                         Create, edit and manage your products
                     </p>
+
                 </div>
 
                 <form action="{{ route('products.index') }}">
@@ -48,17 +57,14 @@
                     </button>
                 </form>
 
+
+
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
 
                 @foreach ($categorySummary as $item)
                     <div
-                        class="p-5 rounded-xl transition
-
-        bg-white border border-gray-200 shadow-sm
-        dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-md
-
-        hover:shadow-md dark:hover:shadow-lg">
+                        class="p-5 rounded-xl transition bg-white border border-gray-200 shadow-sm dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-md hover:shadow-md dark:hover:shadow-lg">
 
                         <!-- Icon -->
                         <div class="text-2xl mb-3">📦</div>
@@ -83,7 +89,8 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
 
                 {{-- System Log Viewer Card --}}
-                <div class="rounded-xl p-6 flex items-center justify-between transition shadow
+                <div
+                    class="rounded-xl p-6 flex items-center justify-between transition shadow
                             bg-white border border-gray-200 hover:scale-[1.01]
                             dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-lg">
                     <div>
@@ -91,13 +98,14 @@
                         <p class="text-gray-600 dark:text-white/70 text-sm">View recent application log entries</p>
                     </div>
                     <a href="{{ route('admin.logs') }}"
-                       class="px-4 py-2 rounded-lg transition shadow text-white bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-sm font-medium">
+                        class="px-4 py-2 rounded-lg transition shadow text-white bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-sm font-medium">
                         View Logs →
                     </a>
                 </div>
 
                 {{-- Company Info Card --}}
-                <div class="rounded-xl p-6 shadow
+                <div
+                    class="rounded-xl p-6 shadow
                             bg-white border border-gray-200
                             dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-lg">
                     <h2 class="text-lg font-semibold mb-4">Company Information</h2>
@@ -134,4 +142,3 @@
     </div>
 
 </x-app-layout>
-

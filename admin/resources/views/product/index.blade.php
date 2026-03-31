@@ -38,15 +38,6 @@
                         </p>
                     @endif
 
-                    <!-- Create -->
-                    <a href="{{ route('products.create') }}">
-                        <button
-                            class="px-5 py-2 rounded-lg shadow mt-5 block text-white
-                        bg-blue-600 hover:bg-blue-700
-                        dark:bg-cyan-500 dark:hover:bg-cyan-600">
-                            + Create Product
-                        </button>
-                    </a>
                 </div>
 
             </div>
@@ -56,10 +47,9 @@
 
                 <form method="GET" action="{{ route('products.index') }}"
                     class="mb-8 flex flex-wrap gap-4 items-end 
-
                     bg-white border border-gray-200 shadow-md
                     dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 
-                    p-5 rounded-xl w-full md:w-[80%]">
+                    p-5 rounded-xl w-full md:w-[80%] m-auto">
 
                     <!-- Name -->
                     <div>
@@ -76,8 +66,8 @@
                             Category
                         </label>
 
-                        <select name="category"
-                            c class="border p-2 rounded-lg w-44 bg-white border-gray-300 text-gray-900
+                        <select name="category" c
+                            class="border p-2 rounded-lg w-44 bg-white border-gray-300 text-gray-900
                             dark:bg-white/10 dark:border-white/20 dark:text-white">
 
                             <option value="" class="text-gray-500 dark:text-gray-300">
@@ -123,6 +113,23 @@
                     </div>
 
                 </form>
+                <div class="flex flex-row gap-3 absolute right-10 top-0">
+                    <a href="{{ route('products.create') }}">
+                        <button
+                            class="px-5 py-2 rounded-lg shadow mt-5 block text-white
+                            bg-blue-600 hover:bg-blue-700
+                            dark:bg-cyan-500 dark:hover:bg-cyan-600">
+                            + Create Product
+                        </button>
+                    </a>
+                     <a href="/products/export"
+                    class="inline-block px-5 h-10 mt-5 py-2 bg-green-600 text-white font-medium rounded-lg shadow hover:bg-green-700 hover:shadow-md transition duration-200">
+                    Download CSV
+                </a>
+                <!-- Create -->
+
+                </div>
+               
 
             </div>
 

@@ -236,4 +236,14 @@ class ProductController extends Controller
 
         return response()->json(['message' => 'Emergency log triggered. Check storage/logs/laravel.log.']);
     }
+
+     public function export()
+    {
+        $callback = $this->productService->exportCsv();
+
+        return response()->stream($callback, 200, [
+            "Content-Type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=products.csv",
+        ]);
+    }
 }
