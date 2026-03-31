@@ -57,7 +57,7 @@ Route::prefix('user')->middleware(['role:user', 'auth'])->group(function () {
     Route::get('/products', [UserProductController::class, 'index'])->name('user.products');
     Route::get('/products/{product}', [UserProductController::class, 'show'])->name('user.products.show');
 
-    // Generate Invoice from Cart
+    // Generate Invoice from Cart → direct PDF download
     Route::get('/cart/invoice', [InvoiceController::class, 'generate'])->name('cart.invoice');
 });
 

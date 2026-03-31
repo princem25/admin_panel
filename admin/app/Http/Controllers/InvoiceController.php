@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Services\CartService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class InvoiceController extends Controller
 {
     /**
-     * Generate an invoice based on the current user's cart contents.
+     * Generate and directly download an invoice PDF from the current user's cart.
      */
     public function generate(CartService $cartService)
     {
@@ -22,12 +23,18 @@ class InvoiceController extends Controller
             return redirect()->route('cart.index')->with('error', 'Cannot generate invoice for an empty cart.');
         }
 
-        // Return a fresh invoice layout view
-        return view('invoice.show', [
-            'cartItems' => $cartItems,
-            'grandTotal' => $grandTotal,
-            'user' => Auth::user(),
-            'invoiceNumber' => 'INV-' . strtoupper(uniqid())
-        ]);
+        $data = [
+            'cartItems'     => $cartItems,
+            'grandTotal'    => $grandTotal,
+            'user'          => Auth::user(),
+            'invoiceNumber' => 'INV-' . strtoupper(uniqid()),
+            'generatedAt'   => now()->format('d M Y'),
+        ];
+
+        $pdf = Pdf::loadView('invoice.pdf', $data)
+                  ->setPaper('A4', 'portrait');
+
+        return $pdf->download('invoice_' . now()->format('Ymd_His') . '.pdf');
     }
 }
+
