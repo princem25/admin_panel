@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\LogViewerController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\InvoiceController;
@@ -37,6 +38,7 @@ require __DIR__.'/auth.php';
 
 Route::prefix('admin')->middleware(['role:admin', 'throttle:100,1'])->group(function () {
     Route::resource('products', AdminProductController::class);
+    Route::get('/logs', [LogViewerController::class, 'index'])->name('admin.logs');
 });
 
 Route::get('/products/{product}/download', [AdminProductController::class, 'download'])->name('products.download');
