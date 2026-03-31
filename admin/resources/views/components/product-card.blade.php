@@ -34,14 +34,14 @@
         <div class="mt-4 flex gap-2">
 
             <!-- Edit -->
-            <a href="{{ route('products.edit', $product->id) }}" 
+            <a href="{{ route('products.edit', $product) }}" 
                class="flex-1 text-center py-1 rounded-md text-sm 
                bg-blue-600 hover:bg-blue-700 text-white transition">
                 Edit
             </a>
 
             <!-- Delete -->
-            <form action="{{ route('products.destroy', $product->id) }}" method="POST" class="flex-1">
+            <form action="{{ route('products.destroy', $product) }}" method="POST" class="flex-1">
                 @csrf
                 @method('DELETE')
 
@@ -53,7 +53,7 @@
             </form>
 
             <!-- Download -->
-            <a href="{{ route('products.download', $product->id) }}" 
+            <a href="{{ route('products.download', $product) }}" 
                class="flex-1 text-center py-1 rounded-md text-sm 
                bg-emerald-500 hover:bg-emerald-600 text-white transition">
                 ⬇

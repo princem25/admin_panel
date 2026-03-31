@@ -79,49 +79,52 @@
 
             </div>
 
-            <!-- 🏢 Company Info -->
-            <div
-                class="rounded-xl p-6 shadow mt-6
+            {{-- System Logs + Company Info Row --}}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
 
-            bg-white border border-gray-200
-            dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-lg">
-
-                <h2 class="text-lg font-semibold mb-4">
-                    Company Information
-                </h2>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                    <div class="p-3 rounded-lg 
-                    bg-gray-100 
-                    dark:bg-white/5">
-                        <p class="text-sm text-gray-500 dark:text-white/60">Name</p>
-                        <p class="font-medium">{{ config('company.name') }}</p>
+                {{-- System Log Viewer Card --}}
+                <div class="rounded-xl p-6 flex items-center justify-between transition shadow
+                            bg-white border border-gray-200 hover:scale-[1.01]
+                            dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-lg">
+                    <div>
+                        <h2 class="text-lg font-semibold">System Logs</h2>
+                        <p class="text-gray-600 dark:text-white/70 text-sm">View recent application log entries</p>
                     </div>
+                    <a href="{{ route('admin.logs') }}"
+                       class="px-4 py-2 rounded-lg transition shadow text-white bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-sm font-medium">
+                        View Logs →
+                    </a>
+                </div>
 
-                    <div class="p-3 rounded-lg 
-                    bg-gray-100 
-                    dark:bg-white/5">
-                        <p class="text-sm text-gray-500 dark:text-white/60">Email</p>
-                        <p class="font-medium">{{ config('company.email') }}</p>
+                {{-- Company Info Card --}}
+                <div class="rounded-xl p-6 shadow
+                            bg-white border border-gray-200
+                            dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-lg">
+                    <h2 class="text-lg font-semibold mb-4">Company Information</h2>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+                        <div class="p-3 rounded-lg bg-gray-100 dark:bg-white/5">
+                            <p class="text-xs text-gray-500 dark:text-white/60 mb-0.5">Name</p>
+                            <p class="font-medium">{{ config('company.name') }}</p>
+                        </div>
+
+                        <div class="p-3 rounded-lg bg-gray-100 dark:bg-white/5">
+                            <p class="text-xs text-gray-500 dark:text-white/60 mb-0.5">Email</p>
+                            <p class="font-medium">{{ config('company.email') }}</p>
+                        </div>
+
+                        <div class="p-3 rounded-lg bg-gray-100 dark:bg-white/5">
+                            <p class="text-xs text-gray-500 dark:text-white/60 mb-0.5">City</p>
+                            <p class="font-medium">{{ config('company.address.city') }}</p>
+                        </div>
+
+                        <div class="p-3 rounded-lg bg-gray-100 dark:bg-white/5">
+                            <p class="text-xs text-gray-500 dark:text-white/60 mb-0.5">Tax</p>
+                            <p class="font-medium text-green-600 dark:text-green-400">{{ config('company.tax') }}%</p>
+                        </div>
+
                     </div>
-
-                    <div class="p-3 rounded-lg 
-                    bg-gray-100 
-                    dark:bg-white/5">
-                        <p class="text-sm text-gray-500 dark:text-white/60">City</p>
-                        <p class="font-medium">{{ config('company.address.city') }}</p>
-                    </div>
-
-                    <div class="p-3 rounded-lg 
-                    bg-gray-100 
-                    dark:bg-white/5">
-                        <p class="text-sm text-gray-500 dark:text-white/60">Tax</p>
-                        <p class="font-medium text-green-600 dark:text-green-400">
-                            {{ config('company.tax') }}%
-                        </p>
-                    </div>
-
                 </div>
 
             </div>
@@ -131,3 +134,4 @@
     </div>
 
 </x-app-layout>
+
