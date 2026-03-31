@@ -246,23 +246,40 @@ class CartService
     }
 
     /**
-     * Merge items from two different cart arrays (e.g. Session & Redis).
+     * Merge items from two different cart arrays (Guest Session & Persistent User Store).
+     * Tracks merge operations with detailed logging for each product.
      */
     public function mergeCarts(array $redisCart, array $sessionCart): array
     {
         $merged = [];
 
+        // Pre-populate with existing user cart from persistent storage (Redis)
         foreach ($redisCart as $item) {
             $merged[$item['product_id']] = $item;
         }
 
+        // Merge guest items from session
         foreach ($sessionCart as $item) {
-            $pid = $item['product_id'];
+            $pid           = $item['product_id'];
+            $guestQty      = $item['qty'];
+            $userQtyBefore = isset($merged[$pid]) ? $merged[$pid]['qty'] : 0;
+
             if (isset($merged[$pid])) {
-                $merged[$pid]['qty'] += $item['qty'];
+                // If product already exists in user cart, add the guest quantity
+                $merged[$pid]['qty'] += $guestQty;
             } else {
+                // Otherwise, insert the guest item as a new entry
                 $merged[$pid] = $item;
             }
+
+            $userQtyAfter = $merged[$pid]['qty'];
+
+            Log::channel('products')->info('Cart Merge: Item processed', [
+                'product_id'      => $pid,
+                'guest_qty'       => $guestQty,
+                'user_qty_before' => $userQtyBefore,
+                'user_qty_after'  => $userQtyAfter,
+            ]);
         }
 
         return array_values($merged);
