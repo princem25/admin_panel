@@ -8,6 +8,7 @@ use App\Services\greetingService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Event;
@@ -69,5 +70,14 @@ class AppServiceProvider extends ServiceProvider
         Blade::directive('currency', function ($expression) {
             return "<?php echo '₹' . number_format($expression, 2); ?>";
         });
+
+        if ($this->app->environment('local')) {
+            DB::listen(function ($query) {
+                Log::debug($query->sql, [
+                    'bindings' => $query->bindings,
+                    'time' => $query->time,
+                ]);
+            });
+        }
     }
 }
