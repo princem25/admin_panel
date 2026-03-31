@@ -41,12 +41,44 @@
                             {{ $product->name ?? 'Unknown Product' }}
                         </h1>
                         
-                        <div class="flex items-center gap-4 mb-8">
-                            <p class="text-3xl font-black text-blue-600 dark:text-cyan-400 tracking-tight">
-                                ₹{{ isset($product->price) ? number_format($product->price, 2) : '0.00' }}
-                            </p>
-                             
+                        {{-- Price + Discount --}}
+                        <div class="flex items-end gap-4 mb-3 flex-wrap">
+                            @if($product->discount_price && $product->discount_price < $product->price)
+                                <div>
+                                    <p class="text-3xl font-black text-green-600 dark:text-green-400 tracking-tight">
+                                        ₹{{ number_format($product->discount_price, 2) }}
+                                    </p>
+                                    <p class="text-sm line-through text-gray-400 mt-0.5">
+                                        ₹{{ number_format($product->price, 2) }}
+                                    </p>
+                                </div>
+                                <span class="mb-1 px-3 py-1 bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400 text-sm font-bold rounded-full">
+                                    {{ round((($product->price - $product->discount_price) / $product->price) * 100) }}% OFF
+                                    — You save ₹{{ number_format($product->price - $product->discount_price, 2) }}
+                                </span>
+                            @else
+                                <p class="text-3xl font-black text-blue-600 dark:text-cyan-400 tracking-tight">
+                                    ₹{{ number_format($product->price, 2) }}
+                                </p>
+                            @endif
                         </div>
+
+                        {{-- Low Stock / Out of Stock Alert --}}
+                        @if(isset($product->stock))
+                            @if($product->stock == 0)
+                                <div class="mb-6 px-4 py-2 bg-red-100 border border-red-300 text-red-700
+                                            dark:bg-red-500/10 dark:border-red-500/30 dark:text-red-400
+                                            rounded-lg text-sm font-semibold flex items-center gap-2">
+                                    🚫 This product is currently <strong>out of stock</strong>.
+                                </div>
+                            @elseif($product->stock <= 5)
+                                <div class="mb-6 px-4 py-2 bg-orange-50 border border-orange-300 text-orange-700
+                                            dark:bg-orange-500/10 dark:border-orange-500/30 dark:text-orange-400
+                                            rounded-lg text-sm font-semibold flex items-center gap-2 animate-pulse">
+                                    🔥 Hurry! Only <strong>{{ $product->stock }}</strong> left in stock!
+                                </div>
+                            @endif
+                        @endif
 
                         <div class="mb-10 flex-grow">
                             <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
@@ -59,20 +91,26 @@
                         </div>
 
                         <div class="mt-auto pt-6 border-t border-gray-100 dark:border-white/10">
-                            <!-- Add to cart -->
-                            @if (isset($cartProductIds) && in_array($product->id ?? 0, $cartProductIds))
+                            @if(isset($product->stock) && $product->stock == 0)
+                                <button disabled
+                                    class="w-full py-4 px-6 text-lg font-bold rounded-xl
+                                           bg-gray-200 text-gray-500 dark:bg-white/10 dark:text-gray-500
+                                           cursor-not-allowed flex justify-center items-center gap-2 border border-gray-300 dark:border-white/20">
+                                    🚫 Out of Stock
+                                </button>
+                            @elseif(isset($cartProductIds) && in_array($product->id ?? 0, $cartProductIds))
                                 <button class="w-full py-4 px-6 text-lg font-bold rounded-xl bg-gray-200 text-gray-600 dark:bg-white/10 dark:text-gray-400 cursor-not-allowed shadow-inner transition-all flex justify-center items-center gap-2 border border-gray-300 dark:border-white/20">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                     Already in Cart
                                 </button>
                             @else
-                                <form action="{{ route('cart.add', $product->id ?? 0) }}" method="POST">
+                                <form action="{{ route('cart.add', $product) }}" method="POST">
                                     @csrf
-                                    <button type="submit" 
+                                    <button type="submit"
                                             class="w-full py-4 px-6 text-lg font-bold rounded-xl text-white
                                                    bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600
                                                    dark:from-cyan-500 dark:to-blue-500 dark:hover:from-cyan-400 dark:hover:to-blue-400
-                                                   shadow-[0_10px_20px_rgba(37,99,235,0.2)] hover:shadow-[0_15px_25px_rgba(37,99,235,0.3)] 
+                                                   shadow-[0_10px_20px_rgba(37,99,235,0.2)] hover:shadow-[0_15px_25px_rgba(37,99,235,0.3)]
                                                    dark:shadow-[0_10px_20px_rgba(6,182,212,0.2)] dark:hover:shadow-[0_15px_25px_rgba(6,182,212,0.3)]
                                                    transform hover:-translate-y-1 transition-all duration-300 flex justify-center items-center gap-3">
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -87,6 +125,36 @@
                 </div>
             </div>
             
+            {{-- Recently Viewed Products --}}
+            @if(isset($recentProducts) && $recentProducts->count() > 0)
+            <div class="mt-12">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                    <svg class="w-6 h-6 text-blue-500 dark:text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Recently Viewed
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                    @foreach($recentProducts as $recentProduct)
+                    <a href="{{ route('user.products.show', $recentProduct) }}"
+                       class="group block bg-white dark:bg-white/10 border border-gray-200 dark:border-white/20
+                              rounded-xl overflow-hidden shadow hover:shadow-lg dark:shadow-none
+                              transition-all duration-300 hover:-translate-y-1">
+                        <div class="h-36 bg-gray-50 dark:bg-white/5 flex items-center justify-center overflow-hidden">
+                            <img src="{{ !empty($recentProduct->image) ? asset('storage/images/' . $recentProduct->image) : 'https://via.placeholder.com/200' }}"
+                                 alt="{{ $recentProduct->name }}"
+                                 class="h-32 w-auto object-contain group-hover:scale-105 transition-transform duration-300">
+                        </div>
+                        <div class="p-4">
+                            <p class="font-semibold text-gray-800 dark:text-white text-sm truncate">{{ $recentProduct->name }}</p>
+                            <p class="text-blue-600 dark:text-cyan-400 font-bold text-sm mt-1">₹{{ number_format($recentProduct->price, 2) }}</p>
+                        </div>
+                    </a>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
         </div>
     </div>
 </x-app-layout>
