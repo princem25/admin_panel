@@ -146,6 +146,13 @@ return [
             'level' => 'warning',
         ],
 
+        'DBinteraction' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/dblogs.log'),
+            'level' => 'debug',
+            'days' => 14,
+        ],
+
     ],
 
 ];

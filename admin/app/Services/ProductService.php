@@ -8,12 +8,12 @@ class ProductService
 {
     public function all()
     {
-        return Product::all();
+        return Product::with('category')->latest()->get();
     }
 
     public function exportCsv()
     {
-        $products = Product::all();
+        $products = Product::with('category')->get();
 
         return function () use ($products) {
             $file = fopen('php://output', 'w');

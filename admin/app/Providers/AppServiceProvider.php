@@ -1,8 +1,6 @@
 <?php
 
 namespace App\Providers;
-
-use App\Models\Cart;
 use App\Models\Category;
 use App\Services\greetingService;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +14,8 @@ use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
 use App\Listeners\SyncCartOnLogin;
 use App\Listeners\SyncCartOnLogout;
-
+use Illuminate\Support\Facades\Cache;
+ 
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -49,23 +48,17 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(Login::class, SyncCartOnLogin::class);
         Event::listen(Logout::class, SyncCartOnLogout::class);
 
-        View::composer('*', function ($view) {
+        View::share('categories', Cache::remember('categories', 60, function () {
+            return Category::all();
+        }));
 
-            $categorySummary = DB::table('products')
+        View::share('categorySummary', Cache::remember('category_summary', 60, function () {
+            return DB::table('products')
                 ->join('categories', 'products.category_id', '=', 'categories.id')
                 ->select('categories.name', DB::raw('count(products.id) as total'))
                 ->groupBy('categories.name')
                 ->get();
-
-            $view->with('categorySummary', $categorySummary);
-        });
-
-        View::composer('*', function ($view) {
-
-            $categories = Category::all();
-
-            $view->with('categories', $categories);
-        });
+        }));
 
         Blade::directive('currency', function ($expression) {
             return "<?php echo '₹' . number_format($expression, 2); ?>";
@@ -73,9 +66,10 @@ class AppServiceProvider extends ServiceProvider
 
         if ($this->app->environment('local')) {
             DB::listen(function ($query) {
-                Log::debug($query->sql, [
+                Log::channel('DBinteraction')->debug($query->sql, [
+                    'sql' => $query->sql,
                     'bindings' => $query->bindings,
-                    'time' => $query->time,
+                    'time' => $query->time, 
                 ]);
             });
         }
