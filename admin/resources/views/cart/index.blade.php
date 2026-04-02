@@ -13,7 +13,9 @@
                 Your Cart 🛒
             </h2>
 
-            <x-flash-message />
+            <div id="cart-alert">
+                <x-flash-message />
+            </div>
 
             @if ($cartItems->count() > 0)
 
@@ -33,7 +35,7 @@
 
                         <tbody>
                             @foreach ($cartItems as $item)
-                                <tr
+                                <tr id="row-{{ $item->product_id }}"
                                     class="text-center border-t 
                                         border-gray-200 dark:border-white/10 
                                         text-gray-800 dark:text-white">
@@ -45,7 +47,7 @@
 
                                     <!-- Price -->
                                     <td class="p-3">
-                                        ₹{{ $item->product->price }}
+                                        ₹{{ $item->unit_price }}
                                     </td>
 
                                     <!-- Quantity -->
@@ -53,43 +55,31 @@
                                         <div class="flex items-center justify-center gap-2">
 
                                             {{-- Decrease --}}
-                                            <form action="{{ route('cart.decrease', $item->product_id) }}"
-                                                method="POST">
-                                                @csrf
-                                                @method('PATCH')
-
-                                                <button
-                                                    class="px-2 py-1 rounded 
-                                                        bg-gray-300 hover:bg-gray-400 
-                                                        dark:bg-white/20">
-                                                    -
-                                                </button>
-                                            </form>
+                                            <button onclick="updateQty('{{ $item->product_id }}', 'decrease')"
+                                                class="px-2 py-1 rounded 
+                                                    bg-gray-300 hover:bg-gray-400 
+                                                    dark:bg-white/20">
+                                                -
+                                            </button>
 
                                             {{-- Quantity --}}
-                                            <span class="px-3">
+                                            <span id="qty-{{ $item->product_id }}" class="px-3 min-w-[30px]">
                                                 {{ $item->quantity }}
                                             </span>
 
                                             {{-- Increase --}}
-                                            <form action="{{ route('cart.increase', $item->product_id) }}"
-                                                method="POST">
-                                                @csrf
-                                                @method('PATCH')
-
-                                                <button
-                                                    class="px-2 py-1 rounded 
-                                                        bg-gray-300 hover:bg-gray-400 
-                                                        dark:bg-white/20">
-                                                    +
-                                                </button>
-                                            </form>
+                                            <button onclick="updateQty('{{ $item->product_id }}', 'increase')"
+                                                class="px-2 py-1 rounded 
+                                                    bg-gray-300 hover:bg-gray-400 
+                                                    dark:bg-white/20">
+                                                +
+                                            </button>
 
                                         </div>
                                     </td>
 
                                     <!-- Total -->
-                                    <td
+                                    <td id="total-{{ $item->product_id }}"
                                         class="p-3 font-semibold 
                                         text-green-600 dark:text-green-400">
                                         ₹{{ $item->total_price }}
@@ -97,18 +87,13 @@
 
                                     <!-- Remove -->
                                     <td class="p-3">
-                                        <form action="{{ route('cart.remove', $item->product_id) }}" method="POST">
-                                            @csrf
-                                            @method('DELETE')
-
-                                            <button
-                                                class="px-3 py-1 rounded transition
-                                                    bg-red-500 hover:bg-red-600 
-                                                    dark:bg-red-600 dark:hover:bg-red-700
-                                                    text-white">
-                                                Remove
-                                            </button>
-                                        </form>
+                                        <button onclick="removeFromCart('{{ $item->product_id }}')"
+                                            class="px-3 py-1 rounded transition
+                                                bg-red-500 hover:bg-red-600 
+                                                dark:bg-red-600 dark:hover:bg-red-700
+                                                text-white">
+                                            Remove
+                                        </button>
                                     </td>
 
                                 </tr>
@@ -123,7 +108,7 @@
                     <div class="text-lg font-semibold 
                         text-gray-800 dark:text-white">
                         Grand Total:
-                        <span class="text-green-600 dark:text-green-400">
+                        <span id="grand-total" class="text-green-600 dark:text-green-400">
                             ₹{{ $grandTotal }}
                         </span>
                     </div>
@@ -131,19 +116,14 @@
 
                 {{-- ACTIONS: CLEAR CART & INVOICE --}}
                 <div class="flex justify-end mt-4 space-x-4">
-                    <form action="{{ route('cart.clear') }}" method="POST">
-                        @csrf
-                        @method('DELETE')
-
-                        <button
-                            class="px-5 py-2 rounded transition
-                                bg-yellow-500 hover:bg-yellow-600 
-                                dark:bg-yellow-600 dark:hover:bg-yellow-700
-                                text-white">
-                            Clear Cart
-                        </button>
-                    </form>
-
+                    <button onclick="clearCart()"
+                        class="px-5 py-2 rounded transition
+                            bg-yellow-500 hover:bg-yellow-600 
+                            dark:bg-yellow-600 dark:hover:bg-yellow-700
+                            text-white">
+                        Clear Cart
+                    </button>
+                    
                     <a href="{{ route('cart.invoice') }}"
                         class="px-5 py-2 rounded transition font-semibold
                             bg-blue-600 hover:bg-blue-700 
@@ -158,9 +138,106 @@
                 </p>
 
             @endif
-                
         </div>
-
     </div>
 
+    <!-- jQuery CDN -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        const cartIncreaseUrl = "{{ route('cart.increase', ':id') }}";
+        const cartDecreaseUrl = "{{ route('cart.decrease', ':id') }}";
+        const cartRemoveUrl   = "{{ route('cart.remove', ':id') }}";
+        const cartClearUrl    = "{{ route('cart.clear') }}";
+
+        function updateQty(productId, action) {
+            let url = action === 'increase' ? cartIncreaseUrl : cartDecreaseUrl;
+            url = url.replace(':id', productId);
+            
+            $.ajax({
+                url: url,
+                type: 'PATCH',
+                data: {
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        const summary = response.summary;
+                        const item = summary.items.find(i => i.product_id == productId);
+                        
+                        if (item) {
+                            $(`#qty-${productId}`).text(item.quantity);
+                            $(`#total-${productId}`).text('₹' + item.total_price);
+                            $('#grand-total').text('₹' + summary.grandTotal);
+                            
+                            // Inject the reusable flash component HTML
+                            $('#cart-alert').html(response.flash_html);
+                        } else if (action === 'decrease') {
+                            window.location.reload();
+                        }
+                    }
+                },
+                error: function(xhr) {
+                    if (xhr.responseJSON && xhr.responseJSON.flash_html) {
+                        $('#cart-alert').html(xhr.responseJSON.flash_html);
+                    }
+                }
+            });
+        }
+
+        function removeFromCart(productId) {
+            if (!confirm('Are you sure you want to remove this item?')) return;
+
+            let url = cartRemoveUrl.replace(':id', productId);
+
+            $.ajax({
+                url: url,
+                type: 'DELETE',
+                data: {
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        const summary = response.summary;
+                        $(`#row-${productId}`).remove();
+                        $('#grand-total').text('₹' + summary.grandTotal);
+
+                        // Inject the reusable flash component HTML
+                        $('#cart-alert').html(response.flash_html);
+
+                        if (summary.items.length === 0) {
+                            window.location.reload();
+                        }
+                    }
+                },
+                error: function(xhr) {
+                    if (xhr.responseJSON && xhr.responseJSON.flash_html) {
+                        $('#cart-alert').html(xhr.responseJSON.flash_html);
+                    }
+                }
+            });
+        }
+
+        function clearCart() {
+            if (!confirm('Are you sure you want to clear the entire cart?')) return;
+
+            $.ajax({
+                url: cartClearUrl,
+                type: 'DELETE',
+                data: {
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        window.location.reload();
+                    }
+                },
+                error: function(xhr) {
+                    if (xhr.responseJSON && xhr.responseJSON.flash_html) {
+                        $('#cart-alert').html(xhr.responseJSON.flash_html);
+                    }
+                }
+            });
+        }
+    </script>
 </x-app-layout>
