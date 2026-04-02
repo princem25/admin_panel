@@ -131,6 +131,14 @@
                             text-white text-center">
                         📄 Generate Invoice
                     </a>
+
+                    <a href="{{ route('checkout.index') }}"
+                        class="px-8 py-2 rounded transition font-bold text-lg
+                            bg-green-600 hover:bg-green-700 
+                            dark:bg-green-500 dark:hover:bg-green-600
+                            text-white text-center shadow-lg transform hover:-translate-y-1 active:scale-95">
+                        💳 Checkout
+                    </a>
                 </div>
             @else
                 <p class="text-center text-gray-500 dark:text-white/70">

@@ -246,6 +246,23 @@ class CartService
     }
 
     /**
+     * Complete the order — clears the cart without restoring stock.
+     * Should be called after successfully saving an Order and its items.
+     */
+    public function completeOrder(): void
+    {
+        $this->withinLock(function () {
+            Session::forget('cart');
+
+            if (auth()->check()) {
+                Redis::del('cart:user:' . auth()->id());
+            }
+
+            Log::channel('products')->info('Cart cleared (Order Completed)', ['user_id' => auth()->id()]);
+        });
+    }
+
+    /**
      * Merge items from two different cart arrays (Guest Session & Persistent User Store).
      * Tracks merge operations with detailed logging for each product.
      */

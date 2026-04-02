@@ -25,6 +25,13 @@
                         Products
                     </a>
 
+                    <a href="{{ route('orders.index') }}"
+                        class="transition 
+                            text-gray-600 hover:text-gray-900
+                            dark:text-white/80 dark:hover:text-white">
+                        Orders
+                    </a>
+
                 </div>
             </div>
 
