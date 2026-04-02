@@ -38,4 +38,9 @@ class Product extends Model
             $query->where('price', '<=', $price);
         });
     }
+
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
 }
