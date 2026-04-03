@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\LogViewerController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
@@ -41,6 +42,11 @@ require __DIR__.'/auth.php';
 Route::prefix('admin')->middleware(['role:admin', 'throttle:100,1'])->group(function () {
     Route::resource('products', AdminProductController::class);
     Route::get('/logs', [LogViewerController::class, 'index'])->name('admin.logs');
+    
+    // Order Management
+    Route::get('/orders', [AdminOrderController::class, 'index'])->name('admin.orders.index');
+    Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('admin.orders.show');
+    Route::put('/orders/{order}', [AdminOrderController::class, 'update'])->name('admin.orders.update');
 });
 
 Route::get('/products/{product}/download', [AdminProductController::class, 'download'])->name('products.download');
@@ -59,8 +65,8 @@ Route::prefix('user')->middleware(['role:user', 'auth'])->group(function () {
     Route::get('/products', [UserProductController::class, 'index'])->name('user.products');
     Route::get('/products/{product}', [UserProductController::class, 'show'])->name('user.products.show');
 
-    // Generate Invoice from Cart → direct PDF download
-    Route::get('/cart/invoice', [InvoiceController::class, 'generate'])->name('cart.invoice');
+    // Generate Invoice from Order
+    Route::get('/orders/{order}/invoice', [InvoiceController::class, 'generate'])->name('orders.invoice');
 
     // Checkout Routes
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');

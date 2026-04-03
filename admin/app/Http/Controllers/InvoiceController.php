@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\CartService;
+use App\Models\Order;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -10,31 +10,41 @@ use Illuminate\Support\Facades\Auth;
 class InvoiceController extends Controller
 {
     /**
-     * Generate and directly download an invoice PDF from the current user's cart.
+     * Generate and directly download an invoice PDF from a specific order.
      */
-    public function generate(CartService $cartService)
+    public function generate(Order $order)
     {
-        $summary = $cartService->getCartSummary();
+        // Authorization check
+        if (Auth::user()->role !== 'admin' && $order->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access to this invoice.');
+        }
 
-        $cartItems = $summary['items'];
-        $grandTotal = $summary['grandTotal'];
+        // Load items and products
+        $order->load('items.product');
 
-        if ($cartItems->isEmpty()) {
-            return redirect()->route('cart.index')->with('error', 'Cannot generate invoice for an empty cart.');
+        if ($order->items->isEmpty()) {
+            return back()->with('error', 'Cannot generate invoice for an empty order.');
+        }
+
+        // 3. Prevent invoice generation for cancelled orders
+        if ($order->status === 'cancelled') {
+            return back()->with('error', 'Invoices cannot be generated for cancelled orders.');
         }
 
         $data = [
-            'cartItems'     => $cartItems,
-            'grandTotal'    => $grandTotal,
-            'user'          => Auth::user(),
-            'invoiceNumber' => 'INV-' . strtoupper(uniqid()),
+            'order'         => $order,
+            'items'         => $order->items,
+            'grandTotal'    => $order->total_amount,
+            'paymentMethod' => $order->payment_method,
+            'user'          => $order->user ?? Auth::user(),
+            'invoiceNumber' => 'INV-' . str_pad($order->id, 6, '0', STR_PAD_LEFT),
             'generatedAt'   => now()->format('d M Y'),
         ];
 
         $pdf = Pdf::loadView('invoice.pdf', $data)
                   ->setPaper('A4', 'portrait');
 
-        return $pdf->download('invoice_' . now()->format('Ymd_His') . '.pdf');
+        return $pdf->download('invoice_order_' . $order->id . '_' . now()->format('Ymd_His') . '.pdf');
     }
 }
 

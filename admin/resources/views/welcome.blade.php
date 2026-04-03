@@ -37,13 +37,13 @@ dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20">
             <div class="space-x-4 flex items-center">
 
                 @auth
-                   <a href="{{ auth()->user()->role === 'admin' ? route('admin.dashboard') : route('dashboard') }}"
+                   <a href="{{ $current_logged_user->role === 'admin' ? route('admin.dashboard') : route('dashboard') }}"
                         class="text-gray-600 hover:text-blue-600 dark:text-white/80 dark:hover:text-cyan-400 transition">
                         Dashboard
                     </a>
 
                     <span class="text-gray-500 dark:text-white/60">
-                        {{ auth()->user()->name }}
+                        {{ $current_logged_user->name }}
                     </span>
                 @else
                     @if (Route::has('login'))

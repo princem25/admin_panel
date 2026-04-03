@@ -38,7 +38,7 @@ class AppServiceProvider extends ServiceProvider
             $view->with('current_logged_user', Auth::user());
         });
 
-        View::composer('*', function ($view) {
+        View::composer('layouts.navigation', function ($view) {
             $cart = session()->get('cart', []);
             $count = collect($cart)->count('product_id');
 
