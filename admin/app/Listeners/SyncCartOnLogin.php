@@ -22,45 +22,30 @@ class SyncCartOnLogin
 
     /**
      * Handle the login event.
-     * Merges guest session cart into user's persistent Redis cart accurately.
+     * Retrieves the user's persistent Redis cart, discarding any guest items.
      */
     public function handle(Login $event): void
     {
-        // 1. Prevent duplicate merge operations within the same login session
+        // 1. Prevent duplicate operations within the same login session
         if (Session::has('cart_merged')) {
             return;
         }
 
         $user = $event->user;
 
-        // 2. Retrieve guest cart (session) and persistent user cart (redis)
-        $sessionCart = $this->cartService->getCart();
+        // 2. Retrieve persistent user cart (redis)
         $redisCartData = Redis::get("cart:user:{$user->id}");
         $redisCart = $redisCartData ? json_decode($redisCartData, true) : [];
 
-        // 3. Optimization: If guest cart is empty, just sync Redis to Session and mark done
-        if (empty($sessionCart)) {
-            if (!empty($redisCart)) {
-                $this->cartService->setCart($redisCart);
-            }
-            Session::put('cart_merged', true);
-            return;
-        }
+        // 3. Update the cart with auth user's data (this discards guest items)
+        $this->cartService->setCart($redisCart);
 
-        // 4. Execution: Merge guest items into user cart
-        Log::channel('products')->info('Cart Merge: Initiated', ['user_id' => $user->id]);
-
-        $mergedCart = $this->cartService->mergeCarts($redisCart, $sessionCart);
-
-        // 5. Update both the current session buffer and the persistent store
-        $this->cartService->setCart($mergedCart);
-
-        // 6. Mark as merged to ensure idempotency
+        // 4. Mark as retrieved to ensure idempotency
         Session::put('cart_merged', true);
 
-        Log::channel('products')->info('Cart Merge: Completed', [
+        Log::channel('products')->info('Cart Retrieved: Completed', [
             'user_id'     => $user->id,
-            'item_count'  => count($mergedCart),
+            'item_count'  => count($redisCart),
         ]);
     }
 }
