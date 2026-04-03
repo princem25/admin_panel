@@ -10,6 +10,12 @@
                     Order #{{ $order->id }}
                 </h1>
                 <div class="flex items-center gap-4">
+                    @if($order->status !== 'cancelled')
+                        <a href="{{ route('orders.invoice', $order->id) }}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs transition shadow-lg flex items-center gap-2">
+                            📄 Invoice
+                        </a>
+                    @endif
+
                     @if($order->status === 'pending')
                         <form action="{{ route('orders.cancel', $order->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this order? All stock will be restored.')">
                             @csrf
@@ -21,15 +27,15 @@
                     @endif
 
                     <span class="px-4 py-2 
-                        {{ $order->status === 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-500/20 dark:text-yellow-400 border-yellow-200 dark:border-yellow-500/30' : '' }}
-                        {{ $order->status === 'cancelled' ? 'bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-400 border-red-200 dark:border-red-500/30' : '' }}
-                        {{ $order->status === 'completed' ? 'bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-400 border-green-200 dark:border-green-500/30' : '' }}
-                        rounded-full font-bold uppercase tracking-widest text-xs border">
+                        {{ $order->status === 'pending' ? 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-500/20 dark:text-yellow-400 dark:border-yellow-500/30' : '' }}
+                        {{ $order->status === 'processing' ? 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30' : '' }}
+                        {{ $order->status === 'shipped' ? 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-500/20 dark:text-purple-400 dark:border-purple-500/30' : '' }}
+                        {{ $order->status === 'delivered' ? 'bg-green-100 text-green-800 border-green-200 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/30' : '' }}
+                        {{ $order->status === 'cancelled' ? 'bg-red-100 text-red-800 border-red-200 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/30' : '' }}
+                        rounded-full font-bold uppercase tracking-widest text-xs border shadow-sm">
                         {{ $order->status }}
                     </span>
-                    @if(auth()->user()->role === 'admin')
-                        {{-- Future: Add status update dropdown for admin --}}
-                    @endif
+                   
                 </div>
             </div>
 
@@ -94,10 +100,25 @@
                                 <span>Payment Method</span>
                                 <span class="font-bold text-gray-800 dark:text-white uppercase">{{ $order->payment_method }}</span>
                             </div>
-                            <div class="pt-4 border-t border-gray-100 dark:border-white/5 flex justify-between">
-                                <span class="text-xl font-extrabold text-gray-800 dark:text-white">Amount Paid</span>
-                                <span class="text-xl font-extrabold text-green-600 dark:text-green-400">₹{{ $order->total_amount }}</span>
+                            <div class="pt-4 border-t border-gray-100 dark:border-white/5 flex justify-between items-center">
+                                <span class="text-lg font-bold text-gray-800 dark:text-white uppercase tracking-tight">
+                                    {{ $order->payment_method === 'cod' ? 'Total Amount' : 'Amount Paid' }}
+                                </span>
+                                <span class="text-2xl font-black text-green-600 dark:text-green-400">₹{{ $order->total_amount }}</span>
                             </div>
+
+                            @if($order->status === 'cancelled')
+                                <div class="mt-4 p-4 bg-red-50 dark:bg-red-500/10 rounded-2xl border border-red-100 dark:border-red-500/20 text-xs font-bold text-red-600 dark:text-red-400 flex items-center gap-3">
+                                    <span class="text-xl">ℹ️</span>
+                                    <span>
+                                        @if($order->payment_method === 'cod')
+                                            This order was cancelled. No payment was collected.
+                                        @else
+                                            Your refund of ₹{{ number_format($order->total_amount, 2) }} will be processed back to your original {{ strtoupper($order->payment_method) }} payment method within 5-7 business days.
+                                        @endif
+                                    </span>
+                                </div>
+                            @endif
                         </div>
 
                         <div class="pt-6 border-t border-gray-200 dark:border-white/10">
@@ -110,7 +131,7 @@
                         </div>
                     </div>
 
-                    @if(auth()->user()->role === 'admin')
+                    @if($current_logged_user->role === 'admin')
                         <div class="bg-gray-50 dark:bg-white/5 rounded-3xl p-6 border border-gray-200 dark:border-white/10">
                             <h4 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Customer Details</h4>
                             <p class="text-sm text-gray-800 dark:text-white font-bold">{{ $order->user->name }}</p>

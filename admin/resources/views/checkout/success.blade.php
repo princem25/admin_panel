@@ -32,9 +32,12 @@
                     </div>
                     <div>
                         <h4 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Payment Details</h4>
-                        <p class="text-gray-800 dark:text-white font-medium">Method: <span class="text-gray-600 dark:text-gray-400 font-bold uppercase">{{ $order->payment_method }}</span></p>
-                        <p class="text-gray-800 dark:text-white font-medium mt-1">Total Amount: <span class="text-green-600 dark:text-green-400 font-extrabold">₹{{ $order->total_amount }}</span></p>
-                        <p class="text-gray-800 dark:text-white font-medium mt-1">Status: <span class="text-yellow-600 dark:text-yellow-400 uppercase tracking-widest text-xs">{{ $order->status }}</span></p>
+                        <p class="text-gray-800 dark:text-white font-medium">Method: <span class="text-gray-600 dark:text-gray-400 font-bold uppercase tracking-widest text-xs">{{ $order->payment_method }}</span></p>
+                        <p class="text-gray-800 dark:text-white font-medium mt-1">
+                            {{ $order->payment_method === 'cod' ? 'Total Amount' : 'Amount Paid' }}: 
+                            <span class="text-3xl font-black text-green-600 dark:text-green-400">₹{{ $order->total_amount }}</span>
+                        </p>
+                        <p class="text-gray-800 dark:text-white font-medium mt-1">Status: <span class="text-yellow-600 dark:text-yellow-400 uppercase tracking-widest text-xs font-bold">{{ $order->status }}</span></p>
                     </div>
                 </div>
 
@@ -52,8 +55,7 @@
                     Continue Shopping
                 </a>
                 
-                {{-- Mock path for order history --}}
-                <a href="#" 
+                <a href="{{ route('orders.index') }}" 
                     class="w-full sm:w-auto px-10 py-4 bg-gray-200 hover:bg-gray-300 dark:bg-white/10 dark:hover:bg-white/20 text-gray-800 dark:text-white font-bold rounded-xl transition shadow-md">
                     View My Orders
                 </a>

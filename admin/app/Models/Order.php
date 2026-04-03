@@ -15,7 +15,16 @@ class Order extends Model
         'phone',
         'shipping_address',
         'notes',
+        'admin_note',
     ];
+
+    /**
+     * Get the status histories for the order.
+     */
+    public function statusHistories()
+    {
+        return $this->hasMany(OrderStatusHistory::class);
+    }
 
     public function user()
     {

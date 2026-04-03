@@ -123,14 +123,6 @@
                             text-white">
                         Clear Cart
                     </button>
-                    
-                    <a href="{{ route('cart.invoice') }}"
-                        class="px-5 py-2 rounded transition font-semibold
-                            bg-blue-600 hover:bg-blue-700 
-                            dark:bg-cyan-500 dark:hover:bg-cyan-600
-                            text-white text-center">
-                        📄 Generate Invoice
-                    </a>
 
                     <a href="{{ route('checkout.index') }}"
                         class="px-8 py-2 rounded transition font-bold text-lg

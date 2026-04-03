@@ -154,53 +154,65 @@
     </div>
 
     {{-- ── Billing block ── --}}
-    <div class="billing">
-        <div class="billing-block">
+    <div class="billing" style="display: table; width: 100%; margin-bottom: 30px;">
+        <div class="billing-block" style="display: table-cell; width: 50%;">
             <div class="label">Billed To</div>
-            <div class="value">{{ $user->name }}</div>
+            <div class="value"><strong>{{ $user->name }}</strong></div>
             <div class="value">{{ $user->email }}</div>
+            <div class="value">{{ $order->phone }}</div>
+            <div class="value" style="margin-top: 8px;">
+                <div class="label">Shipping Address</div>
+                <div class="value" style="font-size: 11px; color: #555;">{{ $order->shipping_address }}</div>
+            </div>
         </div>
-        <div class="billing-block right">
-            <div class="label">From</div>
-            <div class="value">{{ config('company.name', 'WOSS Store') }}</div>
-            <div class="value">{{ config('company.email', 'support@woss.com') }}</div>
+        <div class="billing-block right" style="display: table-cell; width: 50%; text-align: right;">
+            <div class="label">Payment Details</div>
+            <div class="value">Method: <span style="text-transform: uppercase; font-weight: bold;">{{ $paymentMethod }}</span></div>
+            <div class="value" style="margin-top: 10px;">
+                <div class="label">From</div>
+                <div class="value"><strong>{{ config('company.name', 'WOSS Store') }}</strong></div>
+                <div class="value">{{ config('company.email', 'support@woss.com') }}</div>
+            </div>
         </div>
     </div>
 
     {{-- ── Items table ── --}}
-    <table>
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
         <thead>
-            <tr>
-                <th class="left">#</th>
-                <th class="left">Item</th>
-                <th class="right">Unit Price</th>
-                <th class="center">Qty</th>
-                <th class="right">Total</th>
+            <tr style="background-color: #1a1a1a; color: #ffffff;">
+                <th style="padding: 10px 12px; text-align: left;">#</th>
+                <th style="padding: 10px 12px; text-align: left;">Item</th>
+                <th style="padding: 10px 12px; text-align: right;">Price</th>
+                <th style="padding: 10px 12px; text-align: center;">Qty</th>
+                <th style="padding: 10px 12px; text-align: right;">Total</th>
             </tr>
         </thead>
         <tbody>
-            @foreach ($cartItems as $index => $item)
-            <tr>
-                <td>{{ $index + 1 }}</td>
-                <td>{{ $item->product->name }}</td>
-                <td class="right">&#8377;{{ number_format($item->product->price, 2) }}</td>
-                <td class="center">{{ $item->quantity }}</td>
-                <td class="right">&#8377;{{ number_format($item->total_price, 2) }}</td>
+            @foreach ($items as $index => $item)
+            <tr style="border-bottom: 1px solid #e0e0e0;">
+                <td style="padding: 9px 12px;">{{ $index + 1 }}</td>
+                <td style="padding: 9px 12px;">{{ $item->product->name ?? 'Product Unavailable' }}</td>
+                <td style="padding: 9px 12px; text-align: right;">&#8377;{{ number_format($item->price, 2) }}</td>
+                <td style="padding: 9px 12px; text-align: center;">{{ $item->quantity }}</td>
+                <td style="padding: 9px 12px; text-align: right;">&#8377;{{ number_format($item->price * $item->quantity, 2) }}</td>
             </tr>
             @endforeach
         </tbody>
     </table>
 
     {{-- ── Totals ── --}}
-    <table class="totals">
+    <table class="totals" style="width: 100%; border-collapse: collapse;">
         <tr class="grand-total-row">
-            <td class="total-label">Grand Total</td>
-            <td class="total-value">&#8377;{{ number_format($grandTotal, 2) }}</td>
+            <td style="text-align: right; padding: 10px 12px; font-weight: 600; color: #555;">Grand Total</td>
+            <td style="text-align: right; padding: 10px 12px; font-weight: 700; color: #1a1a1a; width: 130px; border-top: 2px solid #1a1a1a; font-size: 16px;">
+                &#8377;{{ number_format($grandTotal, 2) }}
+            </td>
         </tr>
     </table>
 
     {{-- ── Footer ── --}}
-    <div class="footer">
+    <div class="footer" style="margin-top: 50px; text-align: center; border-top: 1px solid #e0e0e0; padding-top: 20px; color: #999; font-size: 11px;">
+        Invoice generated automatically on {{ $generatedAt }}<br>
         Thank you for your purchase &mdash; {{ config('company.name', 'WOSS Store') }}
     </div>
 
