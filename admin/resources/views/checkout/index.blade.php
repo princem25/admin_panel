@@ -17,7 +17,7 @@
                             <div>
                                 <label for="full_name" class="block font-medium text-gray-700 dark:text-gray-300 mb-2">Full Name</label>
                                 <input type="text" name="full_name" id="full_name" 
-                                    value="{{ old('full_name', auth()->user()->name) }}" required
+                                    value="{{ old('full_name', $current_logged_user->name) }}" required
                                     class="w-full px-4 py-3 rounded-lg border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white focus:ring-blue-500 focus:border-blue-500"
                                     placeholder="Enter your full name">
                                 @error('full_name') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
@@ -145,9 +145,9 @@
                             <span>Shipping</span>
                             <span class="font-medium text-green-600">FREE</span>
                         </div>
-                        <div class="pt-4 border-t border-gray-200 dark:border-white/10 flex justify-between">
-                            <span class="text-xl font-extrabold text-gray-800 dark:text-white">Grand Total</span>
-                            <span class="text-xl font-extrabold text-green-600 dark:text-green-400">₹{{ $grandTotal }}</span>
+                        <div class="pt-4 border-t border-gray-200 dark:border-white/10 flex justify-between items-center">
+                            <span class="text-lg font-bold text-gray-800 dark:text-white uppercase tracking-tight">Grand Total</span>
+                            <span class="text-2xl font-black text-green-600 dark:text-green-400">₹{{ $grandTotal }}</span>
                         </div>
                     </div>
                 </div>

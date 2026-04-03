@@ -11,21 +11,21 @@
 
                 <div class="hidden sm:flex space-x-6">
 
-                    <a href="{{ auth()->user()->role === 'admin' ? route('admin.dashboard') : route('dashboard') }}"
+                    <a href="{{ $current_logged_user->role === 'admin' ? route('admin.dashboard') : route('dashboard') }}"
                         class="transition 
                             text-gray-600 hover:text-gray-900
                             dark:text-white/80 dark:hover:text-white">
                         Dashboard
                     </a>
 
-                    <a href="{{ auth()->user()->role === 'admin' ? route('products.index') : route('user.products') }}"
+                    <a href="{{ $current_logged_user->role === 'admin' ? route('products.index') : route('user.products') }}"
                         class="transition 
                             text-gray-600 hover:text-gray-900
                             dark:text-white/80 dark:hover:text-white">
                         Products
                     </a>
 
-                    <a href="{{ route('orders.index') }}"
+                    <a href="{{ $current_logged_user->role === 'admin' ? route('admin.orders.index') : route('orders.index') }}"
                         class="transition 
                             text-gray-600 hover:text-gray-900
                             dark:text-white/80 dark:hover:text-white">
@@ -39,7 +39,7 @@
             <div class="flex items-center space-x-6">
 
                 {{-- Cart --}}
-                @if (auth()->user()->role !== 'admin')
+                @if ($current_logged_user->role !== 'admin')
                     <a href="{{ route('cart.index') }}"
                         class="relative transition 
                             text-gray-600 hover:text-gray-900
