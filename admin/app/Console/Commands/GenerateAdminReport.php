@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Console\Commands;
+
+use App\Services\ProductService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
@@ -11,7 +13,7 @@ class GenerateAdminReport extends Command
 
     protected $description = 'Generate admin reports';
 
-    public function handle()
+    public function handle(ProductService $service)
     {
         $type = $this->option('type');
         $format = $this->option('format');
@@ -29,7 +31,13 @@ class GenerateAdminReport extends Command
 
         $bar->finish();
         $this->newLine(2);
+        $csv = $service->getCsvString();
 
+        $fileName = 'reports/products_' . now()->format('Y_m_d_H_i_s') . '.csv';
+
+        Storage::put($fileName, $csv);
+
+        $this->info("Saved: storage/app/{$fileName}");
         $this->info("Report generated ");
     }
 }

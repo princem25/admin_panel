@@ -19,7 +19,7 @@ class ProductService
             $file = fopen('php://output', 'w');
 
             // Header
-            fputcsv($file, ['Name', 'Price','Discount Price', 'Description', 'Stock']);
+            fputcsv($file, ['Name', 'Price', 'Discount Price', 'Description', 'Stock']);
 
             foreach ($products as $product) {
                 fputcsv($file, [
@@ -35,4 +35,28 @@ class ProductService
         };
     }
 
+    public function getCsvString()
+    {
+        $products = Product::with('category')->get();
+
+        $handle = fopen('php://temp', 'r+');
+
+        fputcsv($handle, ['Name', 'Price', 'Discount Price', 'Description', 'Stock']);
+
+        foreach ($products as $product) {
+            fputcsv($handle, [
+                $product->name,
+                $product->price,
+                $product->discount_price ?? $product->price,
+                $product->description,
+                $product->stock,
+            ]);
+        }
+
+        rewind($handle);
+        $csv = stream_get_contents($handle);
+        fclose($handle);
+
+        return $csv;
+    }
 }
