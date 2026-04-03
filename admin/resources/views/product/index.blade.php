@@ -122,7 +122,7 @@
                             + Create Product
                         </button>
                     </a>
-                     <a href="/products/export"
+                     <a href="{{ route('admin.products.export') }}"
                     class="inline-block px-5 h-10 mt-5 py-2 bg-green-600 text-white font-medium rounded-lg shadow hover:bg-green-700 hover:shadow-md transition duration-200">
                     Download CSV
                 </a>

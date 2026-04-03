@@ -8,8 +8,7 @@ use Illuminate\Support\Facades\Storage;
 
 class GenerateAdminReport extends Command
 {
-    protected $signature = 'report:admin {--type=sales : sales, inventory, customers} 
-                                         {--format=csv : csv, json, pdf}';
+    protected $signature = 'report:admin {--type=sales} {--format=csv}';
 
     protected $description = 'Generate admin reports';
 

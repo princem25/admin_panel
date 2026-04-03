@@ -47,7 +47,7 @@
                 
                 {{-- DETAILS CARD --}}
                 <div class="md:col-span-2 space-y-6">
-                    <div class="bg-white dark:bg-white/10 shadow-xl rounded-3xl p-8 border border-gray-200 dark:border-white/20">
+                    <div class="bg-white dark:bg-white/10 shadow-xl rounded-md p-8 border border-gray-200 dark:border-white/20">
                         <h3 class="text-xl font-bold mb-6 text-gray-800 dark:text-white border-b border-gray-200 dark:border-white/10 pb-4">
                             Items Purchased
                         </h3>
@@ -82,7 +82,7 @@
 
                 {{-- SUMMARY CARD --}}
                 <div class="space-y-6">
-                    <div class="bg-white dark:bg-white/10 shadow-xl rounded-3xl p-8 border border-gray-200 dark:border-white/20">
+                    <div class="bg-white dark:bg-white/10 shadow-xl rounded-lg p-8 border border-gray-200 dark:border-white/20">
                         <h3 class="text-lg font-bold mb-6 text-gray-800 dark:text-white border-b border-gray-200 dark:border-white/10 pb-4">
                            Full Summary
                         </h3>

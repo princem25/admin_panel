@@ -58,7 +58,7 @@ class AppServiceProvider extends ServiceProvider
                 ->select('categories.name', DB::raw('count(products.id) as total'))
                 ->groupBy('categories.name')
                 ->get();
-        }));
+        }));    
 
         Blade::directive('currency', function ($expression) {
             return "<?php echo '₹' . number_format($expression, 2); ?>";

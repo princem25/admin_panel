@@ -53,7 +53,7 @@
             </form>
 
             <!-- Download -->
-            <a href="{{ route('products.download', $product) }}" 
+            <a href="{{ route('admin.products.download', $product) }}" 
                class="flex-1 text-center py-1 rounded-md text-sm 
                bg-emerald-500 hover:bg-emerald-600 text-white transition">
                 ⬇

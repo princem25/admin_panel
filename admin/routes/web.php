@@ -11,10 +11,12 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\User\ProductController as UserProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\User\DashboardController as UserDashboardController;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
 
 
 // --------------------------------------AUTH BREEZ----------------------------------//
@@ -29,9 +31,9 @@ Route::get('/admin/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified', 'role:admin'])
     ->name('admin.dashboard');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified', 'role:user'])->name('dashboard');
+Route::get('/dashboard', [UserDashboardController::class, 'index'])
+    ->middleware(['auth', 'verified', 'role:user'])
+    ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -42,7 +44,12 @@ Route::middleware('auth')->group(function () {
 require __DIR__.'/auth.php';
 
 Route::prefix('admin')->middleware(['role:admin', 'throttle:100,1'])->group(function () {
+    // These must be placed BEFORE Route::resource('products') 
+    Route::get('/products/export', [AdminProductController::class, 'export'])->name('admin.products.export');
+    Route::get('/products/{product}/download', [AdminProductController::class, 'download'])->name('admin.products.download');
+
     Route::resource('products', AdminProductController::class);
+    
     Route::get('/logs', [LogViewerController::class, 'index'])->name('admin.logs');
     
     // Order Management
@@ -51,7 +58,6 @@ Route::prefix('admin')->middleware(['role:admin', 'throttle:100,1'])->group(func
     Route::put('/orders/{order}', [AdminOrderController::class, 'update'])->name('admin.orders.update');
 });
 
-Route::get('/products/{product}/download', [AdminProductController::class, 'download'])->name('products.download');
 
 // ------------------------------CART ROUTES------------------------------//
 
@@ -81,7 +87,7 @@ Route::prefix('user')->middleware(['role:user', 'auth'])->group(function () {
     Route::patch('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
 });
 
-Route::get('/products/export', [AdminProductController::class, 'export']);
+
 
 Route::fallback(function () {
     return view('404');
