@@ -60,8 +60,55 @@
 
 
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {{-- Order Analytics Section --}}
+            <div class="mb-8 border-b border-gray-200 dark:border-white/10 pb-8">
+                <h2 class="text-xl font-bold mb-4">Order Analytics</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                    <!-- Total Orders -->
+                    <div class="p-5 rounded-xl transition bg-white border border-gray-200 shadow-sm dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-md">
+                        <div class="text-blue-500 text-2xl mb-2">📦</div>
+                        <h3 class="text-xs font-semibold text-gray-500 dark:text-white/60 uppercase tracking-wider">Total Orders</h3>
+                        <p class="text-2xl font-bold mt-1 text-gray-900 dark:text-white">{{ $totalOrders }}</p>
+                    </div>
 
+                    <!-- Genuine Orders -->
+                    <div class="p-5 rounded-xl transition bg-white border border-gray-200 shadow-sm dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-md">
+                        <div class="text-green-500 text-2xl mb-2">✅</div>
+                        <h3 class="text-xs font-semibold text-gray-500 dark:text-white/60 uppercase tracking-wider">Genuine Orders</h3>
+                        <p class="text-2xl font-bold mt-1 text-gray-900 dark:text-white">{{ $genuineOrders }}</p>
+                    </div>
+
+                    <!-- Cancelled Orders -->
+                    <div class="p-5 rounded-xl transition bg-white border border-gray-200 shadow-sm dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-md">
+                        <div class="text-red-500 text-2xl mb-2">❌</div>
+                        <h3 class="text-xs font-semibold text-gray-500 dark:text-white/60 uppercase tracking-wider">Cancelled Orders</h3>
+                        <p class="text-2xl font-bold mt-1 text-gray-900 dark:text-white">{{ $cancelledOrders }}</p>
+                    </div>
+
+                    <!-- Total Revenue -->
+                    <div class="p-5 rounded-xl transition bg-white border border-gray-200 shadow-sm dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-md">
+                        <div class="text-yellow-500 text-2xl mb-2">💰</div>
+                        <h3 class="text-xs font-semibold text-gray-500 dark:text-white/60 uppercase tracking-wider">Total Revenue</h3>
+                        <p class="text-2xl font-bold mt-1 text-gray-900 dark:text-white">@currency($totalRevenue)</p>
+                    </div>
+                </div>
+
+                <!-- Revenue by Payment Method -->
+                @if($revenueByPaymentMethod->isNotEmpty())
+                    <h3 class="text-lg font-bold mt-8 mb-4">Revenue by Payment Method</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                        @foreach($revenueByPaymentMethod as $revenue)
+                            <div class="p-4 rounded-xl flex justify-between items-center transition bg-gray-50 hover:bg-gray-100 dark:bg-white/5 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10 shadow-sm">
+                                <span class="font-medium capitalize text-gray-700 dark:text-gray-300">{{ str_replace('_', ' ', $revenue->payment_method) }}</span>
+                                <span class="font-bold text-green-600 dark:text-green-400">@currency($revenue->total)</span>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+
+            <h2 class="text-xl font-bold mb-4">Categories Overview</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 @foreach ($categorySummary as $item)
                     <div
                         class="p-5 rounded-xl transition bg-white border border-gray-200 shadow-sm dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-md hover:shadow-md dark:hover:shadow-lg">

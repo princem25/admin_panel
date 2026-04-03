@@ -10,10 +10,12 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\User\ProductController as UserProductController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\DashboardController;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
 
 // --------------------------------------AUTH BREEZ----------------------------------//
 
@@ -23,9 +25,9 @@ Route::get('/', function () {
 // ● Middleware groups
 // ● Fallback route
 
-Route::get('/admin/dashboard', function () {
-    return view('admin.dashboard');
-})->middleware(['auth', 'verified', 'role:admin'])->name('admin.dashboard');
+Route::get('/admin/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified', 'role:admin'])
+    ->name('admin.dashboard');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
