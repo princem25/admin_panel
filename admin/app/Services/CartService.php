@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\ProductStockChanged;
 use App\Exceptions\ProductOutOfStockException;
 use App\Models\Product;
 use Illuminate\Support\Facades\Cache;
@@ -122,6 +123,8 @@ class CartService
                     'qty'        => $qty,
                     'new_stock'  => $product->fresh()->stock,
                 ]);
+
+                event(new ProductStockChanged($productId, $product->fresh()->stock));
             });
         });
     }
@@ -178,6 +181,9 @@ class CartService
                 if ($found) {
                     $this->setCart($cart);
                     Log::channel('products')->info('Stock restored (decrease)', ['product_id' => $productId]);
+
+                    $newStock = Product::where('id', $productId)->value('stock');
+                    event(new ProductStockChanged($productId, $newStock));
                 }
             });
         });
@@ -211,6 +217,9 @@ class CartService
 
                 if ($found) {
                     $this->setCart($cart);
+                    
+                    $newStock = Product::where('id', $productId)->value('stock');
+                    event(new ProductStockChanged($productId, $newStock));
                 }
             });
         });
@@ -232,6 +241,9 @@ class CartService
                 // Restore stock for all items atomically
                 foreach ($cart as $item) {
                     Product::where('id', $item['product_id'])->lockForUpdate()->increment('stock', $item['qty']);
+                    
+                    $newStock = Product::where('id', $item['product_id'])->value('stock');
+                    event(new ProductStockChanged($item['product_id'], $newStock));
                 }
 
                 Session::forget('cart');

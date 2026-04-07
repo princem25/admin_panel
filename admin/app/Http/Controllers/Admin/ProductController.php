@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\ProductStockChanged;
 use App\Exceptions\InsufficientPermissionException;
 use App\Exceptions\InvalidOrderException;
 use App\Exceptions\ProductOutOfStockException;
@@ -162,6 +163,11 @@ class ProductController extends Controller
             }
 
             $product->update($data);
+
+            // Broadcast stock change if it was updated
+            if (isset($data['stock'])) {
+                event(new ProductStockChanged($product->id, $product->stock));
+            }
 
             Cache::forget('products_list');
 
