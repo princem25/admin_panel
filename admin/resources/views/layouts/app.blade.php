@@ -39,6 +39,27 @@
     </div>
 
     @stack('scripts')
+
+    @auth
+        <script type="module">
+            document.addEventListener('DOMContentLoaded', () => {
+                // Join the global presence channel
+                window.Echo.join('store.browsing')
+                    .here((users) => {
+                        console.log('Active users count:', users.length);
+                    })
+                    .joining((user) => {
+                        console.log('User joined:', user.name);
+                    })
+                    .leaving((user) => {
+                        console.log('User left:', user.name);
+                    })
+                    .error((error) => {
+                        console.error('Presence channel error:', error);
+                    });
+            });
+        </script>
+    @endauth
 </body>
 
 </html>

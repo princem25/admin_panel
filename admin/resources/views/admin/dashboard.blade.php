@@ -132,6 +132,31 @@
 
             </div>
 
+            {{-- Live Browsing Activity Row --}}
+            <div class="mt-8 mb-8">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold flex items-center gap-2">
+                        <span class="relative flex h-3 w-3">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                        </span>
+                        Live Browsing Activity
+                    </h2>
+                    <span id="browsing-count" class="px-3 py-1 bg-blue-100 text-blue-800 dark:bg-cyan-500/20 dark:text-cyan-400 text-sm font-bold rounded-full border border-blue-200 dark:border-cyan-800 shadow-sm">
+                        0 Customers Online
+                    </span>
+                </div>
+
+                <div class="bg-white dark:bg-white/10 dark:backdrop-blur-xl border border-gray-200 dark:border-white/20 shadow-xl rounded-2xl overflow-hidden min-h-[120px]">
+                    <div id="browsing-list" class="flex flex-wrap gap-4 p-6 overflow-y-auto max-h-[300px]">
+                        {{-- Users will be injected here via JS --}}
+                        <div id="empty-browsing-state" class="w-full text-center py-6 text-gray-500 dark:text-gray-400 opacity-50 italic">
+                            No customers are currently browsing the store.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {{-- System Logs + Company Info Row --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
 
@@ -189,28 +214,83 @@
     </div>
 
     <script type="module">
-        if (window.Echo) {
-            window.Echo.private('admin.orders')
-                .listen('.order.placed', (data) => {
-                    const $toast = window.$(`
-                        <div class="bg-green-600 border border-green-400 text-white px-6 py-4 rounded-xl shadow-2xl max-w-sm mb-3">
-                            <h4 class="font-bold text-lg mb-2 flex items-center gap-2">
-                                <span>🛒</span> New Order Received!
-                            </h4>
-                            <p class="text-sm"><strong>Customer:</strong> ${data.customerName}</p>
-                            <p class="text-sm mt-1"><strong>Total:</strong> Rs.${data.orderTotal}</p>
-                            <p class="text-sm mt-1"><strong>Items:</strong> ${data.itemsCount}</p>
-                        </div>
-                    `);
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.Echo) {
+                // 🔹 Store Browsing Presence Channel
+                let browsingUsers = [];
+                const $list = window.$('#browsing-list');
+                const $count = window.$('#browsing-count');
+                const $emptyState = window.$('#empty-browsing-state');
 
-                    window.$('#toast-container').append($toast);
+                function updateBrowsingUI() {
+                    // Filter out admins and duplicates
+                    const uniqueUsers = Array.from(new Set(browsingUsers.map(u => u.id)))
+                        .map(id => browsingUsers.find(u => u.id === id))
+                        .filter(user => user.role !== 'admin');
 
-                    setTimeout(() => {
-                        $toast.fadeOut(400, function() {
-                            window.$(this).remove();
-                        });
-                    }, 8000);
-                });
-        }
+                    const count = uniqueUsers.length;
+                    $count.text(`${count} Customer${count === 1 ? '' : 's'} Online`);
+
+                    if (count === 0) {
+                        $emptyState.show();
+                    } else {
+                        $emptyState.hide();
+                    }
+
+                    // Remove current items except empty state
+                    $list.find('.browsing-user-card').remove();
+
+                    uniqueUsers.forEach(user => {
+                        const $card = window.$(`
+                            <div class="browsing-user-card transition-all duration-500 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 flex flex-col min-w-[150px] shadow-sm transform scale-100 hover:scale-105 active:scale-95">
+                                <span class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                                    ${user.name}
+                                </span>
+                             
+                            </div>
+                        `);
+                        $list.append($card);
+                    });
+                }
+
+                window.Echo.join('store.browsing')
+                    .here((users) => {
+                        browsingUsers = users;
+                        updateBrowsingUI();
+                    })
+                    .joining((user) => {
+                        browsingUsers.push(user);
+                        updateBrowsingUI();
+                    })
+                    .leaving((user) => {
+                        browsingUsers = browsingUsers.filter(u => u.id !== user.id);
+                        updateBrowsingUI();
+                    });
+
+                // 🔹 Admin Order Notifications
+                window.Echo.private('admin.orders')
+                    .listen('.order.placed', (data) => {
+                        const $toast = window.$(`
+                            <div class="bg-green-600 border border-green-400 text-white px-6 py-4 rounded-xl shadow-2xl max-w-sm mb-3">
+                                <h4 class="font-bold text-lg mb-2 flex items-center gap-2">
+                                    <span>🛒</span> New Order Received!
+                                </h4>
+                                <p class="text-sm"><strong>Customer:</strong> ${data.customerName}</p>
+                                <p class="text-sm mt-1"><strong>Total:</strong> Rs.${data.orderTotal}</p>
+                                <p class="text-sm mt-1"><strong>Items:</strong> ${data.itemsCount}</p>
+                            </div>
+                        `);
+
+                        window.$('#toast-container').append($toast);
+
+                        setTimeout(() => {
+                            $toast.fadeOut(400, function() {
+                                window.$(this).remove();
+                            });
+                        }, 8000);
+                    });
+            }
+        });
     </script>
 </x-app-layout>
