@@ -11,6 +11,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\User\ProductController as UserProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
 
 Route::get('/', function () {
@@ -52,6 +53,9 @@ Route::prefix('admin')->middleware(['role:admin', 'throttle:100,1'])->group(func
     
     Route::get('/logs', [LogViewerController::class, 'index'])->name('admin.logs');
     
+    // User Management
+    Route::get('/users', [DashboardController::class, 'usersList'])->name('admin.users.index');
+
     // Order Management
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('admin.orders.index');
     Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('admin.orders.show');

@@ -32,6 +32,15 @@
                         Orders
                     </a>
 
+                    @if ($current_logged_user->role === 'admin')
+                        <a href="{{ route('admin.users.index') }}"
+                            class="transition 
+                                text-gray-600 hover:text-gray-900
+                                dark:text-white/80 dark:hover:text-white">
+                            Customers
+                        </a>
+                    @endif
+
                 </div>
             </div>
 

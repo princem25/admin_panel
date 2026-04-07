@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\User;
 use App\Services\AdminService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -37,5 +38,13 @@ class DashboardController extends Controller
             'totalRevenue',
             'revenueByPaymentMethod'
         ));
+    }
+
+     public function usersList()
+    {
+        // Fetch users who are not admins (customers)
+        $users = User::where('role', 'user')->latest()->paginate(10);
+        
+        return view('admin.users.index', compact('users'));
     }
 }
