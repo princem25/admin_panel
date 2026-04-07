@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\OrderPlaced;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Services\CartService;
@@ -24,7 +25,7 @@ class CheckoutController extends Controller
     public function index()
     {
         $summary = $this->cartService->getCartSummary();
-        
+
         if ($summary['items']->isEmpty()) {
             return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
         }
@@ -88,9 +89,13 @@ class CheckoutController extends Controller
 
             Log::info('Order placed successfully', ['order_id' => $order->id, 'user_id' => auth()->id()]);
 
-            return redirect()->route('checkout.success', $order->id)
-                             ->with('success', 'Your order has been placed successfully! 🎉');
+            event(new OrderPlaced(
+                $order->full_name,
+                (float) $order->total_amount,
+                $cartItems->sum('quantity')
+            ));
 
+            return redirect()->route('checkout.success', $order->id)->with('success', 'Your order has been placed successfully! 🎉');
         } catch (\Exception $e) {
             Log::error('Order placement failed', [
                 'user_id' => auth()->id(),
