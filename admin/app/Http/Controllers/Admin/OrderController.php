@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\OrderStatusUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderStatusHistory;
@@ -98,6 +99,10 @@ class OrderController extends Controller
             });
 
             Log::info('Order updated by admin', ['order_id' => $order->id, 'admin_id' => auth()->id(), 'new_status' => $newStatus]);
+            
+            if ($oldStatus !== $newStatus) {
+                event(new OrderStatusUpdated($newStatus, (string)$order->id));
+            }
 
             return redirect()->route('admin.orders.show', $order->id)
                              ->with('success', 'Order updated successfully.');

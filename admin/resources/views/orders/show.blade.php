@@ -26,7 +26,7 @@
                         </form>
                     @endif
 
-                    <span class="px-4 py-2 
+                    <span id="order-status-badge" class="px-4 py-2 
                         {{ $order->status === 'pending' ? 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-500/20 dark:text-yellow-400 dark:border-yellow-500/30' : '' }}
                         {{ $order->status === 'processing' ? 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30' : '' }}
                         {{ $order->status === 'shipped' ? 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-500/20 dark:text-purple-400 dark:border-purple-500/30' : '' }}
@@ -94,7 +94,7 @@
                             </div>
                             <div class="flex justify-between text-gray-500 text-sm">
                                 <span>Status</span>
-                                <span class="font-bold text-yellow-600 dark:text-yellow-400 uppercase">{{ $order->status }}</span>
+                                <span id="update" class="font-bold text-yellow-600 dark:text-yellow-400 uppercase">{{ $order->status }}</span>
                             </div>
                             <div class="flex justify-between text-gray-500 text-sm">
                                 <span>Payment Method</span>
@@ -142,4 +142,50 @@
             </div>
         </div>
     </div>
+
+    <script type="module">
+        if (window.Echo) {
+            window.Echo.private('order.{{ $order->id }}')
+                .listen('.order.status.updated', (data) => {
+                    const badge = window.$('#order-status-badge');
+                    const status = window.$('#update');
+                    
+                    // Simple replacement of text
+                    badge.text(data.orderStatus);
+                    status.text(data.orderStatus);
+
+                    // Reset all colors and apply the new ones
+                    const baseClasses = "px-4 py-2 rounded-full font-bold uppercase tracking-widest text-xs border shadow-sm";
+                    let newColorClasses = "";
+                    
+                    switch (data.orderStatus) {
+                        case 'pending': newColorClasses = 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-500/20 dark:text-yellow-400 dark:border-yellow-500/30'; break;
+                        case 'processing': newColorClasses = 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30'; break;
+                        case 'shipped': newColorClasses = 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-500/20 dark:text-purple-400 dark:border-purple-500/30'; break;
+                        case 'delivered': newColorClasses = 'bg-green-100 text-green-800 border-green-200 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/30'; break;
+                        case 'cancelled': newColorClasses = 'bg-red-100 text-red-800 border-red-200 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/30'; break;
+                    }
+
+                    badge.attr('class', baseClasses + " " + newColorClasses);
+
+                    // Show toast popup
+                    const $toast = window.$(`
+                        <div class="bg-blue-600 border border-blue-400 text-white px-6 py-4 rounded-xl shadow-2xl max-w-sm mb-3">
+                            <h4 class="font-bold text-lg flex items-center gap-2">
+                                <span>🔔</span> Status Updated!
+                            </h4>
+                            <p class="text-sm mt-1">Your order is now <strong>${data.orderStatus.toUpperCase()}</strong>.</p>
+                        </div>
+                    `);
+
+                    window.$('#toast-container').append($toast);
+
+                    setTimeout(() => {
+                        $toast.fadeOut(400, function() {
+                            window.$(this).remove();
+                        });
+                    }, 5000);
+                });
+        }
+    </script>
 </x-app-layout>

@@ -9,3 +9,7 @@ Broadcast::channel('users', function ($user) {
 Broadcast::channel('admin.orders', function ($user) {
     return $user->role === 'admin';
 });
+
+Broadcast::channel('order.{orderId}', function ($user, $orderId) {
+    return $user->orders()->where('id', $orderId)->exists() || $user->role === 'admin';
+});
