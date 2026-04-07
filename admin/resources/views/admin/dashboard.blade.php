@@ -188,4 +188,29 @@
 
     </div>
 
+    <script type="module">
+        if (window.Echo) {
+            window.Echo.private('admin.orders')
+                .listen('.order.placed', (data) => {
+                    const $toast = window.$(`
+                        <div class="bg-green-600 border border-green-400 text-white px-6 py-4 rounded-xl shadow-2xl max-w-sm mb-3">
+                            <h4 class="font-bold text-lg mb-2 flex items-center gap-2">
+                                <span>🛒</span> New Order Received!
+                            </h4>
+                            <p class="text-sm"><strong>Customer:</strong> ${data.customerName}</p>
+                            <p class="text-sm mt-1"><strong>Total:</strong> Rs.${data.orderTotal}</p>
+                            <p class="text-sm mt-1"><strong>Items:</strong> ${data.itemsCount}</p>
+                        </div>
+                    `);
+
+                    window.$('#toast-container').append($toast);
+
+                    setTimeout(() => {
+                        $toast.fadeOut(400, function() {
+                            window.$(this).remove();
+                        });
+                    }, 8000);
+                });
+        }
+    </script>
 </x-app-layout>

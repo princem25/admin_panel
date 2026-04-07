@@ -20,6 +20,9 @@
     <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
         @include('layouts.navigation')
 
+        <!-- Toast Notifications Container -->
+        <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50" id="toast-container"></div>
+
         <!-- Page Heading -->
         @isset($header)
             <header class="bg-white dark:bg-gray-800 shadow">
