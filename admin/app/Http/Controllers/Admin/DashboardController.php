@@ -41,7 +41,7 @@ class DashboardController extends Controller
      public function usersList()
     {
         // Fetch users who are not admins (customers)
-        $users = User::where('role', 'user')->latest()->paginate(10);
+        $users = User::where('role', 'user')->latest()->paginate(12);
         
         return view('admin.users.index', compact('users'));
     }

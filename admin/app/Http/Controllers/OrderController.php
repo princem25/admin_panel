@@ -16,10 +16,10 @@ class OrderController extends Controller
 
         if ($user->role === 'admin') {
             // Admin sees all orders
-            $orders = Order::with('user')->latest()->paginate(10);
+            $orders = Order::with('user')->latest()->paginate(12);
         } else {
             // Regular user only sees their own orders
-            $orders = $user->orders()->latest()->paginate(10);
+            $orders = $user->orders()->latest()->paginate(12);
         }
 
         return view('orders.index', compact('orders'));

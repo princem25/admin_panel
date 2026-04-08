@@ -35,16 +35,18 @@ class ProductController extends Controller
         Log::debug('Product index requested', $request->only(['search', 'category', 'price']));
 
         $greeting = Greeting::greet('Product Section');
+        $page = $request->get('page', 1);
 
         if (! $request->hasAny(['search', 'category', 'price'])) {
-            $products = Cache::remember('products_list', 60, function () {
-                return collect($this->productService->all());
-            });
+            $products = $this->productService->paginate(12);
         } else {
-            $products = Product::filter($request->only(['search', 'category', 'price']))->latest()->get();
+            $products = Product::filter($request->only(['search', 'category', 'price']))
+                ->latest()
+                ->paginate(12)
+                ->withQueryString();
         }
 
-        $total_products = collect($products)->count();
+        $total_products = $products->total();
 
         // Log::info — normal action: admin viewed products list
         Log::channel('products')->info('Admin viewed products list', ['total' => $total_products]);
@@ -243,7 +245,7 @@ class ProductController extends Controller
         return response()->json(['message' => 'Emergency log triggered. Check storage/logs/laravel.log.']);
     }
 
-     public function export()
+    public function export()
     {
         $callback = $this->productService->exportCsv();
 
@@ -252,4 +254,6 @@ class ProductController extends Controller
             "Content-Disposition" => "attachment; filename=products.csv",
         ]);
     }
-}
+
+    }
+

@@ -7,6 +7,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Cache;
 
 class ProductController extends Controller
 {
@@ -14,10 +15,21 @@ class ProductController extends Controller
     {
         Log::debug('User browsing products', $request->only(['search', 'category', 'price']));
 
-        $products = Product::filter($request->only(['search', 'category', 'price']))
-            ->with('category')
-            ->latest()
-            ->get();
+        $filters = $request->only(['search', 'category', 'price']);
+        
+        // Cache versioning for invalidation (as database driver doesn't support tags)
+        $version = Cache::get('user_products_version', 1);
+        $filterHash = md5(json_encode($filters));
+        $page = $request->get('page', 1);
+        $cacheKey = "user_products_v{$version}_{$filterHash}_p{$page}";
+
+        $products = Cache::remember($cacheKey, 3600, function () use ($filters) {
+            return Product::filter($filters)
+                ->with('category')
+                ->latest()
+                ->paginate(12)
+                ->withQueryString();
+        });
 
         $cart = session()->get('cart', []);
         $cartProductIds = collect($cart)->pluck('product_id')->toArray();
@@ -33,7 +45,9 @@ class ProductController extends Controller
     public function show(Product $product)
     {
         try {
-            $product->load('category');
+            $product = Cache::remember("product_details_{$product->id}", 1800, function () use ($product) {
+                return $product->load('category');
+            });
 
             // Session: track recently viewed products
             $recent = session()->get('recent', []);

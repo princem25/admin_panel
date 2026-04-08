@@ -11,6 +11,11 @@ class ProductService
         return Product::with('category')->latest()->get();
     }
 
+    public function paginate(int $perPage = 10)
+    {
+        return Product::with('category')->latest()->paginate($perPage);
+    }
+
     public function exportCsv()
     {
         $products = Product::with('category')->get();
