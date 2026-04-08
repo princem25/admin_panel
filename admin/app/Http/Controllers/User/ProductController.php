@@ -16,12 +16,15 @@ class ProductController extends Controller
         Log::debug('User browsing products', $request->only(['search', 'category', 'price']));
 
         $filters = $request->only(['search', 'category', 'price']);
-        
-        // Cache versioning for invalidation (as database driver doesn't support tags)
-        $version = Cache::get('user_products_version', 1);
-        $filterHash = md5(json_encode($filters));
-        $page = $request->get('page', 1);
-        $cacheKey = "user_products_v{$version}_{$filterHash}_p{$page}";
+        $page = $request->input('page', 1);
+        $categoryId = $request->input('category');
+
+        // Simple Caching Keys as requested
+        if ($categoryId && is_numeric($categoryId)) {
+            $cacheKey = "products_category_{$categoryId}_page_{$page}";
+        } else {
+            $cacheKey = "products_page_{$page}";
+        }
 
         $products = Cache::remember($cacheKey, 3600, function () use ($filters) {
             return Product::filter($filters)
@@ -45,7 +48,9 @@ class ProductController extends Controller
     public function show(Product $product)
     {
         try {
-            $product = Cache::remember("product_details_{$product->id}", 1800, function () use ($product) {
+            $cacheKey = "product_{$product->id}";
+
+            $product = Cache::remember($cacheKey, 1800, function () use ($product) {
                 return $product->load('category');
             });
 

@@ -13,8 +13,6 @@ class HomeController extends Controller
      */
     public function index()
     {
-        // Cache featured products for 1 hour (3600 seconds)
-        // We define "featured" as the latest 8 products for now.
         $featuredProducts = Cache::remember('featured_products', 3600, function () {
             return Product::with('category')
                 ->latest()

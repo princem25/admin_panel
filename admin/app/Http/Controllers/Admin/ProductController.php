@@ -29,26 +29,46 @@ class ProductController extends Controller
         $this->productService = $productService;
     }
 
+    /**
+     * Invalidate product cache and related caches
+     */
+    private function invalidateProductCache(?int $productId = null)
+    {
+        // Clear specific product details
+        if ($productId) {
+            Cache::forget("product_{$productId}");
+        }
+
+        // Clear first 3 pages of listings
+        for ($i = 1; $i <= 3; $i++) {
+            Cache::forget("products_page_{$i}");
+        }
+
+        // Clear category caches
+        Cache::forget('categories');
+        Cache::forget('category_summary');
+
+        // Clear featured products
+        Cache::forget('featured_products');
+    }
+
     public function index(Request $request)
     {
-        // Log::debug — developer debug: show the incoming request filters
+        // Log::debug — developer debug
         Log::debug('Product index requested', $request->only(['search', 'category', 'price']));
 
         $greeting = Greeting::greet('Product Section');
-        $page = $request->get('page', 1);
+        $filters = $request->only(['search', 'category', 'price']);
 
-        if (! $request->hasAny(['search', 'category', 'price'])) {
-            $products = $this->productService->paginate(12);
-        } else {
-            $products = Product::filter($request->only(['search', 'category', 'price']))
-                ->latest()
-                ->paginate(12)
-                ->withQueryString();
-        }
+        // Fetch products directly (simple caching requested for frontend only)
+        $products = Product::filter($filters)
+            ->latest()
+            ->paginate(12)
+            ->withQueryString();
 
         $total_products = $products->total();
 
-        // Log::info — normal action: admin viewed products list
+        // Log::info
         Log::channel('products')->info('Admin viewed products list', ['total' => $total_products]);
 
         return view('product.index', compact(
@@ -87,7 +107,7 @@ class ProductController extends Controller
 
             $product = Product::create($data);
 
-            Cache::forget('products_list');
+            $this->invalidateProductCache();
 
             Log::channel('products')->info('Product created successfully', [
                 'id'   => $product->id,
@@ -171,7 +191,7 @@ class ProductController extends Controller
                 event(new ProductStockChanged($product->id, $product->stock));
             }
 
-            Cache::forget('products_list');
+            $this->invalidateProductCache($product->id);
 
             Log::channel('products')->info('Product updated successfully', ['id' => $product->id]);
 
@@ -205,7 +225,7 @@ class ProductController extends Controller
 
             $product->delete();
 
-            Cache::forget('products_list');
+            $this->invalidateProductCache($productId);
 
             // Log::warning — deletion is a significant action
             Log::channel('security')->warning('Product deleted', ['id' => $productId]);
