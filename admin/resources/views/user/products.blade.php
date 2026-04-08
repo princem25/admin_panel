@@ -16,9 +16,7 @@
 
         <div class="relative w-[90%] mx-auto py-10">
 
-            <!-- Title -->
-            <h2 class="text-3xl font-bold mb-8 
-            text-blue-600 dark:text-cyan-400">
+            <h2 class="text-3xl font-bold mb-8 text-blue-600 dark:text-cyan-400">
                 🛍️ Browse Products
             </h2>
 

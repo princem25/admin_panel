@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class AdminService
@@ -40,5 +41,20 @@ class AdminService
         return Product::with('category')
             ->select('id', 'name', 'category_id', 'stock')
             ->get();
+    }
+
+    public function countNewCustomersToday()
+    {
+        return User::where('role', 'user')->whereDate('created_at', now())->count();
+    }
+    
+    public function countPendingOrders()
+    {
+        return Order::where('status', 'pending')->count();
+    }
+
+    public function countLowStockProducts()
+    {
+        return Product::where('stock', '<=', 5)->count();
     }
 }

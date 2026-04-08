@@ -46,8 +46,7 @@
 
                     <!-- Right: Product Details -->
                     <div class="md:w-1/2 p-8 lg:p-12 flex flex-col justify-center">
-                        <h1
-                            class="text-3xl md:text-5xl font-extrabold mb-4 text-gray-900 dark:text-white tracking-tight">
+                        <h1 class="text-3xl md:text-5xl font-extrabold mb-4 text-gray-900 dark:text-white tracking-tight">
                             {{ $product->name ?? 'Unknown Product' }}
                         </h1>
 

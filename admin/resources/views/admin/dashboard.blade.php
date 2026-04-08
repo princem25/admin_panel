@@ -93,7 +93,6 @@
                     </div>
                 </div>
 
-                <!-- Revenue by Payment Method -->
                 @if($revenueByPaymentMethod->isNotEmpty())
                     <h3 class="text-lg font-bold mt-8 mb-4">Revenue by Payment Method</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
@@ -105,6 +104,33 @@
                         @endforeach
                     </div>
                 @endif
+            </div>
+
+            {{-- New Stats Row: Quick Insights --}}
+            <div class="mb-10">
+                <h2 class="text-xl font-bold mb-4">Quick Insights</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <!-- New Customers Today -->
+                    <div class="p-5 rounded-xl transition bg-white border border-gray-200 shadow-sm dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-md">
+                        <div class="text-cyan-500 text-2xl mb-2">👥</div>
+                        <h3 class="text-xs font-semibold text-gray-500 dark:text-white/60 uppercase tracking-wider">New Customers Today</h3>
+                        <p class="text-2xl font-bold mt-1 text-gray-900 dark:text-white">{{ $newCustomersToday }}</p>
+                    </div>
+
+                    <!-- Pending Orders -->
+                    <div class="p-5 rounded-xl transition bg-white border border-gray-200 shadow-sm dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-md">
+                        <div class="text-orange-500 text-2xl mb-2">⌛</div>
+                        <h3 class="text-xs font-semibold text-gray-500 dark:text-white/60 uppercase tracking-wider">Pending Orders</h3>
+                        <p class="text-2xl font-bold mt-1 text-gray-900 dark:text-white">{{ $pendingOrders }}</p>
+                    </div>
+
+                    <!-- Low Stock Alerts -->
+                    <div class="p-5 rounded-xl transition bg-white border border-gray-200 shadow-sm dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-md">
+                        <div class="text-red-500 text-2xl mb-2">⚠️</div>
+                        <h3 class="text-xs font-semibold text-gray-500 dark:text-white/60 uppercase tracking-wider">Low Stock Products</h3>
+                        <p class="text-2xl font-bold mt-1 text-gray-900 dark:text-white">{{ $lowStockProducts }}</p>
+                    </div>
+                </div>
             </div>
 
             <h2 class="text-xl font-bold mb-4">Categories Overview</h2>
