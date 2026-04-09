@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Product;
+use App\Services\ProductService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -11,38 +13,35 @@ use Illuminate\Support\Facades\Cache;
 
 class ProductController extends Controller
 {
+    protected $productService;
+
+    public function __construct(ProductService $productService)
+    {
+        $this->productService = $productService;
+    }
+
     public function index(Request $request)
     {
-        Log::debug('User browsing products', $request->only(['search', 'category', 'price']));
+        Log::debug('User browsing products', $request->all());
 
-        $filters = $request->only(['search', 'category', 'price']);
-        $page = $request->input('page', 1);
-        $categoryId = $request->input('category');
-
-        // Simple Caching Keys as requested
-        if ($categoryId && is_numeric($categoryId)) {
-            $cacheKey = "products_category_{$categoryId}_page_{$page}";
-        } else {
-            $cacheKey = "products_page_{$page}";
-        }
-
-        $products = Cache::tags(['products'])->remember($cacheKey, 3600, function () use ($filters) {
-            return Product::filter($filters)
-                ->with('category')
-                ->latest()
-                ->paginate(12)
-                ->withQueryString();
-        });
+        // Delegate all complex filtering, sorting, and caching to the Service
+        $products = $this->productService->getFilteredProducts($request);
 
         $cart = session()->get('cart', []);
         $cartProductIds = collect($cart)->pluck('product_id')->toArray();
 
+        // Fetch categories for the filter dropdown
+        $categories = Category::all();
+
         // User Preference: apply session theme
         $theme = session('theme', 'light');
 
-        Log::channel('products')->info('User viewed product listing', ['count' => $products->count()]);
+        Log::channel('products')->info('User viewed product listing (Service Layer Processed)', [
+            'total_found' => $products->total(),
+            'current_page' => $products->currentPage()
+        ]);
 
-        return view('user.products', compact('products', 'cartProductIds', 'theme'));
+        return view('user.products', compact('products', 'cartProductIds', 'theme', 'categories'));
     }
 
     public function show(Product $product)

@@ -20,82 +20,117 @@
                 🛍️ Browse Products
             </h2>
 
-              <!-- 🔍 Filter Form -->
-
-            <div class="flex justify-between gap-4 flex-wrap">
-
+              <!-- 🔍 Filter -->
+            <div class="flex justify-center mb-8">
                 <form method="GET" action="{{ route('user.products') }}"
-                    class="mb-8 flex flex-wrap gap-4 items-end 
-
-                    bg-white border border-gray-200 shadow-md
+                    class="flex flex-wrap gap-4 items-end 
+                    bg-white border border-gray-200 shadow-lg
                     dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 
-                    p-5 rounded-xl w-full md:w-[80%]">
+                    p-4 rounded-xl w-full max-w-7xl">
 
-                    <!-- Name -->
-                    <div>
-                        <label class="text-sm text-gray-600 dark:text-white/70">Product Name</label>
-                        <input type="text" name="search" value="{{ request('search') }}"
-                            class="border p-2 rounded-lg w-44 bg-white border-gray-300 text-gray-900
-                            dark:bg-white/10 dark:border-white/20 dark:text-white">
-                    </div>
- 
-                    <!-- Category -->
-                    <div>
-                        <label class="text-sm text-gray-600 dark:text-white/70">
-                            Category
-                        </label>
-
-                        <select name="category"
-                            class="border p-2 rounded-lg w-44 bg-white border-gray-300 text-gray-900
-                            dark:bg-white/10 dark:border-white/20 dark:text-white">
-
-                            <option value="" class="text-gray-500 dark:text-gray-300">
-                                All Categories
-                            </option>
-
-                            @foreach ($categories as $category)
-                                <option value="{{ $category->id }}"
-                                    {{ request('category') == $category->id ? 'selected' : '' }}
-                                    class="bg-white text-black dark:bg-gray-800 dark:text-white">
-
-                                    {{ $category->name }}
-
-                                </option>
-                            @endforeach
-
+                    <!-- 🚀 Sort By -->
+                    <div class="flex-1 min-w-[160px]">
+                        <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-white/40 mb-1.5 ml-1">Sort By</label>
+                        <select name="sort" onchange="this.form.submit()"
+                            class="w-full h-10 py-1 text-sm border-gray-200 dark:border-white/10 rounded-lg bg-white dark:bg-[#2c3e50] text-gray-900 dark:text-gray-100 focus:ring-blue-500">
+                            <option value="newest" class="text-black dark:text-white bg-white dark:bg-[#2c3e50]" {{ request('sort') == 'newest' ? 'selected' : '' }}>✨ Newest</option>
+                            <option value="price_low" class="text-black dark:text-white bg-white dark:bg-[#2c3e50]" {{ request('sort') == 'price_low' ? 'selected' : '' }}>📉 Lowest Price</option>
+                            <option value="price_high" class="text-black dark:text-white bg-white dark:bg-[#2c3e50]" {{ request('sort') == 'price_high' ? 'selected' : '' }}>📈 Highest Price</option>
+                            <option value="popularity" class="text-black dark:text-white bg-white dark:bg-[#2c3e50]" {{ request('sort') == 'popularity' ? 'selected' : '' }}>🔥 Popularity</option>
                         </select>
                     </div>
-                    <!-- Price -->
-                    <div>
-                        <label class="text-sm text-gray-600 dark:text-white/70">Max Price</label>
-                        <input type="number" name="price" value="{{ request('price') }}"
-                            class="border p-2 rounded-lg w-32 
-                            bg-white border-gray-300 text-gray-900
-                            dark:bg-white/10 dark:border-white/20 dark:text-white">
+
+                    <!-- 🔍 Search -->
+                    <div class="flex-1 min-w-[200px]">
+                        <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-white/40 mb-1.5 ml-1">Search</label>
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            class="w-full h-10 py-1 text-sm border-gray-200 dark:border-white/10 rounded-lg bg-white dark:bg-[#2c3e50] text-gray-900 dark:text-gray-100 focus:ring-blue-500"
+                            placeholder="Product name...">
                     </div>
 
-                    <!-- Buttons -->
+                    <!-- 🏷️ Category -->
+                    <div class="flex-1 min-w-[160px]">
+                        <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-white/40 mb-1.5 ml-1">Category</label>
+                        <select name="category" onchange="this.form.submit()"
+                            class="w-full h-10 py-1 text-sm border-gray-200 dark:border-white/10 rounded-lg bg-white dark:bg-[#2c3e50] text-gray-900 dark:text-gray-100 focus:ring-blue-500">
+                            <option value="" class="text-black dark:text-white bg-white dark:bg-[#2c3e50]">All Categories</option>
+                            @foreach ($categories as $category)
+                                <option value="{{ $category->id }}" class="text-black dark:text-white bg-white dark:bg-[#2c3e50]" {{ request('category') == $category->id ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- 💰 Price Range -->
+                    <div class="flex items-end gap-2">
+                        <div class="w-24">
+                            <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-white/40 mb-1.5 ml-1">Min Price</label>
+                            <input type="number" name="min_price" value="{{ request('min_price') }}"
+                                class="w-full h-10 py-1 text-sm border-gray-200 dark:border-white/10 rounded-lg bg-white dark:bg-[#2c3e50] text-gray-900 dark:text-gray-100 focus:ring-blue-500"
+                                placeholder="₹ Min">
+                        </div>
+                        <div class="w-24">
+                            <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-white/40 mb-1.5 ml-1">Max Price</label>
+                            <input type="number" name="max_price" value="{{ request('max_price') }}"
+                                class="w-full h-10 py-1 text-sm border-gray-200 dark:border-white/10 rounded-lg bg-white dark:bg-[#2c3e50] text-gray-900 dark:text-gray-100 focus:ring-blue-500"
+                                placeholder="₹ Max">
+                        </div>
+                    </div>
+
+                    <!-- ✅ Quick Filters -->
+                    <div class="flex items-center gap-4 pb-2">
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <input type="checkbox" name="in_stock" value="1" {{ request('in_stock') ? 'checked' : '' }} onchange="this.form.submit()"
+                                class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:bg-white/10 dark:border-white/20">
+                            <span class="text-xs font-semibold text-gray-600 dark:text-white/70 group-hover:text-blue-500 transition">In Stock</span>
+                        </label>
+                        
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <input type="checkbox" name="on_sale" value="1" {{ request('on_sale') ? 'checked' : '' }} onchange="this.form.submit()"
+                                class="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500 dark:bg-white/10 dark:border-white/20">
+                            <span class="text-xs font-semibold text-gray-600 dark:text-white/70 group-hover:text-red-500 transition">On Sale</span>
+                        </label>
+                    </div>
+
+                    <!-- ⚡ Buttons -->
                     <div class="flex gap-2">
                         <button type="submit"
-                            class="px-4 py-2 rounded-lg text-white
-                            bg-blue-600 hover:bg-blue-700
-                            dark:bg-cyan-500 dark:hover:bg-cyan-600">
-                            Search
+                            class="px-5 py-2.5 rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20 transition active:scale-95 text-sm font-bold">
+                            Filter
                         </button>
-
                         <a href="{{ route('user.products') }}"
-                            class="px-4 py-2 rounded-lg 
-                            border border-gray-300 hover:bg-gray-100
-                            dark:border-white/20 dark:hover:bg-white/10">
+                            class="px-4 py-2.5 rounded-lg border border-gray-300 dark:border-white/20 hover:bg-gray-100 dark:hover:bg-white/10 dark:text-white transition text-sm font-medium">
                             Reset
                         </a>
                     </div>
-
                 </form>
-
             </div>
+
             <!-- Flash Message -->
             <x-flash-message />
+
+            <!-- 📊 Results Summary -->
+            <div class="mb-6 flex justify-between items-center bg-gray-50/50 dark:bg-white/5 p-4 rounded-xl border border-gray-100 dark:border-white/10">
+                <div class="text-sm font-medium text-gray-600 dark:text-gray-300">
+                    Showing <span class="text-blue-600 dark:text-cyan-400 font-bold">{{ $products->total() }}</span> products
+                    @if(request('search'))
+                        for <span class="italic text-gray-900 dark:text-white">"{{ request('search') }}"</span>
+                    @endif
+                    @if(request('min_price') || request('max_price'))
+                        in range <span class="font-bold text-gray-900 dark:text-white">₹{{ request('min_price', 0) }} - ₹{{ request('max_price', '100000') }}</span>
+                    @endif
+                </div>
+
+                <div class="flex gap-2">
+                    @if(request('in_stock'))
+                        <span class="px-2 py-1 bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 text-[10px] font-bold uppercase rounded-md">In Stock</span>
+                    @endif
+                    @if(request('on_sale'))
+                        <span class="px-2 py-1 bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 text-[10px] font-bold uppercase rounded-md">On Sale</span>
+                    @endif
+                </div>
+            </div>
 
             <!-- Product Grid -->
             @if ($products->isEmpty())

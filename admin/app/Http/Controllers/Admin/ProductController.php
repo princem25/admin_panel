@@ -29,6 +29,7 @@ class ProductController extends Controller
         $this->productService = $productService;
     }
 
+
     /**
      * Invalidate product cache and related caches
      */
