@@ -43,41 +43,57 @@
                             @error('shipping_address') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
                         </div>
 
-                        {{-- Payment Method --}}
-                        <div class="space-y-4">
+                        {{-- Payment Method with Alpine.js for Tailwind 3.1 compatibility --}}
+                        <div class="space-y-4" x-data="{ method: '{{ old('payment_method', 'cod') }}' }">
                             <label class="block font-bold text-gray-700 dark:text-gray-300 mb-2">Select Payment Method 💳</label>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 {{-- COD --}}
-                                <label class="cursor-pointer relative flex items-center p-4 border rounded-xl transition hover:bg-gray-50 dark:hover:bg-white/5 border-gray-200 dark:border-white/10 has-[:checked]:border-blue-500 has-[:checked]:ring-1 has-[:checked]:ring-blue-500">
-                                    <input type="radio" name="payment_method" value="cod" class="hidden" {{ old('payment_method', 'cod') === 'cod' ? 'checked' : '' }}>
+                                <label 
+                                    class="cursor-pointer relative flex items-center p-4 border-2 rounded-xl transition hover:bg-gray-50 dark:hover:bg-white/5"
+                                    :class="method === 'cod' ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-500/10' : 'border-gray-200 dark:border-white/10'">
+                                    
+                                    <input type="radio" name="payment_method" value="cod" class="hidden" x-model="method">
                                     <div class="flex items-center gap-3">
                                         <div class="p-2 bg-blue-100 dark:bg-blue-500/20 rounded-lg text-blue-600 dark:text-blue-400">
                                             🚚
                                         </div>
                                         <span class="font-bold text-gray-800 dark:text-white">COD</span>
                                     </div>
+                                    {{-- Custom indicator --}}
+                                    <div class="absolute top-2 right-2 w-4 h-4 rounded-full border-2 transition-colors"
+                                         :class="method === 'cod' ? 'border-blue-500 bg-blue-500' : 'border-gray-300 dark:border-white/20'"></div>
                                 </label>
 
                                 {{-- UPI --}}
-                                <label class="cursor-pointer relative flex items-center p-4 border rounded-xl transition hover:bg-gray-50 dark:hover:bg-white/5 border-gray-200 dark:border-white/10 has-[:checked]:border-blue-500 has-[:checked]:ring-1 has-[:checked]:ring-blue-500">
-                                    <input type="radio" name="payment_method" value="upi" class="hidden" {{ old('payment_method') === 'upi' ? 'checked' : '' }}>
+                                <label 
+                                    class="cursor-pointer relative flex items-center p-4 border-2 rounded-xl transition hover:bg-gray-50 dark:hover:bg-white/5"
+                                    :class="method === 'upi' ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-500/10' : 'border-gray-200 dark:border-white/10'">
+                                    
+                                    <input type="radio" name="payment_method" value="upi" class="hidden" x-model="method">
                                     <div class="flex items-center gap-3">
                                         <div class="p-2 bg-purple-100 dark:bg-purple-500/20 rounded-lg text-purple-600 dark:text-purple-400">
                                             📱
                                         </div>
                                         <span class="font-bold text-gray-800 dark:text-white">UPI</span>
                                     </div>
+                                    <div class="absolute top-2 right-2 w-4 h-4 rounded-full border-2 transition-colors"
+                                         :class="method === 'upi' ? 'border-blue-500 bg-blue-500' : 'border-gray-300 dark:border-white/20'"></div>
                                 </label>
 
                                 {{-- CARD --}}
-                                <label class="cursor-pointer relative flex items-center p-4 border rounded-xl transition hover:bg-gray-50 dark:hover:bg-white/5 border-gray-200 dark:border-white/10 has-[:checked]:border-blue-500 has-[:checked]:ring-1 has-[:checked]:ring-blue-500">
-                                    <input type="radio" name="payment_method" value="card" class="hidden" {{ old('payment_method') === 'card' ? 'checked' : '' }}>
+                                <label 
+                                    class="cursor-pointer relative flex items-center p-4 border-2 rounded-xl transition hover:bg-gray-50 dark:hover:bg-white/5"
+                                    :class="method === 'card' ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-500/10' : 'border-gray-200 dark:border-white/10'">
+                                    
+                                    <input type="radio" name="payment_method" value="card" class="hidden" x-model="method">
                                     <div class="flex items-center gap-3">
                                         <div class="p-2 bg-green-100 dark:bg-green-500/20 rounded-lg text-green-600 dark:text-green-400">
                                             💳
                                         </div>
                                         <span class="font-bold text-gray-800 dark:text-white">Card</span>
                                     </div>
+                                    <div class="absolute top-2 right-2 w-4 h-4 rounded-full border-2 transition-colors"
+                                         :class="method === 'card' ? 'border-blue-500 bg-blue-500' : 'border-gray-300 dark:border-white/20'"></div>
                                 </label>
                             </div>
                             @error('payment_method') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror

@@ -26,7 +26,23 @@ class CartController extends Controller
         $totalSavings = $summary['totalSavings'];
         $sessiondata  = session()->get('cart');
 
-        return view('cart.index', compact('cartItems', 'grandTotal', 'totalSavings', 'sessiondata'));
+        // Recently Viewed Items
+        $inCartIds = collect($cartItems)->pluck('product_id')->toArray();
+        $recentIds = array_diff(session()->get('recent', []), $inCartIds);
+        
+        $recentProducts = Product::whereIn('id', $recentIds)
+            ->with(['category'])
+            ->latest()
+            ->take(5)
+            ->get();
+
+        return view('cart.index', compact(
+            'cartItems', 
+            'grandTotal', 
+            'totalSavings', 
+            'sessiondata',
+            'recentProducts'
+        ));
     }
 
     // Add to Cart
@@ -35,6 +51,13 @@ class CartController extends Controller
         try {
             // CartService handles all stock validation and DB decrement
             $this->cartService->addToCart($product->id, 1);
+
+            // Also track as 'recently viewed' when added to cart
+            $recent = session()->get('recent', []);
+            $recent = array_diff($recent, [$product->id]); // remove if already exists
+            array_unshift($recent, $product->id);          // add to front
+            $recent = array_slice($recent, 0, 10);         // limit to 10
+            session()->put('recent', $recent);
 
             Log::info('Product added to cart', ['product_id' => $product->id]);
 

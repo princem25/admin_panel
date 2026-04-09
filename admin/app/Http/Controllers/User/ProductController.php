@@ -54,11 +54,12 @@ class ProductController extends Controller
                 return $product->load('category');
             });
 
-            // Session: track recently viewed products
+            // Session: track recently viewed products (unique, capped at 10, newest first)
             $recent = session()->get('recent', []);
-            if (! in_array($product->id, $recent)) {
-                session()->push('recent', $product->id);
-            }
+            $recent = array_diff($recent, [$product->id]); // remove if already exists
+            array_unshift($recent, $product->id);          // add to front
+            $recent = array_slice($recent, 0, 10);         // limit to 10
+            session()->put('recent', $recent);
 
             // Log::info — user viewed a single product page
             Log::channel('products')->info('User viewed product', [
