@@ -33,7 +33,7 @@
                     <!-- Left: Product Image -->
                     <div
                         class="md:w-1/2 p-8 flex items-center justify-center bg-gray-50 dark:bg-white/5 relative h-80 md:h-auto">
-                        <img src="{{ !empty($product->image) ? asset('storage/images/' . $product->image) : 'https://via.placeholder.com/500' }}"
+                        <img src="{{ !empty($product->image) ? Storage::url('images/' . $product->image) : 'https://via.placeholder.com/500' }}"
                             alt="{{ $product->name ?? 'Product' }}"
                             class="max-h-[350px] w-auto object-contain transition-transform duration-300 hover:scale-105 drop-shadow-lg">
 
@@ -169,7 +169,7 @@
                               transition-all duration-300 hover:-translate-y-1">
                                 <div
                                     class="h-36 bg-gray-50 dark:bg-white/5 flex items-center justify-center overflow-hidden">
-                                    <img src="{{ !empty($recentProduct->image) ? asset('storage/images/' . $recentProduct->image) : 'https://via.placeholder.com/200' }}"
+                                    <img src="{{ !empty($recentProduct->image) ? Storage::url('images/' . $recentProduct->image) : 'https://via.placeholder.com/200' }}"
                                         alt="{{ $recentProduct->name }}"
                                         class="h-32 w-auto object-contain group-hover:scale-105 transition-transform duration-300">
                                 </div>

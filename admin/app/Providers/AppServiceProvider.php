@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Providers;
+
 use App\Models\Category;
 use App\Services\greetingService;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +16,7 @@ use Illuminate\Auth\Events\Logout;
 use App\Listeners\SyncCartOnLogin;
 use App\Listeners\SyncCartOnLogout;
 use Illuminate\Support\Facades\Cache;
- 
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -40,7 +41,8 @@ class AppServiceProvider extends ServiceProvider
 
         View::composer('layouts.navigation', function ($view) {
             $cart = session()->get('cart', []);
-            $count = collect($cart)->count('product_id');
+
+            $count = collect($cart)->sum('qty');
 
             $view->with('cartCount', $count);
         });
@@ -58,7 +60,7 @@ class AppServiceProvider extends ServiceProvider
                 ->select('categories.name', DB::raw('count(products.id) as total'))
                 ->groupBy('categories.name')
                 ->get();
-        }));    
+        }));
 
         Blade::directive('currency', function ($expression) {
             return "<?php echo '₹' . number_format($expression, 2); ?>";
@@ -69,7 +71,7 @@ class AppServiceProvider extends ServiceProvider
                 Log::channel('DBinteraction')->debug($query->sql, [
                     'sql' => $query->sql,
                     'bindings' => $query->bindings,
-                    'time' => $query->time, 
+                    'time' => $query->time,
                 ]);
             });
         }

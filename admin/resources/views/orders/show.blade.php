@@ -56,7 +56,7 @@
                                 <div class="flex items-center gap-6 py-4 border-b border-gray-100 dark:border-white/5 last:border-0 hover:bg-gray-50 dark:hover:bg-white/5 rounded-xl px-2 transition">
                                     <div class="w-20 h-20 bg-gray-200 dark:bg-white/10 rounded-2xl overflow-hidden flex-shrink-0 shadow-sm">
                                         @if($item->product->image)
-                                            <img  src="{{ $item->product->image ? asset('storage/images/' . $item->product->image) : 'https://via.placeholder.com/250' }}"  class="w-full h-full object-cover">
+                                            <img src="{{ $item->product->image ? Storage::url('images/' . $item->product->image) : 'https://via.placeholder.com/250' }}" alt="{{ $item->product->name }}" class="w-full h-full object-cover">
                                         @else
                                             <div class="w-full h-full flex items-center justify-center text-xs text-gray-500">No Image</div>
                                         @endif

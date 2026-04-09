@@ -37,13 +37,15 @@
                                     <div id="row-{{ $item->product_id }}"
                                         class="flex gap-4 py-5 border-b border-gray-100 dark:border-white/10 last:border-0">
 
-                                        {{-- Product Image --}}
                                         <div class="flex-shrink-0">
                                             @if($item->product->image)
-                                                <img src="{{ !empty($item->product->image) ? \Storage::disk('public')->url('images/' . $item->product->image) : 'https://via.placeholder.com/150' }}"
+                                                <img src="{{ Storage::url('images/' . $item->product->image) }}"
                                                      alt="{{ $item->product->name }}"
                                                      class="w-28 h-28 object-cover rounded-md border border-gray-200 dark:border-white/10"
-                                                     onerror="this.src='https://via.placeholder.com/150'">
+                                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                <div class="hidden w-28 h-28 bg-gray-100 dark:bg-white/10 rounded-md items-center justify-center text-3xl">
+                                                    📦
+                                                </div>
                                             @else
                                                 <div class="w-28 h-28 bg-gray-100 dark:bg-white/10 rounded-md flex items-center justify-center text-3xl">
                                                     📦
@@ -256,9 +258,14 @@
                                    class="bg-white dark:bg-[#1a1a1a] rounded px-4 py-5 hover:shadow-lg transition border border-transparent hover:border-gray-100 dark:hover:border-white/10 group">
                                     <div class="w-full aspect-square bg-gray-50 dark:bg-white/5 rounded flex items-center justify-center mb-3 overflow-hidden">
                                         @if($recent->image)
-                                            <img src="{{ \Storage::disk('public')->url('images/' . $recent->image) }}" 
-                                                 class="w-full h-full object-cover rounded shadow-sm group-hover:scale-105 transition duration-300"
-                                                 onerror="this.src='https://via.placeholder.com/150'">
+                                            <div class="relative w-full h-full">
+                                                <img src="{{ Storage::url('images/' . $recent->image) }}" 
+                                                     class="w-full h-full object-cover rounded shadow-sm group-hover:scale-105 transition duration-300"
+                                                     onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden'); this.nextElementSibling.classList.add('flex');">
+                                                <div class="hidden w-full h-full bg-gray-50 dark:bg-white/5 items-center justify-center">
+                                                    <span class="text-3xl">📦</span>
+                                                </div>
+                                            </div>
                                         @else
                                             <span class="text-3xl">📦</span>
                                         @endif

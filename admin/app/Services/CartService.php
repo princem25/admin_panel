@@ -154,7 +154,7 @@ class CartService
 
     /**
      * Get the quantity of a specific product already in the cart.
-     */
+     */ 
     public function getQtyInCart(int $productId): int
     {
         foreach ($this->getCart() as $item) {
@@ -195,18 +195,23 @@ class CartService
                             unset($cart[$key]);
                         }
 
-                        // Restore 1 unit of stock atomically
-                        Product::where('id', $productId)->lockForUpdate()->increment('stock', 1);
+                        // Restore 1 unit of stock safely
+                        $product = Product::where('id', $productId)->lockForUpdate()->first();
+                        if ($product) {
+                            $product->increment('stock', 1);
+                        }
                         break;
                     }
                 }
 
                 if ($found) {
                     $this->setCart($cart);
-                    Log::channel('products')->info('Stock restored (decrease)', ['product_id' => $productId]);
-
-                    $newStock = Product::where('id', $productId)->value('stock');
-                    event(new ProductStockChanged($productId, $newStock));
+                    
+                    $product = Product::find($productId);
+                    if ($product) {
+                        Log::channel('products')->info('Stock restored (decrease)', ['product_id' => $productId]);
+                        event(new ProductStockChanged($productId, $product->stock));
+                    }
                 }
             });
 
@@ -228,13 +233,15 @@ class CartService
                 foreach ($cart as $key => $item) {
                     if ($item['product_id'] === $productId) {
                         $found = true;
-                        //  Auto-restore stock atomically
-                        Product::where('id', $productId)->lockForUpdate()->increment('stock', $item['qty']);
-
-                        Log::channel('products')->info('Stock restored on cart removal', [
-                            'product_id' => $productId,
-                            'qty'        => $item['qty'],
-                        ]);
+                        //  Auto-restore stock safely
+                        $product = Product::where('id', $productId)->lockForUpdate()->first();
+                        if ($product) {
+                            $product->increment('stock', $item['qty']);
+                            Log::channel('products')->info('Stock restored on cart removal', [
+                                'product_id' => $productId,
+                                'qty'        => $item['qty'],
+                            ]);
+                        }
 
                         unset($cart[$key]);
                         break;
@@ -244,8 +251,10 @@ class CartService
                 if ($found) {
                     $this->setCart($cart);
                     
-                    $newStock = Product::where('id', $productId)->value('stock');
-                    event(new ProductStockChanged($productId, $newStock));
+                    $product = Product::find($productId);
+                    if ($product) {
+                        event(new ProductStockChanged($productId, $product->stock));
+                    }
                 }
             });
 
@@ -263,18 +272,18 @@ class CartService
                 return;
             }
 
-            // Step 1: Atomically restore stock in DB.
-            // If any increment fails, the transaction rolls back and cart state remains intact.
+            // Step 1: Atomically restore stock in DB safely for valid products.
             DB::transaction(function () use ($cart) {
                 foreach ($cart as $item) {
-                    Product::where('id', $item['product_id'])->lockForUpdate()->increment('stock', $item['qty']);
-
-                    $newStock = Product::where('id', $item['product_id'])->value('stock');
-                    event(new ProductStockChanged($item['product_id'], $newStock));
+                    $product = Product::where('id', $item['product_id'])->lockForUpdate()->first();
+                    if ($product) {
+                        $product->increment('stock', $item['qty']);
+                        event(new ProductStockChanged($product->id, $product->fresh()->stock));
+                    }
                 }
             });
 
-            // Step 2: Only reached after successful DB commit.
+            // Step 2: Only reached after successful DB operations.
             // Clear session, Redis persistence, and cache — in that order.
             Session::forget('cart');
             Redis::del('cart:user:' . auth()->id());
@@ -308,7 +317,22 @@ class CartService
     public function getCartSummary(): array
     {
         try {
-            $cacheKey = 'cart_summary_' . auth()->id();
+            // ⚡ SELF-HEALING LOGIC: Prune deleted products from session & Redis before calculating
+            $cart = $this->getCart();
+            if (!empty($cart)) {
+                $productIds = array_column($cart, 'product_id');
+                $validIds = \App\Models\Product::whereIn('id', $productIds)->pluck('id')->toArray();
+                
+                if (count($productIds) !== count($validIds)) {
+                    $healedCart = array_filter($cart, function($item) use ($validIds) {
+                        return in_array($item['product_id'], $validIds);
+                    });
+                    $this->setCart(array_values($healedCart)); // Syncs fixed cart to Session AND Redis
+                    Cache::tags(['customer'])->flush(); // Invalidate stale cached summaries
+                }
+            }
+
+            $cacheKey = 'cart_summary_' . (auth()->id() ?? 'guest');
 
             // Cache the entire cart summary for 10 minutes under 'customer' tag
             return Cache::tags(['customer'])->remember($cacheKey, 600, function () {

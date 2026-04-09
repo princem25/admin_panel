@@ -88,7 +88,7 @@ class ProductController extends Controller
 
             if ($request->hasFile('file')) {
                 $path = $request->file('file')->store('images', 'public');
-                $data['image'] = basename($path);
+                $data['image'] = $path;
             }
 
             if (isset($data['stock']) && $data['stock'] === 0) {

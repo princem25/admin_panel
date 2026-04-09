@@ -111,7 +111,7 @@
         @if ($product->image)
             <div>
                 <p class="text-sm font-medium text-gray-500 dark:text-white/60 mb-2">Current Image</p>
-                <img src="{{ asset('storage/images/' . $product->image) }}"
+                <img src="{{ Storage::url('images/' . $product->image) }}"
                      alt="Current Product Image"
                      class="w-32 h-32 object-cover rounded-lg border border-gray-300 dark:border-white/20 shadow-sm">
             </div>

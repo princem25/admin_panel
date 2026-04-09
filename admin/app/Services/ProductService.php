@@ -21,18 +21,37 @@ class ProductService
         $page = $request->input('page', 1);
         $queryParams = $request->except('page');
         
-        // --- ⚡ FAST LANE: If no filters/sort are set, cache the final Paginator directly ---
         if (empty($queryParams)) {
-            return Cache::tags(['products'])->remember("products_default_view_page_{$page}", 3600, function () use ($request, $page) {
-                $allProducts = Product::with('category')->latest()->get();
-                return $this->manuallyPaginate($allProducts, $page, $request);
-            });
+            $cacheKey = "products_default_view_page_{$page}";
+            
+            // Check cache first
+            if ($cached = Cache::tags(['products'])->get($cacheKey)) {
+                return $cached;
+            }
+
+            // Fetch from DB
+            $allProducts = Product::with('category')->latest()->get()->values();
+            $paginator = $this->manuallyPaginate($allProducts, $page, $request);
+
+            // ⚡ SMART CACHE: Only cache if we actually have products
+            if ($allProducts->isNotEmpty()) {
+                Cache::tags(['products'])->put($cacheKey, $paginator, 3600);
+            }
+
+            return $paginator;
         }
 
         // --- 🔍 DYNAMIC LANE: If filters exist, use the "Cache Base + Filter In-Memory" strategy ---
-        $allProducts = Cache::tags(['products'])->remember('all_products_base', 3600, function () {
-            return Product::with('category')->get();
-        });
+        $baseKey = 'all_products_base';
+        $allProducts = Cache::tags(['products'])->get($baseKey);
+
+        if (!$allProducts) {
+            $allProducts = Product::with('category')->get();
+            // ⚡ SMART CACHE: Only cache the base collection if it's not empty
+            if ($allProducts->isNotEmpty()) {
+                Cache::tags(['products'])->put($baseKey, $allProducts, 3600);
+            }
+        }
 
         $collection = $allProducts;
 
@@ -89,7 +108,9 @@ class ProductService
     protected function manuallyPaginate($collection, $page, $request)
     {
         $perPage = 12;
-        $items = $collection->forPage($page, $perPage);
+        // Ensure the collection is indexed cleanly before slicing
+        $values = $collection instanceof \Illuminate\Support\Collection ? $collection->values() : collect($collection)->values();
+        $items = $values->forPage($page, $perPage);
         
         return new LengthAwarePaginator(
             $items,

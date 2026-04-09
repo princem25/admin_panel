@@ -92,7 +92,7 @@ dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20">
                     <div class="bg-white border border-gray-200 p-4 rounded-xl shadow-sm hover:shadow-md transition dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20">
                         <div class="h-32 mb-3 bg-gray-100 dark:bg-white/5 rounded-lg overflow-hidden flex items-center justify-center">
                             @if($product->image)
-                                <img src="{{ asset('storage/images/' . $product->image) }}" alt="{{ $product->name }}" class="h-full object-contain">
+                                <img src="{{ $product->image ? Storage::url('images/' . $product->image) : 'https://via.placeholder.com/150' }}" alt="{{ $product->name }}" class="h-full object-contain">
                             @else
                                 <span class="text-4xl text-gray-300">📦</span>
                             @endif

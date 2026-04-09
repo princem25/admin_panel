@@ -7,7 +7,7 @@
     hover:shadow-md dark:hover:shadow-lg">
 
     {{-- Image --}}
-    <img src="{{ $product->image ? asset('storage/images/' . $product->image) : 'https://via.placeholder.com/250' }}"
+    <img src="{{ $product->image ? Storage::url('images/' . $product->image) : 'https://via.placeholder.com/250' }}"
         class="w-full h-44 object-cover">
 
     {{-- Info --}}
