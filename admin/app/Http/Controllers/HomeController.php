@@ -13,7 +13,7 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $featuredProducts = Cache::remember('featured_products', 3600, function () {
+        $featuredProducts = Cache::tags(['products'])->remember('featured_products', 3600, function () {
             return Product::with('category')
                 ->latest()
                 ->take(8)

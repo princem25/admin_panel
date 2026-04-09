@@ -48,11 +48,11 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(Login::class, SyncCartOnLogin::class);
         Event::listen(Logout::class, SyncCartOnLogout::class);
 
-        View::share('categories', Cache::remember('categories', 7200, function () {
+        View::share('categories', Cache::tags(['products', 'admin'])->remember('categories', 7200, function () {
             return Category::all();
         }));
 
-        View::share('categorySummary', Cache::remember('category_summary', 7200, function () {
+        View::share('categorySummary', Cache::tags(['products', 'admin'])->remember('category_summary', 7200, function () {
             return DB::table('products')
                 ->join('categories', 'products.category_id', '=', 'categories.id')
                 ->select('categories.name', DB::raw('count(products.id) as total'))

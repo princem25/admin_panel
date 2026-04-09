@@ -34,22 +34,11 @@ class ProductController extends Controller
      */
     private function invalidateProductCache(?int $productId = null)
     {
-        // Clear specific product details
-        if ($productId) {
-            Cache::forget("product_{$productId}");
-        }
+        // Flush all product-tagged caches in one operation (listings, details, featured, categories)
+        Cache::tags(['products'])->flush();
 
-        // Clear first 3 pages of listings
-        for ($i = 1; $i <= 3; $i++) {
-            Cache::forget("products_page_{$i}");
-        }
-
-        // Clear category caches
-        Cache::forget('categories');
-        Cache::forget('category_summary');
-
-        // Clear featured products
-        Cache::forget('featured_products');
+        // Also flush admin dashboard caches — product changes affect metrics like low stock
+        Cache::tags(['admin'])->flush();
     }
 
     public function index(Request $request)

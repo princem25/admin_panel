@@ -26,7 +26,7 @@ class ProductController extends Controller
             $cacheKey = "products_page_{$page}";
         }
 
-        $products = Cache::remember($cacheKey, 3600, function () use ($filters) {
+        $products = Cache::tags(['products'])->remember($cacheKey, 3600, function () use ($filters) {
             return Product::filter($filters)
                 ->with('category')
                 ->latest()
@@ -50,7 +50,7 @@ class ProductController extends Controller
         try {
             $cacheKey = "product_{$product->id}";
 
-            $product = Cache::remember($cacheKey, 1800, function () use ($product) {
+            $product = Cache::tags(['products'])->remember($cacheKey, 1800, function () use ($product) {
                 return $product->load('category');
             });
 

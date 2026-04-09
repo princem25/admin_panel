@@ -147,8 +147,8 @@ class CartService
                 event(new ProductStockChanged($productId, $product->fresh()->stock));
             });
 
-            // Targetted Invalidation: Clear cart summary cache immediately after Add/Increase
-            Cache::forget('cart_summary_' . auth()->id());
+            // Targeted Invalidation: Flush all customer-tagged caches immediately after Add/Increase
+            Cache::tags(['customer'])->flush();
         });
     }
 
@@ -210,8 +210,8 @@ class CartService
                 }
             });
 
-            // Targetted Invalidation: Clear cart summary cache immediately after Decrease
-            Cache::forget('cart_summary_' . auth()->id());
+            // Targeted Invalidation: Flush all customer-tagged caches immediately after Decrease
+            Cache::tags(['customer'])->flush();
         });
     }
 
@@ -249,41 +249,38 @@ class CartService
                 }
             });
 
-            // Targetted Invalidation: Clear cart summary cache immediately after Removal
-            Cache::forget('cart_summary_' . auth()->id());
+            // Targeted Invalidation: Flush all customer-tagged caches immediately after Removal
+            Cache::tags(['customer'])->flush();
         });
     }
 
-    /**
-     * Clear the cart — restores all stock quantities.
-     */
     public function clearCart(): void
     {
         $this->withinLock(function () {
-            DB::transaction(function () {
-                $cart = $this->getCart();
+            $cart = $this->getCart();
 
-                if (empty($cart)) {
-                    return;
-                }
+            if (empty($cart)) {
+                return;
+            }
 
-                // Restore stock for all items atomically
+            // Step 1: Atomically restore stock in DB.
+            // If any increment fails, the transaction rolls back and cart state remains intact.
+            DB::transaction(function () use ($cart) {
                 foreach ($cart as $item) {
                     Product::where('id', $item['product_id'])->lockForUpdate()->increment('stock', $item['qty']);
-                    
+
                     $newStock = Product::where('id', $item['product_id'])->value('stock');
                     event(new ProductStockChanged($item['product_id'], $newStock));
                 }
-
-                Session::forget('cart');
-
-                Redis::del('cart:user:' . auth()->id());
-
-                Log::channel('products')->info('Cart cleared and stock restored', ['count' => count($cart)]);
             });
 
-            // Targetted Invalidation: Clear cart summary cache immediately after Clear
-            Cache::forget('cart_summary_' . auth()->id());
+            // Step 2: Only reached after successful DB commit.
+            // Clear session, Redis persistence, and cache — in that order.
+            Session::forget('cart');
+            Redis::del('cart:user:' . auth()->id());
+            Cache::tags(['customer'])->flush();
+
+            Log::channel('products')->info('Cart cleared and stock restored', ['count' => count($cart)]);
         });
     }
 
@@ -296,8 +293,8 @@ class CartService
         $this->withinLock(function () {
             Session::forget('cart');
 
-            // Invalidate cart summary cache
-            Cache::forget('cart_summary_' . auth()->id());
+            // Invalidate all customer-tagged caches on order completion
+            Cache::tags(['customer'])->flush();
 
             Redis::del('cart:user:' . auth()->id());
 
@@ -313,16 +310,16 @@ class CartService
         try {
             $cacheKey = 'cart_summary_' . auth()->id();
 
-            // Cache the entire cart summary for 10 minutes, invalidated on cart updates
-            return Cache::remember($cacheKey, 600, function () {
+            // Cache the entire cart summary for 10 minutes under 'customer' tag
+            return Cache::tags(['customer'])->remember($cacheKey, 600, function () {
                 $cart = $this->getCart();
                 
                 $cartItems = collect($cart)->map(function ($item) {
                     $productId = $item['product_id'];
                     
                     try {
-                        // Cache individual product details for 1 hour
-                        $product = Cache::remember("product_{$productId}", 3600, function () use ($productId) {
+                        // Cache individual product details for 1 hour under 'products' tag
+                        $product = Cache::tags(['products'])->remember("product_{$productId}", 3600, function () use ($productId) {
                             return Product::find($productId);
                         });
                     } catch (\Exception $e) {
