@@ -13,6 +13,7 @@ use App\Http\Controllers\User\ProductController as UserProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\CacheMonitorController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
 
 Route::get('/', [HomeController::class, 'index']);
@@ -59,6 +60,10 @@ Route::prefix('admin')->middleware(['role:admin', 'throttle:100,1'])->group(func
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('admin.orders.index');
     Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('admin.orders.show');
     Route::put('/orders/{order}', [AdminOrderController::class, 'update'])->name('admin.orders.update');
+
+    // Cache Monitor
+    Route::get('/cache', [CacheMonitorController::class, 'index'])->name('admin.cache.index');
+    Route::post('/cache/flush', [CacheMonitorController::class, 'flush'])->name('admin.cache.flush');
 });
 
 

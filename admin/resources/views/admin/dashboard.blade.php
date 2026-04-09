@@ -183,8 +183,8 @@
                 </div>
             </div>
 
-            {{-- System Logs + Company Info Row --}}
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            {{-- System Logs + Cache Monitor + Company Info Row --}}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
 
                 {{-- System Log Viewer Card --}}
                 <div
@@ -198,6 +198,21 @@
                     <a href="{{ route('admin.logs') }}"
                         class="px-4 py-2 rounded-lg transition shadow text-white bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-sm font-medium">
                         View Logs →
+                    </a>
+                </div>
+
+                {{-- Cache Monitor Card --}}
+                <div
+                    class="rounded-xl p-6 flex items-center justify-between transition shadow
+                            bg-white border border-gray-200 hover:scale-[1.01]
+                            dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-lg">
+                    <div>
+                        <h2 class="text-lg font-semibold">🗄️ Cache Monitor</h2>
+                        <p class="text-gray-600 dark:text-white/70 text-sm">View Redis stats and manage cache</p>
+                    </div>
+                    <a href="{{ route('admin.cache.index') }}"
+                        class="px-4 py-2 rounded-lg transition shadow text-white bg-cyan-600 hover:bg-cyan-700 dark:bg-cyan-500 dark:hover:bg-cyan-600 text-sm font-medium">
+                        View Cache →
                     </a>
                 </div>
 
