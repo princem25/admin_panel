@@ -26,18 +26,26 @@ class CartService
      */
     private function withinLock(\Closure $callback)
     {
-        $lockKey = auth()->check() 
-            ? 'cart_lock_user_' . auth()->id() 
-            : 'cart_lock_session_' . Session::getId();
+        $lockKey = 'cart_lock_user_' . auth()->id();
 
         $lock = Cache::lock($lockKey, 10); // 10 second lock
 
         if (!$lock->get()) {
+            Log::channel('products')->warning('Cart operation locked', [
+                'user_id' => auth()->id(),
+                'lock_key' => $lockKey
+            ]);
             throw new \Exception('Please wait. Another cart operation is in progress.');
         }
 
         try {
             return $callback();
+        } catch (\Exception $e) {
+            Log::channel('products')->error('Cart operation failed', [
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
         } finally {
             $lock->release();
         }
@@ -56,15 +64,27 @@ class CartService
      */
     public function setCart(array $cart): void
     {
-        $cartArray = array_values($cart);
-        Session::put('cart', $cartArray);
+        try {
+            $cartArray = array_values($cart);
+            Session::put('cart', $cartArray);
 
-        if (auth()->check()) {
             if (empty($cartArray)) {
                 Redis::del('cart:user:' . auth()->id());
             } else {
                 Redis::set('cart:user:' . auth()->id(), json_encode($cartArray));
             }
+
+            Log::channel('products')->info('Cart session/redis updated', [
+                'user_id' => auth()->id(),
+                'items_count' => count($cartArray)
+            ]);
+        } catch (\Exception $e) {
+            Log::channel('products')->error('Failed to update cart storage', [
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage()
+            ]);
+            // Still throw to notify the controller/user
+            throw new \Exception('Could not save cart changes. Please try again.');
         }
     }
 
@@ -126,6 +146,9 @@ class CartService
 
                 event(new ProductStockChanged($productId, $product->fresh()->stock));
             });
+
+            // Targetted Invalidation: Clear cart summary cache immediately after Add/Increase
+            Cache::forget('cart_summary_' . auth()->id());
         });
     }
 
@@ -186,6 +209,9 @@ class CartService
                     event(new ProductStockChanged($productId, $newStock));
                 }
             });
+
+            // Targetted Invalidation: Clear cart summary cache immediately after Decrease
+            Cache::forget('cart_summary_' . auth()->id());
         });
     }
 
@@ -222,6 +248,9 @@ class CartService
                     event(new ProductStockChanged($productId, $newStock));
                 }
             });
+
+            // Targetted Invalidation: Clear cart summary cache immediately after Removal
+            Cache::forget('cart_summary_' . auth()->id());
         });
     }
 
@@ -248,12 +277,13 @@ class CartService
 
                 Session::forget('cart');
 
-                if (auth()->check()) {
-                    Redis::del('cart:user:' . auth()->id());
-                }
+                Redis::del('cart:user:' . auth()->id());
 
                 Log::channel('products')->info('Cart cleared and stock restored', ['count' => count($cart)]);
             });
+
+            // Targetted Invalidation: Clear cart summary cache immediately after Clear
+            Cache::forget('cart_summary_' . auth()->id());
         });
     }
 
@@ -266,52 +296,13 @@ class CartService
         $this->withinLock(function () {
             Session::forget('cart');
 
-            if (auth()->check()) {
-                Redis::del('cart:user:' . auth()->id());
-            }
+            // Invalidate cart summary cache
+            Cache::forget('cart_summary_' . auth()->id());
+
+            Redis::del('cart:user:' . auth()->id());
 
             Log::channel('products')->info('Cart cleared (Order Completed)', ['user_id' => auth()->id()]);
         });
-    }
-
-    /**
-     * Merge items from two different cart arrays (Guest Session & Persistent User Store).
-     * Tracks merge operations with detailed logging for each product.
-     */
-    public function mergeCarts(array $redisCart, array $sessionCart): array
-    {
-        $merged = [];
-
-        // Pre-populate with existing user cart from persistent storage (Redis)
-        foreach ($redisCart as $item) {
-            $merged[$item['product_id']] = $item;
-        }
-
-        // Merge guest items from session
-        foreach ($sessionCart as $item) {
-            $pid           = $item['product_id'];
-            $guestQty      = $item['qty'];
-            $userQtyBefore = isset($merged[$pid]) ? $merged[$pid]['qty'] : 0;
-
-            if (isset($merged[$pid])) {
-                // If product already exists in user cart, add the guest quantity
-                $merged[$pid]['qty'] += $guestQty;
-            } else {
-                // Otherwise, insert the guest item as a new entry
-                $merged[$pid] = $item;
-            }
-
-            $userQtyAfter = $merged[$pid]['qty'];
-
-            Log::channel('products')->info('Cart Merge: Item processed', [
-                'product_id'      => $pid,
-                'guest_qty'       => $guestQty,
-                'user_qty_before' => $userQtyBefore,
-                'user_qty_after'  => $userQtyAfter,
-            ]);
-        }
-
-        return array_values($merged);
     }
 
     /**
@@ -319,36 +310,66 @@ class CartService
      */
     public function getCartSummary(): array
     {
-        $cart       = $this->getCart();
-        $productIds = array_column($cart, 'product_id');
-        $products   = Product::whereIn('id', $productIds)->get()->keyBy('id');
+        try {
+            $cacheKey = 'cart_summary_' . auth()->id();
 
-        $cartItems = collect($cart)->map(function ($item) use ($products) {
-            $product = $products->get($item['product_id']);
-            if (!$product) {
-                return null;
-            }
+            // Cache the entire cart summary for 10 minutes, invalidated on cart updates
+            return Cache::remember($cacheKey, 600, function () {
+                $cart = $this->getCart();
+                
+                $cartItems = collect($cart)->map(function ($item) {
+                    $productId = $item['product_id'];
+                    
+                    try {
+                        // Cache individual product details for 1 hour
+                        $product = Cache::remember("product_{$productId}", 3600, function () use ($productId) {
+                            return Product::find($productId);
+                        });
+                    } catch (\Exception $e) {
+                        Log::channel('products')->error('Product cache/fetch failure', [
+                            'product_id' => $productId,
+                            'error' => $e->getMessage()
+                        ]);
+                        return null;
+                    }
 
-            $finalPrice = $this->discountService->apply($product->price, $product->discount_price);
+                    if (!$product) {
+                        return null;
+                    }
 
-            return (object) [
-                'product_id'   => $product->id,
-                'quantity'     => $item['qty'],
-                'unit_price'   => $finalPrice,
-                'total_price'  => round($finalPrice * $item['qty'], 2),
-                'product'      => $product,
-                'has_discount' => $this->discountService->hasValidDiscount($product->price, $product->discount_price),
-                'savings'      => $this->discountService->savings($product->price, $product->discount_price) * $item['qty'],
+                    $finalPrice = $this->discountService->apply($product->price, $product->discount_price);
+
+                    return (object) [
+                        'product_id'   => $product->id,
+                        'quantity'     => $item['qty'],
+                        'unit_price'   => $finalPrice,
+                        'total_price'  => round($finalPrice * $item['qty'], 2),
+                        'product'      => $product,
+                        'has_discount' => $this->discountService->hasValidDiscount($product->price, $product->discount_price),
+                        'savings'      => $this->discountService->savings($product->price, $product->discount_price) * $item['qty'],
+                    ];
+                })->filter()->values();
+
+                $grandTotal   = $cartItems->sum('total_price');
+                $totalSavings = $cartItems->sum('savings');
+
+                return [
+                    'items'        => $cartItems,
+                    'grandTotal'   => $grandTotal,
+                    'totalSavings' => $totalSavings,
+                ];
+            });
+        } catch (\Exception $e) {
+            Log::channel('products')->error('Cart summary calculation failed', [
+                'user_id' => auth()->id(),
+                'error'   => $e->getMessage()
+            ]);
+
+            return [
+                'items'        => collect([]),
+                'grandTotal'   => 0,
+                'totalSavings' => 0,
             ];
-        })->filter()->values();
-
-        $grandTotal   = $cartItems->sum('total_price');
-        $totalSavings = $cartItems->sum('savings');
-
-        return [
-            'items'        => $cartItems,
-            'grandTotal'   => $grandTotal,
-            'totalSavings' => $totalSavings,
-        ];
+        }
     }
 }
