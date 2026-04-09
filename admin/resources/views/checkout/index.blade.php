@@ -130,7 +130,6 @@
                             <div class="flex items-center gap-4 py-2 border-b border-gray-100 dark:border-white/5 last:border-0">
                                 <div class="w-12 h-12 bg-gray-200 dark:bg-white/10 rounded-md overflow-hidden flex-shrink-0">
                                     @if($item->product->image)
-                                    @if($item->product->image)
                                         <img src="{{ $item->product->image ? Storage::url('images/' . $item->product->image) : 'https://via.placeholder.com/250' }}" alt="{{ $item->product->name }}" class="w-full h-full object-cover">
                                     @else
                                         <div class="w-full h-full flex items-center justify-center text-xs text-gray-500">No Image</div>
