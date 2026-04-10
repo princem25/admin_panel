@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Collections\ProductCollection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
@@ -17,7 +18,17 @@ class Product extends Model
         'stock',
         'type',
         'image',
+        'is_featured',
+        'discount',
     ];
+
+    /**
+     * Override to return custom ProductCollection
+     */
+    public function newCollection(array $models = [])
+    {
+        return new ProductCollection($models);
+    }
 
     public function category()
     {

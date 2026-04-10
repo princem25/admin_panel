@@ -55,49 +55,14 @@ class ProductService
 
         $collection = $allProducts;
 
-        // Search Filter
-        if ($term = $request->input('search')) {
-            $collection = $collection->filter(function ($product) use ($term) {
-                return str_contains(strtolower($product->name), strtolower($term));
-            });
-        }
-
-        // Category Filter
-        if ($catId = $request->input('category')) {
-            $categories = is_array($catId) ? $catId : [$catId];
-            $collection = $collection->whereIn('category_id', $categories);
-        }
-
-        // Price Range Filter
-        $min = $request->input('min_price');
-        $max = $request->input('max_price');
-        if ($min !== null || $max !== null) {
-            $collection = $collection->filter(function ($product) use ($min, $max) {
-                $price = $product->discount_price ?? $product->price;
-                $minPass = $min === null || $price >= $min;
-                $maxPass = $max === null || $price <= $max;
-                return $minPass && $maxPass;
-            });
-        }
-
-        // Quick Filters
-        if ($request->has('in_stock')) {
-            $collection = $collection->where('stock', '>', 0);
-        }
-        if ($request->has('on_sale')) {
-            $collection = $collection->filter(function ($product) {
-                $discount = $product->price - ($product->discount_price ?? $product->price);
-                return $discount > 0;
-            });
-        }
-
-        // Sorting
-        $collection = match ($request->input('sort', 'newest')) {
-            'price_low'  => $collection->sortBy('price'),
-            'price_high' => $collection->sortByDesc('price'),
-            'popularity' => $collection->sortByDesc('stock'),
-            default      => $collection->sortByDesc('created_at'),
-        };
+        // use Custom Collection methods for filtering and sorting
+        $collection = $collection->searchTerm($request->input('search'))
+            ->byCategory($request->input('category'))
+            ->byPriceRange($request->input('min_price'), $request->input('max_price'))
+            ->inStock($request->has('in_stock'))
+            ->onSale($request->has('on_sale'))
+            ->featured($request->has('featured'))
+            ->sortProducts($request->input('sort', 'newest'));
 
         return $this->manuallyPaginate($collection->values(), $page, $request);
     }
