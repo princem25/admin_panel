@@ -3,10 +3,18 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Services\CustomerAnalyticsService;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
+    protected $analyticsService;
+
+    public function __construct(CustomerAnalyticsService $analyticsService)
+    {
+        $this->analyticsService = $analyticsService;
+    }
+
     /**
      * Display the user dashboard with personal order metrics.
      */
@@ -14,27 +22,30 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
 
-        // Total Orders
-        $totalOrders = $user->orders()->count();
+        // Use service for detailed analytics
+        $stats = $this->analyticsService->getCustomerStats($user->id);
+        $topProducts = $this->analyticsService->getTopProducts($user->id);
+        $ordersByStatus = $this->analyticsService->getOrdersByStatus($user->id);
 
-        // Active Orders (Not Delivered, Not Cancelled)
+        // Keep existing counts for backward compatibility/quick cards if needed
+        // but stats already contains total_orders, total_spent, average_order_value
+        $totalOrders = $stats['total_orders'];
+        $totalSpent = $stats['total_spent'];
+        $avgOrderValue = $stats['average_order_value'];
+
         $activeOrders = $user->orders()->whereNotIn('status', ['delivered', 'cancelled'])->count();
-
-        // Delivered Orders
         $deliveredOrders = $user->orders()->where('status', 'delivered')->count();
-
-        // Cancelled Orders
         $cancelledOrders = $user->orders()->where('status', 'cancelled')->count();
-
-        // Total Spent (Only on genuine / non-cancelled orders)
-        $totalSpent = $user->orders()->where('status', '!=', 'cancelled')->sum('total_amount');
 
         return view('dashboard', compact(
             'totalOrders',
             'activeOrders',
             'deliveredOrders',
             'cancelledOrders',
-            'totalSpent'
+            'totalSpent',
+            'avgOrderValue',
+            'topProducts',
+            'ordersByStatus'
         ));
     }
 }

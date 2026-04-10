@@ -1,7 +1,7 @@
 <nav x-data="{ open: false }"
-    class="relative z-50 shadow-md border-b 
-        bg-white border-gray-200
-        dark:bg-gradient-to-r dark:from-[#355c63] dark:to-[#2f4f54] dark:border-white/10">
+    class="sticky top-0 z-50 shadow-md border-b 
+        bg-white/80 backdrop-blur-md border-gray-200
+        dark:bg-gradient-to-r dark:from-[#355c63]/80 dark:to-[#2f4f54]/80 dark:backdrop-blur-xl dark:border-white/10">
 
     <div class="max-w-7xl mx-auto px-6">
         <div class="flex justify-between h-16 items-center">
@@ -12,32 +12,29 @@
                 <div class="hidden sm:flex space-x-6">
 
                     <a href="{{ $current_logged_user->role === 'admin' ? route('admin.dashboard') : route('dashboard') }}"
-                        class="transition 
-                            text-gray-600 hover:text-gray-900
-                            dark:text-white/80 dark:hover:text-white">
+                        class="transition py-2 px-1 border-b-2 {{ request()->routeIs('admin.dashboard', 'dashboard') ? 'text-gray-900 border-blue-600 font-bold dark:text-white dark:border-cyan-400' : 'text-gray-600 border-transparent hover:text-gray-900 dark:text-white/80 dark:hover:text-white' }}">
                         Dashboard
                     </a>
 
                     <a href="{{ $current_logged_user->role === 'admin' ? route('products.index') : route('user.products') }}"
-                        class="transition 
-                            text-gray-600 hover:text-gray-900
-                            dark:text-white/80 dark:hover:text-white">
+                        class="transition py-2 px-1 border-b-2 {{ request()->routeIs('products.*', 'user.products*') ? 'text-gray-900 border-blue-600 font-bold dark:text-white dark:border-cyan-400' : 'text-gray-600 border-transparent hover:text-gray-900 dark:text-white/80 dark:hover:text-white' }}">
                         Products
                     </a>
 
                     <a href="{{ $current_logged_user->role === 'admin' ? route('admin.orders.index') : route('orders.index') }}"
-                        class="transition 
-                            text-gray-600 hover:text-gray-900
-                            dark:text-white/80 dark:hover:text-white">
+                        class="transition py-2 px-1 border-b-2 {{ request()->routeIs('admin.orders.*', 'orders.*') ? 'text-gray-900 border-blue-600 font-bold dark:text-white dark:border-cyan-400' : 'text-gray-600 border-transparent hover:text-gray-900 dark:text-white/80 dark:hover:text-white' }}">
                         Orders
                     </a>
 
                     @if ($current_logged_user->role === 'admin')
                         <a href="{{ route('admin.users.index') }}"
-                            class="transition 
-                                text-gray-600 hover:text-gray-900
-                                dark:text-white/80 dark:hover:text-white">
+                            class="transition py-2 px-1 border-b-2 {{ request()->routeIs('admin.users.*') ? 'text-gray-900 border-blue-600 font-bold dark:text-white dark:border-cyan-400' : 'text-gray-600 border-transparent hover:text-gray-900 dark:text-white/80 dark:hover:text-white' }}">
                             Customers
+                        </a>
+
+                        <a href="{{ route('admin.analytics.index') }}"
+                            class="transition py-2 px-1 border-b-2 {{ request()->routeIs('admin.analytics.*') ? 'text-gray-900 border-blue-600 font-bold dark:text-white dark:border-cyan-400' : 'text-gray-600 border-transparent hover:text-gray-900 dark:text-white/80 dark:hover:text-white' }}">
+                            Sales Analytics
                         </a>
                     @endif
 

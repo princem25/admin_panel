@@ -56,6 +56,90 @@
                         <h3 class="text-xs font-semibold text-gray-500 dark:text-white/60 uppercase tracking-wider">Total Spent</h3>
                         <p class="text-xl font-bold mt-1 text-gray-900 dark:text-white">@currency($totalSpent)</p>
                     </div>
+
+                    <!-- Avg Order Value -->
+                    <div class="p-4 rounded-xl transition bg-white border border-gray-200 shadow-sm dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-md">
+                        <div class="text-purple-500 text-xl mb-1">📊</div>
+                        <h3 class="text-xs font-semibold text-gray-500 dark:text-white/60 uppercase tracking-wider">Avg. Order Value</h3>
+                        <p class="text-xl font-bold mt-1 text-gray-900 dark:text-white">@currency($avgOrderValue)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+                <!-- Most Ordered Products (Top 3) -->
+                <div class="bg-white dark:bg-white/5 dark:backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-2xl shadow-xl overflow-hidden">
+                    <div class="p-4 border-b border-gray-200 dark:border-white/10 bg-gray-50/50 dark:bg-white/5">
+                        <h2 class="text-lg font-bold flex items-center gap-2">
+                            <span>🏆</span> My Top 3 Products
+                        </h2>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-white/60 uppercase text-[10px] tracking-wider">
+                                <tr>
+                                    <th class="px-4 py-3">Product</th>
+                                    <th class="px-4 py-3 text-right">Qty</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 dark:divide-white/5">
+                                @forelse($topProducts as $product)
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition">
+                                        <td class="px-4 py-3">
+                                            <div class="font-bold">{{ $product['product_name'] }}</div>
+                                            <div class="text-[10px] opacity-50">ID: {{ $product['product_id'] }}</div>
+                                        </td>
+                                        <td class="px-4 py-3 text-right font-mono font-bold text-blue-600 dark:text-cyan-400">
+                                            {{ $product['total_quantity'] }}
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="2" class="px-4 py-8 text-center text-gray-400 italic">No products ordered yet</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Orders by Status -->
+                <div class="bg-white dark:bg-white/5 dark:backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-2xl shadow-xl overflow-hidden">
+                    <div class="p-4 border-b border-gray-200 dark:border-white/10 bg-gray-50/50 dark:bg-white/5">
+                        <h2 class="text-lg font-bold flex items-center gap-2">
+                            <span>📋</span> Status Breakdown
+                        </h2>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-white/60 uppercase text-[10px] tracking-wider">
+                                <tr>
+                                    <th class="px-4 py-3">Status</th>
+                                    <th class="px-4 py-3 text-center">Count</th>
+                                    <th class="px-4 py-3 text-right">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 dark:divide-white/5">
+                                @forelse($ordersByStatus as $statusData)
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition">
+                                        <td class="px-4 py-3 capitalize font-semibold">{{ $statusData['status'] }}</td>
+                                        <td class="px-4 py-3 text-center">
+                                            <span class="px-2 py-0.5 bg-gray-100 dark:bg-white/10 rounded-full text-[10px] font-bold">
+                                                {{ $statusData['total_orders'] }}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3 text-right font-mono font-bold text-green-600 dark:text-green-400">
+                                            @currency($statusData['total_amount'])
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="3" class="px-4 py-8 text-center text-gray-400 italic">No order history</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
