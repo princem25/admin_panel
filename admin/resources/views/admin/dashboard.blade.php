@@ -184,7 +184,22 @@
             </div>
 
             {{-- System Logs + Cache Monitor + Company Info Row --}}
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+            <div class="grid grid-cols-1 gap-6 mt-6">
+
+                {{-- Sales Analytics Card --}}
+                <div
+                    class="rounded-xl p-6 flex items-center justify-between transition shadow
+                            bg-white border border-gray-200 hover:scale-[1.01]
+                            dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-lg">
+                    <div>
+                        <h2 class="text-lg font-semibold">📈 Sales Analytics</h2>
+                        <p class="text-gray-600 dark:text-white/70 text-sm">Deep dive into monthly sales, top products, and customers</p>
+                    </div>
+                    <a href="{{ route('admin.analytics.index') }}"
+                        class="px-4 py-2 rounded-lg transition shadow text-white bg-blue-600 hover:bg-blue-700 dark:bg-cyan-500 dark:hover:bg-cyan-600 text-sm font-medium">
+                        View Analytics →
+                    </a>
+                </div>
 
                 {{-- System Log Viewer Card --}}
                 <div
@@ -223,7 +238,7 @@
                             dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-lg">
                     <h2 class="text-lg font-semibold mb-4">Company Information</h2>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
 
                         <div class="p-3 rounded-lg bg-gray-100 dark:bg-white/5">
                             <p class="text-xs text-gray-500 dark:text-white/60 mb-0.5">Name</p>

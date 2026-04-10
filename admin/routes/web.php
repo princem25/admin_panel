@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CacheMonitorController;
+use App\Http\Controllers\Admin\SalesAnalyticsController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
 
 Route::get('/', [HomeController::class, 'index']);
@@ -64,6 +65,10 @@ Route::prefix('admin')->middleware(['role:admin', 'throttle:100,1'])->group(func
     // Cache Monitor
     Route::get('/cache', [CacheMonitorController::class, 'index'])->name('admin.cache.index');
     Route::post('/cache/flush', [CacheMonitorController::class, 'flush'])->name('admin.cache.flush');
+
+    // Sales Analytics
+    Route::get('/analytics', [SalesAnalyticsController::class, 'index'])->name('admin.analytics.index');
+    Route::get('/analytics/export/{type}', [SalesAnalyticsController::class, 'export'])->name('admin.analytics.export');
 });
 
 
