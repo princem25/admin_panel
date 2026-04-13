@@ -60,14 +60,14 @@ return [
 
         'single' => [
             'driver' => 'single',
-            'path' => storage_path('logs/laravel.log'),
+            'path' => storage_path('logs/single/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
         ],
 
         'daily' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/laravel.log'),
+            'path' => storage_path('logs/daily/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => env('LOG_DAILY_DAYS', 14),
             'replace_placeholders' => true,
@@ -124,33 +124,47 @@ return [
         ],
 
         'emergency' => [
-            'path' => storage_path('logs/laravel.log'),
+            'path' => storage_path('logs/emergency/laravel.log'),
         ],
 
         'products' => [
             'driver' => 'single',
-            'path' => storage_path('logs/products.log'),
+            'path' => storage_path('logs/products/products.log'),
             'level' => 'info',
         ],
 
         'orders' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/orders.log'),
+            'path' => storage_path('logs/orders/orders.log'),
             'level' => 'debug',
             'days' => 14,
         ],
 
         'security' => [
             'driver' => 'single',
-            'path' => storage_path('logs/security.log'),
+            'path' => storage_path('logs/security/security.log'),
             'level' => 'warning',
         ],
 
         'DBinteraction' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/dblogs.log'),
+            'path' => storage_path('logs/DBinteraction/dblogs.log'),
             'level' => 'debug',
             'days' => 14,
+        ],
+
+        'admin' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/admin/admin.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
+
+        'customer' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/customer/customer.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
         ],
 
     ],
