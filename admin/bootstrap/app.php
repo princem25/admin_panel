@@ -24,8 +24,6 @@ return Application::configure(basePath: dirname(__DIR__))
             RequestContextMiddleware::class,
             RequestLoggingMiddleware::class,
         ]);
-        
-        
 
         $middleware->alias([
             'role' => roleMiddleware::class,

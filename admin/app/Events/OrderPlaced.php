@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Models\Order;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -13,14 +14,14 @@ class OrderPlaced implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public Order $order;
+
     /**
      * Create a new event instance.
      */ 
-    public function __construct(
-        public string $customerName,
-        public float $orderTotal,
-        public int $itemsCount
-    ) {
+    public function __construct(Order $order)
+    {
+        $this->order = $order;
     }
 
     /**

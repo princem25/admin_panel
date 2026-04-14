@@ -52,7 +52,7 @@ Artisan::command('report:sales', function (AdminService $report) {
 
     $this->info("Report updated: {$file}");
 });
-
+        
 Artisan::command('report:stock', function (AdminService $stockService) {
 
     $stock = $stockService->stockCheck();
