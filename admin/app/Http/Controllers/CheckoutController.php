@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\OrderPlaced;
+use App\Events\Admin\OrderPlaced;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Services\CartService;

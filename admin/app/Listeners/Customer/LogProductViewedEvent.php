@@ -1,24 +1,24 @@
 <?php
 
-namespace App\Listeners;
+namespace App\Listeners\Customer;
 
-use App\Events\ProductViewed;
+use App\Events\Customer\ProductViewed;
 use Illuminate\Support\Facades\Log;
 
-class TrackProductViewed
+class LogProductViewedEvent
 {
     /**
      * Handle the event.
      *
-     * @param  \App\Events\ProductViewed  $event
+     * @param  \App\Events\Customer\ProductViewed  $event
      * @return void
      */
     public function handle(ProductViewed $event)
     {
         $userId = $event->user ? $event->user->id : 'Guest';
-        Log::info("Product viewed by user ID {$userId}", [
+        Log::info('Event: ProductViewed', [
             'product_id' => $event->product->id,
-            'product_name' => $event->product->name,
+            'user_id' => $userId
         ]);
     }
 }

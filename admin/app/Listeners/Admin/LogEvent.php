@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Listeners;
+namespace App\Listeners\Admin;
 
-use App\Events\OrderPlaced;
-use App\Events\OrderPaid;
-use App\Events\OrderShipped;
-use App\Events\OrderDelivered;
+use App\Events\Admin\OrderPlaced;
+use App\Events\Admin\OrderPaid;
+use App\Events\Admin\OrderShipped;
+use App\Events\Admin\OrderDelivered;
 use Illuminate\Support\Facades\Log;
 
 class LogEvent

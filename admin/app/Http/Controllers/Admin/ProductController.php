@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Events\ProductStockChanged;
+use App\Events\Admin\ProductStockChanged;
 use App\Exceptions\InsufficientPermissionException;
 use App\Exceptions\InvalidOrderException;
 use App\Exceptions\ProductOutOfStockException;

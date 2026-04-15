@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Listeners;
+namespace App\Listeners\Customer;
 
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Log;

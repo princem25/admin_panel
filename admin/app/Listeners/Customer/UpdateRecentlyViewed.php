@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Listeners;
+namespace App\Listeners\Customer;
 
-use App\Events\ProductViewed;
+use App\Events\Customer\ProductViewed;
 use Illuminate\Support\Facades\Log;
 
 class UpdateRecentlyViewed
@@ -10,7 +10,7 @@ class UpdateRecentlyViewed
     /**
      * Handle the event.
      *
-     * @param  \App\Events\ProductViewed  $event
+     * @param  \App\Events\Customer\ProductViewed  $event
      * @return void
      */
     public function handle(ProductViewed $event)

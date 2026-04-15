@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Listeners;
+namespace App\Listeners\Customer;
 
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Support\Facades\Redis;

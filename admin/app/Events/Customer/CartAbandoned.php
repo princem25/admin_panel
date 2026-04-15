@@ -1,27 +1,24 @@
 <?php
 
-namespace App\Events;
+namespace App\Events\Customer;
 
-use App\Models\Product;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class ProductViewed
+class CartAbandoned
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $product;
-    public $user;
+    public $cart;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Product $product, $user = null)
+    public function __construct($cart)
     {
-        $this->product = $product;
-        $this->user = $user;
+        $this->cart = $cart;
     }
 }

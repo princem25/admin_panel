@@ -1,24 +1,27 @@
 <?php
 
-namespace App\Events;
+namespace App\Events\Admin;
 
+use App\Models\Order;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class ProductStockChanged implements ShouldBroadcastNow
+class OrderPlaced implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public Order $order;
+
     /**
      * Create a new event instance.
-     */
-    public function __construct(
-        public int $productId,
-        public int $newStock
-    ) {
+     */ 
+    public function __construct(Order $order)
+    {
+        $this->order = $order;
     }
 
     /**
@@ -29,15 +32,12 @@ class ProductStockChanged implements ShouldBroadcastNow
     public function broadcastOn(): array
     {
         return [
-            new Channel('product.' . $this->productId),
+            new PrivateChannel('admin.orders'),
         ];
     }
 
-    /**
-     * The event's broadcast name.
-     */
     public function broadcastAs(): string
     {
-        return 'stock.updated';
+        return 'order.placed';
     }
 }

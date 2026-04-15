@@ -13,8 +13,8 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
-use App\Listeners\SyncCartOnLogin;
-use App\Listeners\SyncCartOnLogout;
+use App\Listeners\Customer\SyncCartOnLogin;
+use App\Listeners\Customer\SyncCartOnLogout;
 use Illuminate\Support\Facades\Cache;
 
 class AppServiceProvider extends ServiceProvider

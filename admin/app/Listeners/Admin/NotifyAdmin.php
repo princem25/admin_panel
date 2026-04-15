@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Listeners;
+namespace App\Listeners\Admin;
 
-use App\Events\OrderPlaced;
-use App\Events\OrderPaid;
-use App\Events\OrderShipped;
-use App\Events\OrderDelivered;
+use App\Events\Admin\OrderPlaced;
+use App\Events\Admin\OrderPaid;
+use App\Events\Admin\OrderShipped;
+use App\Events\Admin\OrderDelivered;
 use Illuminate\Support\Facades\Log;
 
-class SendEmailToCustomer
+class NotifyAdmin
 {
     /**
      * Create the event listener.
@@ -26,7 +26,7 @@ class SendEmailToCustomer
         $eventName = class_basename($event);
         $orderId = $event->order->id ?? 'unknown';
         
-        Log::info("Email sent to customer for order #{$orderId} - Event: {$eventName}");
-        echo "Email sent to customer for order #{$orderId} - Event: {$eventName}\n";
+        Log::info("Admin notified for order #{$orderId} - Event: {$eventName}");
+        echo "Admin notified for order #{$orderId} - Event: {$eventName}\n";
     }
 }

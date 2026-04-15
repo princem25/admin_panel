@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Listeners;
+namespace App\Listeners\Admin;
 
-use App\Events\OrderPaid;
+use App\Events\Admin\OrderPaid;
 use Illuminate\Support\Facades\Log;
 
 class UpdateInventory

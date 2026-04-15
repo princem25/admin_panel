@@ -1,24 +1,24 @@
 <?php
 
-namespace App\Listeners;
+namespace App\Listeners\Customer;
 
-use App\Events\ProductAddedToCart;
+use App\Events\Customer\ProductAddedToCart;
 use Illuminate\Support\Facades\Log;
 
-class LogProductAddedToCartEvent
+class TrackProductAddedToCart
 {
     /**
      * Handle the event.
      *
-     * @param  \App\Events\ProductAddedToCart  $event
+     * @param  \App\Events\Customer\ProductAddedToCart  $event
      * @return void
      */
     public function handle(ProductAddedToCart $event)
     {
         $userId = $event->user ? $event->user->id : 'Guest';
-        Log::info('Event: ProductAddedToCart', [
+        Log::info("Product added to cart by user ID {$userId}", [
             'product_id' => $event->product->id,
-            'user_id' => $userId
+            'product_name' => $event->product->name,
         ]);
     }
 }

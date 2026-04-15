@@ -7,8 +7,8 @@ use App\Models\Product;
 use App\Services\CartService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use App\Events\ProductAddedToCart;
-use App\Events\CartAbandoned;
+use App\Events\Customer\ProductAddedToCart;
+use App\Events\Customer\CartAbandoned;
 
 class CartController extends Controller
 {

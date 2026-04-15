@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Events;
+namespace App\Events\Admin;
 
 use App\Models\Order;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class OrderDelivered
+class OrderPaid
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 

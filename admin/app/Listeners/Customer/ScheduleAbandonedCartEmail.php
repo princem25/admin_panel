@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Listeners;
+namespace App\Listeners\Customer;
 
-use App\Events\CartAbandoned;
+use App\Events\Customer\CartAbandoned;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
@@ -23,7 +23,7 @@ class ScheduleAbandonedCartEmail implements ShouldQueue
     /**
      * Handle the event.
      *
-     * @param  \App\Events\CartAbandoned  $event
+     * @param  \App\Events\Customer\CartAbandoned  $event
      * @return void
      */
     public function handle(CartAbandoned $event)

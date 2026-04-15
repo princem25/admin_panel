@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Events\ProductStockChanged;
+use App\Events\Admin\ProductStockChanged;
 use App\Exceptions\ProductOutOfStockException;
 use App\Models\Product;
 use Illuminate\Support\Facades\Cache;

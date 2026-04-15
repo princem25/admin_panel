@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Listeners;
+namespace App\Listeners\Customer;
 
-use App\Events\CartAbandoned;
+use App\Events\Customer\CartAbandoned;
 use Illuminate\Support\Facades\Log;
 
 class LogCartAbandonedEvent
@@ -10,7 +10,7 @@ class LogCartAbandonedEvent
     /**
      * Handle the event.
      *
-     * @param  \App\Events\CartAbandoned  $event
+     * @param  \App\Events\Customer\CartAbandoned  $event
      * @return void
      */
     public function handle(CartAbandoned $event)

@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Cache;
-use App\Events\ProductViewed;
+use App\Events\Customer\ProductViewed;
 
 class ProductController extends Controller
 {
