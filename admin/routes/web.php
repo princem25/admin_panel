@@ -79,6 +79,7 @@ Route::prefix('user')->middleware(['role:user', 'auth'])->group(function () {
     Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
     Route::delete('/cart/remove/{product}', [CartController::class, 'remove'])->name('cart.remove');
     Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+    Route::get('/cart/abandon', [CartController::class, 'simulateAbandon'])->name('cart.abandon');
     Route::patch('/cart/increase/{id}', [CartController::class, 'increase'])->name('cart.increase');
     Route::patch('/cart/decrease/{id}', [CartController::class, 'decrease'])->name('cart.decrease');
 

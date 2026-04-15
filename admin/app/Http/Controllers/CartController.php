@@ -7,6 +7,8 @@ use App\Models\Product;
 use App\Services\CartService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Events\ProductAddedToCart;
+use App\Events\CartAbandoned;
 
 class CartController extends Controller
 {
@@ -57,9 +59,11 @@ class CartController extends Controller
             $recent = array_diff($recent, [$product->id]); // remove if already exists
             array_unshift($recent, $product->id);          // add to front
             $recent = array_slice($recent, 0, 10);         // limit to 10
+            $recent = array_slice($recent, 0, 10);         // limit to 10
             session()->put('recent', $recent);
 
-            Log::info('Product added to cart', ['product_id' => $product->id]);
+            // Fire event for product added to cart
+            event(new ProductAddedToCart($product, auth()->user()));
 
             return back()->with('success', "'{$product->name}' added to cart!");
         } catch (ProductOutOfStockException $e) {
@@ -213,5 +217,15 @@ class CartController extends Controller
         }
 
         return back();
+    }
+
+    // Simulate Abandoned Cart
+    public function simulateAbandon(Request $request)
+    {
+        $cart = session()->get('cart', []);
+        
+        event(new CartAbandoned($cart));
+        
+        return response()->json(['message' => 'Cart Abandoned event fired!']);
     }
 }

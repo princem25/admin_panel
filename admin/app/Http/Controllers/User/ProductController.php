@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Cache;
+use App\Events\ProductViewed;
 
 class ProductController extends Controller
 {
@@ -60,11 +61,8 @@ class ProductController extends Controller
             $recent = array_slice($recent, 0, 10);         // limit to 10
             session()->put('recent', $recent);
 
-            // Log::info — user viewed a single product page
-            Log::channel('products')->info('User viewed product', [
-                'product_id'   => $product->id,
-                'product_name' => $product->name,
-            ]);
+            // Fire event for product viewed
+            event(new ProductViewed($product, auth()->user()));
 
             $cart = session()->get('cart', []);
             $cartProductIds = collect($cart)->pluck('product_id')->toArray();

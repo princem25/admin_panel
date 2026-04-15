@@ -264,6 +264,4 @@ class ProductController extends Controller
             "Content-Disposition" => "attachment; filename=products.csv",
         ]);
     }
-
-    }
-
+}
