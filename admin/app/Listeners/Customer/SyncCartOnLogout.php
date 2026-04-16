@@ -3,6 +3,7 @@
 namespace App\Listeners\Customer;
 
 use Illuminate\Auth\Events\Logout;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 use App\Services\CartService;
 
@@ -33,10 +34,22 @@ class SyncCartOnLogout
 
             Redis::set("cart:user:{$user->id}", json_encode($cart));
 
+            Log::channel('products')->info('Logout cart sync completed', [
+                'user_id' => $user->id,
+                'item_count' => count($cart),
+                'action' => 'stored_in_redis',
+            ]);
+
         } else {
 
             // If the cart is empty, we remove the key from Redis to mirror the state
             Redis::del("cart:user:{$user->id}");
+
+            Log::channel('products')->info('Logout cart sync completed', [
+                'user_id' => $user->id,
+                'item_count' => 0,
+                'action' => 'removed_from_redis',
+            ]);
             
         }
     }

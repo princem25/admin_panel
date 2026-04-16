@@ -7,6 +7,7 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class ProductStockChanged implements ShouldBroadcastNow
 {
@@ -17,9 +18,9 @@ class ProductStockChanged implements ShouldBroadcastNow
      */
     public function __construct(
         public int $productId,
-        public int $newStock
-    ) {
-    }
+        public int $newStock,
+        public int $oldStock = -1
+    ) {}
 
     /**
      * Get the channels the event should broadcast on.

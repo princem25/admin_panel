@@ -16,7 +16,8 @@ class TrackProductViewed
     public function handle(ProductViewed $event)
     {
         $userId = $event->user ? $event->user->id : 'Guest';
-        Log::info("Product viewed by user ID {$userId}", [
+        Log::channel('customer')->info('Listener handled: TrackProductViewed', [
+            'user_id' => $userId,
             'product_id' => $event->product->id,
             'product_name' => $event->product->name,
         ]);

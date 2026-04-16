@@ -174,11 +174,14 @@ class ProductController extends Controller
                 throw new InvalidOrderException('Products older than 1 year cannot be updated.');
             }
 
+            // Capture old stock before update for inventory event detection
+            $oldStock = $product->stock;
+
             $product->update($data);
 
             // Broadcast stock change if it was updated
             if (isset($data['stock'])) {
-                event(new ProductStockChanged($product->id, $product->stock));
+                event(new ProductStockChanged($product->id, $product->stock, $oldStock));
             }
 
             $this->invalidateProductCache($product->id);

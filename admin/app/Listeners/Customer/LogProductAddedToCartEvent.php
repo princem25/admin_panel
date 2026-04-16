@@ -16,9 +16,10 @@ class LogProductAddedToCartEvent
     public function handle(ProductAddedToCart $event)
     {
         $userId = $event->user ? $event->user->id : 'Guest';
-        Log::info('Event: ProductAddedToCart', [
+        Log::channel('customer')->info('Listener handled: LogProductAddedToCartEvent', [
             'product_id' => $event->product->id,
-            'user_id' => $userId
+            'product_name' => $event->product->name,
+            'user_id' => $userId,
         ]);
     }
 }

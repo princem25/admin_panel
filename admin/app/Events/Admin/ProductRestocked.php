@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events\Customer;
+namespace App\Events\Admin;
 
 use App\Models\Product;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -8,27 +8,24 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class ProductViewed
+class ProductRestocked
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $product;
-    public $user;
+    public Product $product;
 
     /**
      * Create a new event instance.
-     *
-     * @return void
+     * Triggered when product stock increases from 0 to a positive value.
      */
-    public function __construct(Product $product, $user = null)
+    public function __construct(Product $product)
     {
         $this->product = $product;
-        $this->user = $user;
 
-        Log::channel('customer')->info('Event dispatched: ProductViewed', [
+        Log::channel('products')->info('Event dispatched: ProductRestocked', [
             'product_id' => $product->id,
             'product_name' => $product->name,
-            'user_id' => $user?->id ?? 'Guest',
+            'stock' => $product->stock,
         ]);
     }
 }

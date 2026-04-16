@@ -16,7 +16,11 @@ class ScheduleAbandonedCartEmail implements ShouldQueue
      */
     public function withDelay(CartAbandoned $event)
     {
-        Log::info('Abandoned cart email SCHEDULED.', ['cart' => $event->cart]);
+        Log::channel('customer')->info('Listener scheduled: ScheduleAbandonedCartEmail', [
+            'item_count' => count($event->cart),
+            'cart_keys' => array_keys($event->cart),
+            'delay_seconds' => 10,
+        ]);
         return now()->addSeconds(10); // 10 seconds for testing
     }
 
@@ -28,7 +32,10 @@ class ScheduleAbandonedCartEmail implements ShouldQueue
      */
     public function handle(CartAbandoned $event)
     {
-        Log::info('Abandoned cart email EXECUTED by queue worker.', ['cart' => $event->cart]);
+        Log::channel('customer')->info('Listener handled: ScheduleAbandonedCartEmail', [
+            'item_count' => count($event->cart),
+            'cart_keys' => array_keys($event->cart),
+        ]);
     }
 
     /**
@@ -36,6 +43,10 @@ class ScheduleAbandonedCartEmail implements ShouldQueue
      */
     public function failed(CartAbandoned $event, \Throwable $exception)
     {
-        //
+        Log::channel('customer')->error('Listener failed: ScheduleAbandonedCartEmail', [
+            'item_count' => count($event->cart),
+            'cart_keys' => array_keys($event->cart),
+            'error' => $exception->getMessage(),
+        ]);
     }
 }

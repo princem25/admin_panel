@@ -16,9 +16,10 @@ class LogProductViewedEvent
     public function handle(ProductViewed $event)
     {
         $userId = $event->user ? $event->user->id : 'Guest';
-        Log::info('Event: ProductViewed', [
+        Log::channel('customer')->info('Listener handled: LogProductViewedEvent', [
             'product_id' => $event->product->id,
-            'user_id' => $userId
+            'product_name' => $event->product->name,
+            'user_id' => $userId,
         ]);
     }
 }

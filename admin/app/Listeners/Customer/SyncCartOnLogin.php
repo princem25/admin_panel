@@ -28,6 +28,9 @@ class SyncCartOnLogin
     {
         // 1. Prevent duplicate operations within the same login session
         if (Session::has('cart_merged')) {
+            Log::channel('products')->info('Login cart sync skipped: cart already merged', [
+                'user_id' => $event->user->id,
+            ]);
             return;
         }
 

@@ -15,8 +15,10 @@ class UpdateRecentlyViewed
      */
     public function handle(ProductViewed $event)
     {
-        $productId = $event->product->id;
-        
-        Log::info("Recently viewed logic executed for Product ID {$productId}");
+        Log::channel('customer')->info('Listener handled: UpdateRecentlyViewed', [
+            'product_id' => $event->product->id,
+            'product_name' => $event->product->name,
+            'user_id' => $event->user?->id ?? 'Guest',
+        ]);
     }
 }

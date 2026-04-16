@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Cache;
 use App\Events\Customer\ProductViewed;
+use App\Models\ProductWaitlist;
 
 class ProductController extends Controller
 {
@@ -75,7 +76,14 @@ class ProductController extends Controller
                 ->take(4)
                 ->get();
 
-            return view('user.show', compact('product', 'cartProductIds', 'recentProducts'));
+            // Check if the user is already on waitlist (for showing button state)
+            $onWaitlist = auth()->check()
+                ? ProductWaitlist::where('product_id', $product->id)
+                    ->where('user_id', auth()->id())
+                    ->exists()
+                : false;
+
+            return view('user.show', compact('product', 'cartProductIds', 'recentProducts', 'onWaitlist'));
         } catch (ModelNotFoundException $e) {
             Log::error('Product not found', ['error' => $e->getMessage()]);
             abort(404);
