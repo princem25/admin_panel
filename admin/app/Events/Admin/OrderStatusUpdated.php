@@ -8,6 +8,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class OrderStatusUpdated implements ShouldBroadcastNow
 {
@@ -21,7 +22,10 @@ class OrderStatusUpdated implements ShouldBroadcastNow
           public string $orderId
     )
     {
-        //
+        Log::channel('orders')->info('Event dispatched: OrderStatusUpdated', [
+            'order_id' => $this->orderId,
+            'status' => $this->orderStatus,
+        ]);
     }
 
     /**

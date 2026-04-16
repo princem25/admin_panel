@@ -9,6 +9,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class OrderPlaced implements ShouldBroadcastNow
 {
@@ -22,6 +23,12 @@ class OrderPlaced implements ShouldBroadcastNow
     public function __construct(Order $order)
     {
         $this->order = $order;
+
+        Log::channel('orders')->info('Event dispatched: OrderPlaced', [
+            'order_id' => $order->id,
+            'customer_id' => $order->user_id,
+            'amount' => $order->total,
+        ]);
     }
 
     /**
