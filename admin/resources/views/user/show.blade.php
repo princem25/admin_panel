@@ -110,12 +110,35 @@
 
                         <div id="purchase-action-container-{{ $product->id }}">
                             @if (isset($product->stock) && $product->stock == 0)
-                                <button id="add-to-cart-btn-{{ $product->id }}" disabled
-                                    class="w-full py-4 px-6 text-lg font-bold rounded-xl
-                                           bg-gray-200 text-gray-500 dark:bg-white/10 dark:text-gray-500
-                                           cursor-not-allowed flex justify-center items-center gap-2 border border-gray-300 dark:border-white/20">
-                                    🚫 Out of Stock
-                                </button>
+
+                                {{-- 🔔 Notify Me / Waitlist Button --}}
+                                @if ($onWaitlist)
+                                    {{-- Already on waitlist: show confirmation state --}}
+                                    <div class="w-full py-4 px-6 text-lg font-bold rounded-xl
+                                               bg-purple-100 text-purple-700
+                                               dark:bg-purple-500/20 dark:text-purple-300
+                                               border border-purple-300 dark:border-purple-500/40
+                                               flex justify-center items-center gap-3">
+                                        🔔 You're on the waitlist — we'll email you!
+                                    </div>
+                                @else
+                                    {{-- Not yet joined: show Notify Me form --}}
+                                    <form action="{{ route('user.waitlist.join', $product) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" id="notify-btn-{{ $product->id }}"
+                                            class="w-full py-4 px-6 text-lg font-bold rounded-xl text-white
+                                                   bg-gradient-to-r from-purple-600 to-indigo-500
+                                                   hover:from-purple-700 hover:to-indigo-600
+                                                   dark:from-purple-500 dark:to-indigo-400
+                                                   dark:hover:from-purple-400 dark:hover:to-indigo-300
+                                                   shadow-[0_10px_20px_rgba(124,58,237,0.25)]
+                                                   hover:shadow-[0_15px_25px_rgba(124,58,237,0.4)]
+                                                   transform hover:-translate-y-1 transition-all duration-300
+                                                   flex justify-center items-center gap-3">
+                                            🔔 Notify Me When Back in Stock
+                                        </button>
+                                    </form>
+                                @endif
                             @elseif(isset($cartProductIds) && in_array($product->id ?? 0, $cartProductIds))
                                 <button id="add-to-cart-btn-{{ $product->id }}"
                                     class="w-full py-4 px-6 text-lg font-bold rounded-xl bg-gray-200 text-gray-600 dark:bg-white/10 dark:text-gray-400 cursor-not-allowed shadow-inner transition-all flex justify-center items-center gap-2 border border-gray-300 dark:border-white/20">

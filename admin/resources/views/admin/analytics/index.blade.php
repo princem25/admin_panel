@@ -20,12 +20,6 @@
                 </div>
             </div>
 
-            <!-- Flash Messages -->
-            @if(session('error'))
-                <div class="mb-6 p-4 rounded-xl bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-500/30">
-                    {{ session('error') }}
-                </div>
-            @endif
 
             <div class="grid grid-cols-1 gap-10">
 

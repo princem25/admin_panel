@@ -36,6 +36,8 @@
     </div>
 
     <div class="relative w-full max-w-md px-4">
+        {{-- Global Flash Notifications --}}
+        <x-flash-message />
 
         <!-- 🧊 Card Container -->
         <div

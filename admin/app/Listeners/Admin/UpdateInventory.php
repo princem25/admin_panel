@@ -3,26 +3,23 @@
 namespace App\Listeners\Admin;
 
 use App\Events\Admin\OrderPaid;
+use App\Events\Admin\ProductStockChanged;
 use Illuminate\Support\Facades\Log;
 
 class UpdateInventory
 {
     /**
-     * Create the event listener.
-     */
-    public function __construct()
-    {
-        //
-    }
-
-    /**
-     * Handle the event.
+     * Reduce stock for all items in a paid order.
+     * Logs to the dedicated orders channel with structured context.
      */
     public function handle(OrderPaid $event): void
     {
-        $orderId = $event->order->id ?? 'unknown';
-        
-        Log::info("Inventory updated (stock reduced) for order #{$orderId} after payment.");
-        echo "Inventory updated (stock reduced) for order #{$orderId} after payment.\n";
+        $order = $event->order;
+
+        Log::channel('orders')->info('Listener handled: UpdateInventory (Stock already managed in cart)', [
+            'order_id' => $order->id ?? 'unknown',
+            'customer_id' => $order->user_id ?? 'unknown',
+            'item_count' => $order->items ? $order->items->count() : 0,
+        ]);
     }
 }

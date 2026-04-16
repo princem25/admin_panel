@@ -89,11 +89,7 @@ class CheckoutController extends Controller
 
             Log::info('Order placed successfully', ['order_id' => $order->id, 'user_id' => auth()->id()]);
 
-            event(new OrderPlaced(
-                $order->full_name,
-                (float) $order->total_amount,
-                $cartItems->sum('quantity')
-            ));
+            event(new OrderPlaced($order));
 
             return redirect()->route('checkout.success', $order->id)->with('success', 'Your order has been placed successfully! 🎉');
         } catch (\Exception $e) {

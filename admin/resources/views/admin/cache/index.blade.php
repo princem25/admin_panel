@@ -22,13 +22,6 @@
                 </a>
             </div>
 
-            {{-- Flash Message --}}
-            @if(session('success'))
-                <div class="mb-6 px-5 py-4 rounded-xl border border-green-300 bg-green-50 dark:bg-green-900/30 dark:border-green-700 text-green-800 dark:text-green-300 flex items-center gap-3">
-                    <span class="text-xl">✅</span>
-                    <span class="font-medium">{{ session('success') }}</span>
-                </div>
-            @endif
 
             @if(!$redisAvailable)
                 <div class="mb-6 px-5 py-4 rounded-xl border border-red-300 bg-red-50 dark:bg-red-900/30 dark:border-red-700 text-red-800 dark:text-red-300 flex items-center gap-3">
