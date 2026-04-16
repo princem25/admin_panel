@@ -10,6 +10,7 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\User\ProductController as UserProductController;
+use App\Http\Controllers\User\WaitlistController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\UserController;
@@ -87,6 +88,9 @@ Route::prefix('user')->middleware(['role:user', 'auth'])->group(function () {
     Route::get('/products', [UserProductController::class, 'index'])->name('user.products');
     Route::get('/products/{product}', [UserProductController::class, 'show'])->name('user.products.show');
 
+    // Waitlist: notify me when back in stock
+    Route::post('/products/{product}/waitlist', [WaitlistController::class, 'join'])->name('user.waitlist.join');
+
     // Generate Invoice from Order
     Route::get('/orders/{order}/invoice', [InvoiceController::class, 'generate'])->name('orders.invoice');
 
@@ -101,9 +105,6 @@ Route::prefix('user')->middleware(['role:user', 'auth'])->group(function () {
     Route::patch('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
 });
 
-
-
 Route::fallback(function () {
-    return view('404');
+    return view('errors.404');
 });
-

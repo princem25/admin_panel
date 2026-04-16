@@ -54,4 +54,13 @@ class Product extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
+    /**
+     * Users on the waitlist for this product.
+     */
+    public function waitlistUsers()
+    {
+        return $this->belongsToMany(User::class, 'product_waitlists')
+            ->withTimestamps();
+    }
 }

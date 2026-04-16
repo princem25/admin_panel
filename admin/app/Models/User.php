@@ -51,4 +51,13 @@ class User extends Authenticatable
     {
         return $this->hasMany(Order::class);
     }
+
+    /**
+     * Products this user is on the waitlist for.
+     */
+    public function waitlistProducts()
+    {
+        return $this->belongsToMany(Product::class, 'product_waitlists')
+            ->withTimestamps();
+    }
 }
