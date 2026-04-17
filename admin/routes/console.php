@@ -92,12 +92,16 @@ Artisan::command('report:stock', function (AdminService $stockService) {
 
 app(Schedule::class)
     ->command('report:admin')
-    ->everyFourHours();
+    ->everyFourHours()
+    ->withoutOverlapping();
 
 app(Schedule::class)
     ->command('report:sales')
-    ->dailyAt('2:00');
+    ->dailyAt('2:00')
+    ->withoutOverlapping();
 
 app(Schedule::class)
     ->command('report:stock')
-    ->dailyAt('8:00');
+    ->dailyAt('8:00')
+    ->withoutOverlapping();
+

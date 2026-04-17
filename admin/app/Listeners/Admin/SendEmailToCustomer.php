@@ -7,9 +7,29 @@ use App\Events\Admin\OrderPaid;
 use App\Events\Admin\OrderPlaced;
 use App\Events\Admin\OrderShipped;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Bus\Queueable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
-class SendEmailToCustomer
+class SendEmailToCustomer implements ShouldQueue
 {
+    use InteractsWithQueue, Queueable, SerializesModels;
+
+    /**
+     * The number of times the job may be attempted.
+     *
+     * @var int
+     */
+    public $tries = 3;
+
+    /**
+     * The number of seconds the job can run before timing out.
+     *
+     * @var int
+     */
+    public $timeout = 60;
+
     /**
      * Send (or simulate) a transactional email for every order lifecycle stage.
      * Logs to the dedicated orders channel with structured context.
@@ -26,6 +46,16 @@ class SendEmailToCustomer
             'customer_email' => $order->user->email ?? 'unknown',
             'total_amount' => $order->total ?? null,
             'status' => $order->status ?? null,
+        ]);
+    }
+
+    /**
+     * Handle a job failure.
+     */
+    public function failed(\Throwable $exception): void
+    {
+        Log::channel('orders')->emergency("Background Listener CRITICAL: SendEmailToCustomer has failed after all retry attempts.", [
+            'error' => $exception->getMessage()
         ]);
     }
 }
