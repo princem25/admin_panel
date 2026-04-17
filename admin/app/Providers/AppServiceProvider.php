@@ -15,7 +15,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Event;
- 
 use Illuminate\Support\Facades\Cache;
 
 class AppServiceProvider extends ServiceProvider
@@ -50,9 +49,7 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(Login::class, SyncCartOnLogin::class);
         Event::listen(Logout::class, SyncCartOnLogout::class);
 
- 
-
- 
+   
 
         /**
          * ✅ SAFE CACHE: Categories

@@ -108,7 +108,9 @@
             </div>
 
             <!-- Flash Message -->
-            <x-flash-message />
+
+            {{-- Flash Message handled globally --}}
+
 
             <!-- 📊 Results Summary -->
             <div class="mb-6 flex justify-between items-center bg-gray-50/50 dark:bg-white/5 p-4 rounded-xl border border-gray-100 dark:border-white/10">

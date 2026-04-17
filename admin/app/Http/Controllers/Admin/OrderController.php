@@ -100,9 +100,8 @@ class OrderController extends Controller
 
             Log::info('Order updated by admin', ['order_id' => $order->id, 'admin_id' => auth()->id(), 'new_status' => $newStatus]);
             
-            if ($oldStatus !== $newStatus) {
-                event(new OrderStatusUpdated($newStatus, (string)$order->id));
-            }
+            // NOTE: OrderStatusUpdated is dispatched automatically via OrderObserver when $order->update() is called above.
+
 
             return redirect()->route('admin.orders.show', $order->id)
                              ->with('success', 'Order updated successfully.');

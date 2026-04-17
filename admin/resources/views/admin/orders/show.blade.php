@@ -34,7 +34,9 @@
                 </div>
             </div>
 
-            <x-flash-message />
+
+            {{-- Flash Message handled globally by x-app-layout --}}
+
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 

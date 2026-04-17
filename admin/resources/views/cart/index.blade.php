@@ -10,7 +10,9 @@
 
             {{-- Flash Messages --}}
             <div id="cart-alert" class="mb-4">
-                <x-flash-message />
+
+                {{-- Flash Message handled globally --}}
+
             </div>
 
             @if ($cartItems->count() > 0)

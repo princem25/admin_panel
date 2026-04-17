@@ -106,6 +106,11 @@
             });
         </script>
     @endauth
-</body>
+    {{-- Global Toast Container for Broadcasting --}}
+    <div id="toast-container" class="fixed bottom-5 right-5 z-[9999] flex flex-col gap-3 items-end pointer-events-none">
+        {{-- Real-time notifications will be injected here via JavaScript --}}
+    </div>
 
+    @stack('scripts')
+</body>
 </html>

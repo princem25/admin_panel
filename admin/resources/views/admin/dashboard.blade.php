@@ -18,6 +18,7 @@
         <div class="relative max-w-5xl mx-auto px-6 py-10">
 
             <!-- Header -->
+
             <div class="flex justify-between h-10 mb-8">
                 <h1 class="text-3xl font-bold mb-8">
                     Hello, Admin 👋
@@ -327,7 +328,9 @@
                 // 🔹 Admin Order Notifications
                 window.Echo.private('admin.orders')
                     .listen('.order.placed', (data) => {
+                        // Toast is created and appended to the local #toast-container
                         const $toast = window.$(`
+
                             <div class="bg-green-600 border border-green-400 text-white px-6 py-4 rounded-xl shadow-2xl max-w-sm mb-3">
                                 <h4 class="font-bold text-lg mb-2 flex items-center gap-2">
                                     <span>🛒</span> New Order Received!
@@ -344,7 +347,7 @@
                             $toast.fadeOut(400, function() {
                                 window.$(this).remove();
                             });
-                        }, 8000);
+                        }, 4000);
                     });
             }
         });

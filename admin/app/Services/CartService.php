@@ -135,10 +135,6 @@ class CartService
 
                 $this->setCart($cart);
 
-                //  Capture old stock before decrementing
-                $oldStock = $product->stock;
-
-                //  Decrement stock in DB atomically within transaction
                 $product->decrement('stock', $qty);
 
                 Log::channel('products')->info('Stock decremented', [
@@ -146,12 +142,7 @@ class CartService
                     'qty'        => $qty,
                     'new_stock'  => $product->fresh()->stock,
                 ]);
-
-                event(new ProductStockChanged($productId, $product->fresh()->stock, $oldStock));
             });
-
-            // Targeted Invalidation: Flush all customer-tagged caches immediately after Add/Increase
-            Cache::tags(['customer','products'])->flush();
         });
     }
 
@@ -200,7 +191,6 @@ class CartService
 
                         // Restore 1 unit of stock safely
                         $product = Product::where('id', $productId)->lockForUpdate()->first();
-                        $oldStock = $product ? $product->stock : 0;
                         if ($product) {
                             $product->increment('stock', 1);
                         }
@@ -210,17 +200,9 @@ class CartService
 
                 if ($found) {
                     $this->setCart($cart);
-                    
-                    $product = Product::find($productId);
-                    if ($product) {
-                        Log::channel('products')->info('Stock restored (decrease)', ['product_id' => $productId]);
-                        event(new ProductStockChanged($productId, $product->stock, $oldStock));
-                    }
+                    Log::channel('products')->info('Stock restored (decrease)', ['product_id' => $productId]);
                 }
             });
-
-            // Targeted Invalidation: Flush all customer-tagged caches immediately after Decrease
-            Cache::tags(['customer','products'])->flush();
         });
     }
 
@@ -233,14 +215,12 @@ class CartService
             DB::transaction(function () use ($productId) {
                 $cart = $this->getCart();
                 $found = false;
-                $oldStock = 0;
 
                 foreach ($cart as $key => $item) {
                     if ($item['product_id'] === $productId) {
                         $found = true;
                         //  Auto-restore stock safely
                         $product = Product::where('id', $productId)->lockForUpdate()->first();
-                        $oldStock = $product ? $product->stock : 0;
                         if ($product) {
                             $product->increment('stock', $item['qty']);
                             Log::channel('products')->info('Stock restored on cart removal', [
@@ -256,16 +236,8 @@ class CartService
 
                 if ($found) {
                     $this->setCart($cart);
-                    
-                    $product = Product::find($productId);
-                    if ($product) {
-                        event(new ProductStockChanged($productId, $product->stock, $oldStock));
-                    }
                 }
             });
-
-            // Targeted Invalidation: Flush all customer-tagged caches immediately after Removal
-            Cache::tags(['customer','products'])->flush();
         });
     }
 
@@ -283,18 +255,15 @@ class CartService
                 foreach ($cart as $item) {
                     $product = Product::where('id', $item['product_id'])->lockForUpdate()->first();
                     if ($product) {
-                        $oldStock = $product->stock;
                         $product->increment('stock', $item['qty']);
-                        event(new ProductStockChanged($product->id, $product->fresh()->stock, $oldStock));
                     }
                 }
             });
 
             // Step 2: Only reached after successful DB operations.
-            // Clear session, Redis persistence, and cache — in that order.
+            // Clear session, Redis persistence.
             Session::forget('cart');
             Redis::del('cart:user:' . auth()->id());
-            Cache::tags(['customer','products'])->flush();
 
             Log::channel('products')->info('Cart cleared and stock restored', ['count' => count($cart)]);
         });

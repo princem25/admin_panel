@@ -40,6 +40,19 @@ class OrderStatusUpdated implements ShouldBroadcastNow
         ];
     }
 
+    /**
+     * Get the data to broadcast.
+     *
+     * @return array<string, mixed>
+     */
+    public function broadcastWith(): array
+    {
+        return [
+            'orderStatus' => $this->orderStatus,
+            'orderId'     => $this->orderId,
+        ];
+    }
+
     public function broadcastAs(): string
     {
         return 'order.status.updated';

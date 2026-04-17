@@ -30,17 +30,6 @@ class ProductController extends Controller
     }
 
 
-    /**
-     * Invalidate product cache and related caches
-     */
-    private function invalidateProductCache(?int $productId = null)
-    {
-        // Flush all product-tagged caches in one operation (listings, details, featured, categories)
-        Cache::tags(['products'])->flush();
-
-        // Also flush admin dashboard caches — product changes affect metrics like low stock
-        Cache::tags(['admin'])->flush();
-    }
 
     public function index(Request $request)
     {
@@ -96,8 +85,6 @@ class ProductController extends Controller
             }
 
             $product = Product::create($data);
-
-            $this->invalidateProductCache();
 
             Log::channel('products')->info('Product created successfully', [
                 'id'   => $product->id,
@@ -174,17 +161,7 @@ class ProductController extends Controller
                 throw new InvalidOrderException('Products older than 1 year cannot be updated.');
             }
 
-            // Capture old stock before update for inventory event detection
-            $oldStock = $product->stock;
-
             $product->update($data);
-
-            // Broadcast stock change if it was updated
-            if (isset($data['stock'])) {
-                event(new ProductStockChanged($product->id, $product->stock, $oldStock));
-            }
-
-            $this->invalidateProductCache($product->id);
 
             Log::channel('products')->info('Product updated successfully', ['id' => $product->id]);
 
@@ -217,8 +194,6 @@ class ProductController extends Controller
             }
 
             $product->delete();
-
-            $this->invalidateProductCache($productId);
 
             // Log::warning — deletion is a significant action
             Log::channel('security')->warning('Product deleted', ['id' => $productId]);

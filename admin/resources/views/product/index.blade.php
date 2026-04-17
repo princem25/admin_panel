@@ -1,7 +1,9 @@
 <x-app-layout>
 
     {{-- 🔔 Flash Message --}}
-    <x-flash-message />
+
+    {{-- Flash Message handled globally --}}
+
 
     <!-- 🌌 Background -->
     <div

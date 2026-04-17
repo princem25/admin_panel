@@ -43,6 +43,21 @@ class OrderPlaced implements ShouldBroadcastNow
         ];
     }
 
+    /**
+     * Get the data to broadcast.
+     *
+     * @return array<string, mixed>
+     */
+    public function broadcastWith(): array
+    {
+        return [
+            'customerName' => $this->order->full_name ?? ($this->order->user->name ?? 'Guest'),
+            'orderTotal'   => number_format($this->order->total_amount, 2),
+            'itemsCount'   => $this->order->items->count(),
+            'orderId'      => $this->order->id,
+        ];
+    }
+
     public function broadcastAs(): string
     {
         return 'order.placed';

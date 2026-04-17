@@ -89,6 +89,8 @@ class CheckoutController extends Controller
 
             Log::info('Order placed successfully', ['order_id' => $order->id, 'user_id' => auth()->id()]);
 
+            // Load items and user for the broadcast payload
+            $order->load(['items', 'user']);
             event(new OrderPlaced($order));
 
             return redirect()->route('checkout.success', $order->id)->with('success', 'Your order has been placed successfully! 🎉');

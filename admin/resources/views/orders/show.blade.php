@@ -1,6 +1,8 @@
 <x-app-layout>
     <div class="min-h-screen py-10 px-4">
         <div class="max-w-5xl mx-auto flex flex-col gap-10">
+
+
             
             <div class="flex items-center justify-between">
                 <h1 class="text-3xl font-extrabold text-gray-800 dark:text-white flex items-center gap-3">
@@ -40,7 +42,9 @@
             </div>
 
             <div id="alert-section">
-                <x-flash-message />
+
+                {{-- Flash message handled globally --}}
+
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -148,6 +152,7 @@
             window.Echo.private('order.{{ $order->id }}')
                 .listen('.order.status.updated', (data) => {
                     const badge = window.$('#order-status-badge');
+
                     const status = window.$('#update');
                     
                     // Simple replacement of text

@@ -12,7 +12,9 @@
             </h2>
 
             <div id="alert-section">
-                <x-flash-message />
+
+                {{-- Flash Message handled globally --}}
+
             </div>
 
             @if ($orders->count() > 0)
