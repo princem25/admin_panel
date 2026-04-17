@@ -134,10 +134,10 @@ return [
         ],
 
         'orders' => [
-            'driver' => 'daily',
+            'driver' => 'single',
             'path' => storage_path('logs/orders/orders.log'),
             'level' => 'debug',
-            'days' => 14,
+            'replace_placeholders' => true,
         ],
 
         'security' => [
@@ -147,10 +147,10 @@ return [
         ],
 
         'DBinteraction' => [
-            'driver' => 'daily',
+            'driver' => 'single',
             'path' => storage_path('logs/DBinteraction/dblogs.log'),
             'level' => 'debug',
-            'days' => 14,
+            'replace_placeholders' => true,
         ],
 
         'admin' => [

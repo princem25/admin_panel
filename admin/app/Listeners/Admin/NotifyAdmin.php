@@ -39,7 +39,7 @@ class NotifyAdmin implements ShouldQueue
         $eventName = class_basename($event);
         $order = $event->order;
 
-        Log::channel('orders')->info("Listener handled: NotifyAdmin ({$eventName})", [
+        Log::channel('admin')->info("Listener handled: NotifyAdmin ({$eventName})", [
             'event' => $eventName,
             'order_id' => $order->id ?? 'unknown',
             'customer_id' => $order->user_id ?? 'unknown',
@@ -53,7 +53,7 @@ class NotifyAdmin implements ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
-        Log::channel('orders')->emergency("Background Listener CRITICAL: NotifyAdmin has failed after all retry attempts.", [
+        Log::channel('admin')->emergency("Background Listener CRITICAL: NotifyAdmin has failed after all retry attempts.", [
             'error' => $exception->getMessage()
         ]);
     }

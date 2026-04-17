@@ -39,7 +39,7 @@ class SendEmailToCustomer implements ShouldQueue
         $eventName = class_basename($event);
         $order = $event->order;
 
-        Log::channel('orders')->info("Listener handled: SendEmailToCustomer ({$eventName})", [
+        Log::channel('customer')->info("Listener handled: SendEmailToCustomer ({$eventName})", [
             'event' => $eventName,
             'order_id' => $order->id ?? 'unknown',
             'customer_id' => $order->user_id ?? 'unknown',
@@ -54,7 +54,7 @@ class SendEmailToCustomer implements ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
-        Log::channel('orders')->emergency("Background Listener CRITICAL: SendEmailToCustomer has failed after all retry attempts.", [
+        Log::channel('customer')->emergency("Background Listener CRITICAL: SendEmailToCustomer has failed after all retry attempts.", [
             'error' => $exception->getMessage()
         ]);
     }
