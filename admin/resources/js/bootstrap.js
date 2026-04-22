@@ -17,10 +17,20 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 window.Pusher = Pusher;
 
+const csrfToken = document.head.querySelector('meta[name="csrf-token"]');
+
+if (csrfToken) {
+    window.axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken.content;
+}
+
 window.Echo = new Echo({
     broadcaster: 'pusher',
     key: import.meta.env.VITE_PUSHER_APP_KEY,
     cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
     useTLS: true,
-    encrypted: true,
+    auth: {
+        headers: {
+            'X-CSRF-TOKEN': csrfToken ? csrfToken.content : ''
+        }
+    }
 });

@@ -17,10 +17,14 @@ class CustomerAnalyticsService
         try {
             $orders = Order::where('user_id', $userId)->get();
 
+            $eligibleOrders = $orders->filter(function ($order) {
+                return in_array($order->payment_method, ['upi', 'card']) || $order->status === 'delivered';
+            }); 
+
             return [
                 'total_orders'        => $orders->count(),
-                'total_spent'         => $orders->where('status', '!=', 'cancelled')->sum('total_amount'),
-                'average_order_value' => $orders->where('status', '!=', 'cancelled')->avg('total_amount') ?? 0,
+                'total_spent'         => $eligibleOrders->sum('total_amount'),
+                'average_order_value' => $eligibleOrders->avg('total_amount') ?? 0,
             ];
         } catch (\Exception $e) {
             Log::error('Customer order analytics error', [
