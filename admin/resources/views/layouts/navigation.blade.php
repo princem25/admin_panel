@@ -32,6 +32,11 @@
                             Customers
                         </a>
 
+                        <a href="{{ route('admin.invoices.index') }}"
+                            class="transition py-2 px-1 border-b-2 {{ request()->routeIs('admin.invoices.*') ? 'text-gray-900 border-blue-600 font-bold dark:text-white dark:border-cyan-400' : 'text-gray-600 border-transparent hover:text-gray-900 dark:text-white/80 dark:hover:text-white' }}">
+                            Invoices
+                        </a>
+
                         <a href="{{ route('admin.analytics.index') }}"
                             class="transition py-2 px-1 border-b-2 {{ request()->routeIs('admin.analytics.*') ? 'text-gray-900 border-blue-600 font-bold dark:text-white dark:border-cyan-400' : 'text-gray-600 border-transparent hover:text-gray-900 dark:text-white/80 dark:hover:text-white' }}">
                             Sales Analytics

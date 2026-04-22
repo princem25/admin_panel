@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class InvoiceController extends Controller
 {
@@ -30,20 +30,13 @@ class InvoiceController extends Controller
             return back()->with('error', 'Invoices cannot be generated for cancelled orders.');
         }
 
-        $data = [
-            'order'         => $order,
-            'items'         => $order->items,
-            'grandTotal'    => $order->total_amount,
-            'paymentMethod' => $order->payment_method,
-            'user'          => $order->user ?? Auth::user(),
-            'invoiceNumber' => 'INV-' . str_pad($order->id, 6, '0', STR_PAD_LEFT),
-            'generatedAt'   => now()->format('d M Y'),
-        ];
+        $invoice = $order->invoice;
 
-        $pdf = Pdf::loadView('invoice.pdf', $data)
-                  ->setPaper('A4', 'portrait');
+        if (!$invoice || !Storage::disk('public')->exists($invoice->file_path)) {
+            return back()->with('info', 'Invoice is generating. Please wait.');
+        }
 
-        return $pdf->download('invoice_order_' . $order->id . '_' . now()->format('Ymd_His') . '.pdf');
+        return Storage::disk('public')->download($invoice->file_path, 'Invoice_' . $invoice->invoice_number . '.pdf');
     }
 }
 

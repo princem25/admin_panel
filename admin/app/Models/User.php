@@ -52,6 +52,11 @@ class User extends Authenticatable
         return $this->hasMany(Order::class);
     }
 
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
     /**
      * Products this user is on the waitlist for.
      */

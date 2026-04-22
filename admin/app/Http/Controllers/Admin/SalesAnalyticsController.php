@@ -75,7 +75,7 @@ class SalesAnalyticsController extends Controller
                 default:
                     return back()->with('error', 'Invalid export type.');
             }
-
+                        
             return response()->streamDownload(function () use ($data, $headers) {
                 $file = fopen('php://output', 'w');
                 fputcsv($file, $headers);

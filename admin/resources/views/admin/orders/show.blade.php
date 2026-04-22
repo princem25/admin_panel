@@ -17,7 +17,7 @@
                 </div>
                 <div class="flex items-center gap-3">
                     @if($order->status !== 'cancelled')
-                        <a href="{{ route('orders.invoice', $order->id) }}" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-bold text-xs transition shadow-md flex items-center gap-2">
+                        <a href="{{ route('orders.invoice', $order->id) }}" class="no-transition px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-bold text-xs transition shadow-md flex items-center gap-2">
                             📄 Download Invoice
                         </a>
                     @endif

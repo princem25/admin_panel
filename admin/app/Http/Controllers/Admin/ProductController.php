@@ -237,9 +237,8 @@ class ProductController extends Controller
     {
         $callback = $this->productService->exportCsv();
 
-        return response()->stream($callback, 200, [
+        return response()->streamDownload($callback, 'products.csv', [
             "Content-Type" => "text/csv",
-            "Content-Disposition" => "attachment; filename=products.csv",
         ]);
     }
 }

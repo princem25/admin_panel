@@ -30,7 +30,7 @@
                             <span class="text-2xl">📅</span>
                             <h2 class="text-xl font-bold">Monthly Sales Report</h2>
                         </div>
-                        <a href="{{ route('admin.analytics.export', 'monthly-sales') }}" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-bold shadow-lg transition transform hover:scale-105 active:scale-95">
+                        <a href="{{ route('admin.analytics.export', 'monthly-sales') }}" class="no-transition px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-bold shadow-lg transition transform hover:scale-105 active:scale-95">
                             Export CSV
                         </a>
                     </div>
@@ -74,7 +74,7 @@
                                 <span class="text-2xl">🏆</span>
                                 <h2 class="text-xl font-bold">Top 10 Products</h2>
                             </div>
-                            <a href="{{ route('admin.analytics.export', 'top-products') }}" class="text-sm font-bold text-blue-600 dark:text-cyan-400 hover:underline">
+                            <a href="{{ route('admin.analytics.export', 'top-products') }}" class="no-transition text-sm font-bold text-blue-600 dark:text-cyan-400 hover:underline">
                                 Export CSV
                             </a>
                         </div>
@@ -114,7 +114,7 @@
                                 <span class="text-2xl">💎</span>
                                 <h2 class="text-xl font-bold">Top 10 Customers</h2>
                             </div>
-                            <a href="{{ route('admin.analytics.export', 'top-customers') }}" class="text-sm font-bold text-blue-600 dark:text-cyan-400 hover:underline">
+                            <a href="{{ route('admin.analytics.export', 'top-customers') }}" class="no-transition text-sm font-bold text-blue-600 dark:text-cyan-400 hover:underline">
                                 Export CSV
                             </a>
                         </div>
@@ -155,7 +155,7 @@
                             <span class="text-2xl">🏷️</span>
                             <h2 class="text-xl font-bold">Sales by Category</h2>
                         </div>
-                        <a href="{{ route('admin.analytics.export', 'sales-by-category') }}" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-bold shadow-lg transition transform hover:scale-105 active:scale-95">
+                        <a href="{{ route('admin.analytics.export', 'sales-by-category') }}" class="no-transition px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-bold shadow-lg transition transform hover:scale-105 active:scale-95">
                             Export CSV
                         </a>
                     </div>
@@ -184,7 +184,7 @@
                         </table>
                     </div>
                 </section>
-
+@dd($topProducts)
             </div>
         </div>
     </div>

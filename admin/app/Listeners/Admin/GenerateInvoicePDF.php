@@ -11,6 +11,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Invoice;
 
 class GenerateInvoicePDF implements ShouldQueue
 {
@@ -60,6 +61,8 @@ class GenerateInvoicePDF implements ShouldQueue
             'invoiceNumber' => 'INV-' . str_pad($order->id, 6, '0', STR_PAD_LEFT),
             'generatedAt'   => now()->format('d M Y'),
         ];
+        
+        $invoiceNumber = $data['invoiceNumber'];
 
         try {
             Log::channel('orders')->info("Background Listener: Starting PDF generation for Order #{$order->id}");
@@ -74,6 +77,15 @@ class GenerateInvoicePDF implements ShouldQueue
             
             // Save to storage/app/public/invoices/
             Storage::disk('public')->put($fileName, $pdf->output());
+
+            Invoice::updateOrCreate(
+                ['order_id' => $order->id],
+                [
+                    'user_id' => $order->user_id,
+                    'invoice_number' => $invoiceNumber,
+                    'file_path' => $fileName,
+                ]
+            );
 
             Log::channel('orders')->info("Background Listener: PDF generated successfully for Order #{$order->id} at {$fileName}");
         } catch (\Exception $e) {
