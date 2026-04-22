@@ -27,6 +27,7 @@ class DashboardController extends Controller
         $cancelledOrders = $adminService->countCancelledOrders();
         $genuineOrders = $adminService->countGenuineOrders();
         $revenueByPaymentMethod = $adminService->revenueByPaymentMethod();
+        $recentPendingOrders = $adminService->getRecentPendingOrders();
 
         return view('admin.dashboard', compact(
             'totalOrders',
@@ -36,7 +37,8 @@ class DashboardController extends Controller
             'newCustomersToday',
             'pendingOrders',
             'lowStockProducts',
-            'revenueByPaymentMethod'
+            'revenueByPaymentMethod',
+            'recentPendingOrders'
         ));
     }
 

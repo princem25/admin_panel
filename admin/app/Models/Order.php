@@ -40,4 +40,12 @@ class Order extends Model
     {
         return $this->hasOne(Invoice::class);
     }
+
+    /**
+     * Scope a query to only include genuine (completed/fulfilled) orders.
+     */
+    public function scopeGenuine($query)
+    {
+        return $query->whereNotIn('status', ['cancelled', 'pending']);
+    }
 }

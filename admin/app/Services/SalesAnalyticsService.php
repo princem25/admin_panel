@@ -16,7 +16,7 @@ class SalesAnalyticsService
     public function getMonthlySales(): Collection
     {
         try {
-            $orders = Order::where('status', '!=', 'cancelled')->get();
+            $orders = Order::genuine()->get();
 
             return $orders->groupBy(function ($order) {
                 return $order->created_at->format('Y-m');
@@ -46,7 +46,7 @@ class SalesAnalyticsService
         try {
             $items = OrderItem::with('product')
                 ->whereHas('order', function ($query) {
-                    $query->where('status', '!=', 'cancelled');
+                    $query->genuine();
                 })->get();
 
             return $items->groupBy('product_id')
@@ -78,7 +78,7 @@ class SalesAnalyticsService
     {
         try {
             $orders = Order::with('user')
-                ->where('status', '!=', 'cancelled')
+                ->genuine()
                 ->get();
 
             return $orders->groupBy('user_id')
@@ -112,7 +112,7 @@ class SalesAnalyticsService
         try {
             $items = OrderItem::with('product.category')
                 ->whereHas('order', function ($query) {
-                    $query->where('status', '!=', 'cancelled');
+                    $query->genuine();
                 })->get();
 
             return $items->groupBy(function ($item) {

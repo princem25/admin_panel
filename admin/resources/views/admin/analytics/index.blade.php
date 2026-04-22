@@ -184,7 +184,7 @@
                         </table>
                     </div>
                 </section>
-@dd($topProducts)
+ 
             </div>
         </div>
     </div>

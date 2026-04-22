@@ -20,17 +20,17 @@ class AdminService
 
     public function countGenuineOrders()
     {
-        return  Order::where('status', '!=', 'cancelled')->count();
+        return  Order::genuine()->count();
     }
 
     public function sumTotalRevenue()
     {
-        return  Order::where('status', '!=', 'cancelled')->sum('total_amount');
+        return  Order::genuine()->sum('total_amount');
     }
 
     public function revenueByPaymentMethod()
     {
-        return  Order::where('status', '!=', 'cancelled')
+        return  Order::genuine()
             ->select('payment_method', DB::raw('SUM(total_amount) as total'))
             ->groupBy('payment_method')
             ->get();
@@ -51,6 +51,15 @@ class AdminService
     public function countPendingOrders()
     {
         return Order::where('status', 'pending')->count();
+    }
+
+    public function getRecentPendingOrders($limit = 5)
+    {
+        return Order::with('user')
+            ->where('status', 'pending')
+            ->latest()
+            ->take($limit)
+            ->get();
     }
 
     public function countLowStockProducts()

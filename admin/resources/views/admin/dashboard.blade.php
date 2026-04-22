@@ -64,12 +64,19 @@
             {{-- Order Analytics Section --}}
             <div class="mb-8 border-b border-gray-200 dark:border-white/10 pb-8">
                 <h2 class="text-xl font-bold mb-4">Order Analytics</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
                     <!-- Total Orders -->
                     <div class="p-5 rounded-xl transition bg-white border border-gray-200 shadow-sm dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-md">
                         <div class="text-blue-500 text-2xl mb-2">📦</div>
                         <h3 class="text-xs font-semibold text-gray-500 dark:text-white/60 uppercase tracking-wider">Total Orders</h3>
                         <p class="text-2xl font-bold mt-1 text-gray-900 dark:text-white">{{ $totalOrders }}</p>
+                    </div>
+
+                    <!-- Pending Orders -->
+                    <div class="p-5 rounded-xl transition bg-white border border-gray-200 shadow-sm dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-md">
+                        <div class="text-orange-500 text-2xl mb-2">⌛</div>
+                        <h3 class="text-xs font-semibold text-gray-500 dark:text-white/60 uppercase tracking-wider">Pending Orders</h3>
+                        <p class="text-2xl font-bold mt-1 text-gray-900 dark:text-white">{{ $pendingOrders }}</p>
                     </div>
 
                     <!-- Genuine Orders -->
@@ -110,19 +117,12 @@
             {{-- New Stats Row: Quick Insights --}}
             <div class="mb-10">
                 <h2 class="text-xl font-bold mb-4">Quick Insights</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <!-- New Customers Today -->
                     <div class="p-5 rounded-xl transition bg-white border border-gray-200 shadow-sm dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-md">
                         <div class="text-cyan-500 text-2xl mb-2">👥</div>
                         <h3 class="text-xs font-semibold text-gray-500 dark:text-white/60 uppercase tracking-wider">New Customers Today</h3>
                         <p class="text-2xl font-bold mt-1 text-gray-900 dark:text-white">{{ $newCustomersToday }}</p>
-                    </div>
-
-                    <!-- Pending Orders -->
-                    <div class="p-5 rounded-xl transition bg-white border border-gray-200 shadow-sm dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-md">
-                        <div class="text-orange-500 text-2xl mb-2">⌛</div>
-                        <h3 class="text-xs font-semibold text-gray-500 dark:text-white/60 uppercase tracking-wider">Pending Orders</h3>
-                        <p class="text-2xl font-bold mt-1 text-gray-900 dark:text-white">{{ $pendingOrders }}</p>
                     </div>
 
                     <!-- Low Stock Alerts -->
@@ -133,6 +133,52 @@
                     </div>
                 </div>
             </div>
+
+            {{-- Recent Pending Orders --}}
+            @if($recentPendingOrders->isNotEmpty())
+                <div class="mb-10">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-bold flex items-center gap-2">
+                            <span class="text-orange-500">⌛</span> Action Required: Pending Orders
+                        </h2>
+                        <a href="{{ route('admin.orders.index', ['status' => 'pending']) }}" class="text-sm font-bold text-blue-600 dark:text-cyan-400 hover:underline">
+                            View All →
+                        </a>
+                    </div>
+                    <div class="bg-white dark:bg-white/10 dark:backdrop-blur-xl border border-gray-200 dark:border-white/20 shadow-xl rounded-2xl overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-gray-50 dark:bg-white/5 border-b border-gray-200 dark:border-white/10 text-gray-500 dark:text-white/60 text-xs font-bold uppercase tracking-wider">
+                                    <tr>
+                                        <th class="px-6 py-4">Order ID</th>
+                                        <th class="px-6 py-4">Customer</th>
+                                        <th class="px-6 py-4">Amount</th>
+                                        <th class="px-6 py-4">Placed</th>
+                                        <th class="px-6 py-4 text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100 dark:divide-white/5">
+                                    @foreach($recentPendingOrders as $order)
+                                        <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition">
+                                            <td class="px-6 py-4 font-bold text-blue-600 dark:text-cyan-400">#{{ $order->id }}</td>
+                                            <td class="px-6 py-4">
+                                                <div class="font-medium text-gray-900 dark:text-white">{{ $order->user->name ?? $order->full_name }}</div>
+                                            </td>
+                                            <td class="px-6 py-4 font-bold text-green-600 dark:text-green-400">@currency($order->total_amount)</td>
+                                            <td class="px-6 py-4 text-sm text-gray-500 dark:text-white/60">{{ $order->created_at->diffForHumans() }}</td>
+                                            <td class="px-6 py-4 text-center">
+                                                <a href="{{ route('admin.orders.show', $order->id) }}" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-md transition transform hover:-translate-y-0.5">
+                                                    Review
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            @endif
 
             <h2 class="text-xl font-bold mb-4">Categories Overview</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
