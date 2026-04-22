@@ -66,8 +66,7 @@ class CacheMonitorController extends Controller
                 'ttl'   => '30–60 min',
                 'keys'  => [
                     'featured_products',
-                    'products_page_{n}',
-                    'products_category_{id}_page_{n}',
+                    'products_default_view_page_{$page}',
                     'product_{id}  (user detail view)',
                     'product_{id}  (cart service)',
                     'categories',
