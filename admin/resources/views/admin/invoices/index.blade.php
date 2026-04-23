@@ -77,10 +77,13 @@
                                         @endif
                                     </td>
                                     <td class="p-6 text-center">
-                                        <a href="{{ route('orders.invoice', $invoice->order_id) }}" 
-                                            class="no-transition inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition text-sm font-bold shadow-md transform hover:-translate-y-1 active:scale-95">
-                                           ⬇️ Download
-                                        </a>
+                                        <div class="flex flex-col items-center gap-1">
+                                            <a href="{{ $invoice->downloadUrl }}" 
+                                                class="no-transition inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition text-sm font-bold shadow-md transform hover:-translate-y-1 active:scale-95">
+                                               ⬇️ Download
+                                            </a>
+                                            <span class="text-[10px] text-gray-500">Link expires in 10 mins</span>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty

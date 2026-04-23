@@ -13,9 +13,12 @@
                 </h1>
                 <div class="flex items-center gap-4">
                     @if($order->status !== 'cancelled')
-                        <a href="{{ route('orders.invoice', $order->id) }}" class="no-transition px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs transition shadow-lg flex items-center gap-2">
-                            📄 Invoice
-                        </a>
+                        <div class="flex flex-col items-end gap-1">
+                            <a href="{{ $downloadUrl }}" class="mt-5 no-transition px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs transition shadow-lg flex items-center gap-2">
+                                📄 Invoice
+                            </a>
+                            <span class="text-[10px] text-gray-400 dark:text-gray-500">Link expires in 10 mins</span>
+                        </div>
                     @endif
 
                     @if($order->status === 'pending')

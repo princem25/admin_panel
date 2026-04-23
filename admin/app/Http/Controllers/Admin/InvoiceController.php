@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Invoice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 
 class InvoiceController extends Controller
 {
@@ -22,6 +23,9 @@ class InvoiceController extends Controller
                 $invoice->file_size = 0;
                 $invoice->last_modified = null;
             }
+            $invoice->downloadUrl = URL::temporarySignedRoute(
+                'invoices.download', now()->addMinutes(10), ['order' => $invoice->order_id]
+            );
         }
 
         return view('admin.invoices.index', compact('invoices'));

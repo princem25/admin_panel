@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 
 class OrderController extends Controller
 {
@@ -38,7 +39,11 @@ class OrderController extends Controller
         // Load items related to this order
         $order->load(['items.product', 'user']);
 
-        return view('orders.show', compact('order'));
+        $downloadUrl = URL::temporarySignedRoute(
+            'invoices.download', now()->addMinutes(10), ['order' => $order->id]
+        );
+
+        return view('orders.show', compact('order', 'downloadUrl'));
     }
 
     /**

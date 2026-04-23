@@ -44,7 +44,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Generate Invoice from Order (Accessible by both User and Admin)
-    Route::get('/orders/{order}/invoice', [InvoiceController::class, 'generate'])->name('orders.invoice');
+    Route::get('/invoices/{order}/download', [InvoiceController::class, 'generate'])->name('invoices.download');
 });
 
 require __DIR__.'/auth.php';

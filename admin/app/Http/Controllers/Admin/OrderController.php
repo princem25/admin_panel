@@ -9,6 +9,7 @@ use App\Models\OrderStatusHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 
 class OrderController extends Controller
 {
@@ -47,7 +48,11 @@ class OrderController extends Controller
     {
         $order->load(['items.product', 'user', 'statusHistories.user']);
         
-        return view('admin.orders.show', compact('order'));
+        $downloadUrl = URL::temporarySignedRoute(
+            'invoices.download', now()->addMinutes(10), ['order' => $order->id]
+        );
+
+        return view('admin.orders.show', compact('order', 'downloadUrl'));
     }
 
     /**
