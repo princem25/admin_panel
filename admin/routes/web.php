@@ -72,6 +72,7 @@ Route::prefix('admin')->middleware(['role:admin', 'throttle:100,1'])->group(func
     // Report Management
     Route::get('/reports', [\App\Http\Controllers\Admin\ReportManagerController::class, 'index'])->name('admin.reports.index');
     Route::post('/reports/{file}/archive', [\App\Http\Controllers\Admin\ReportManagerController::class, 'archive'])->name('admin.reports.archive');
+    Route::delete('/reports/{file}/delete', [\App\Http\Controllers\Admin\ReportManagerController::class, 'destroy'])->name('admin.reports.destroy');
     Route::delete('/reports/cleanup', [\App\Http\Controllers\Admin\ReportManagerController::class, 'cleanup'])->name('admin.reports.cleanup');
 
     // Cache Monitor

@@ -22,24 +22,6 @@
                         </form>
                     </div>
                 </div>
-
-                @if(session('success'))
-                    <div class="mt-4 bg-green-100 border border-green-400 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/30 px-4 py-3 rounded-xl">
-                        {{ session('success') }}
-                    </div>
-                @endif
-                
-                @if(session('error'))
-                    <div class="mt-4 bg-red-100 border border-red-400 text-red-700 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/30 px-4 py-3 rounded-xl">
-                        {{ session('error') }}
-                    </div>
-                @endif
-                
-                @if(session('warning'))
-                    <div class="mt-4 bg-yellow-100 border border-yellow-400 text-yellow-800 dark:bg-yellow-500/20 dark:text-yellow-400 dark:border-yellow-500/30 px-4 py-3 rounded-xl">
-                        {{ session('warning') }}
-                    </div>
-                @endif
             </div>
 
             {{-- FILES TABLE --}}
@@ -75,12 +57,22 @@
                                         <span class="text-sm text-gray-600 dark:text-white/80">{{ $file->last_modified }}</span>
                                     </td>
                                     <td class="p-6 text-right">
-                                        <form action="{{ route('admin.reports.archive', $file->name) }}" method="POST" class="inline-block" onsubmit="return confirm('Archive this file? It will be moved to the archive folder.')">
-                                            @csrf
-                                            <button type="submit" class="px-4 py-2 bg-gray-800 dark:bg-white/20 hover:bg-gray-900 dark:hover:bg-white/30 text-white rounded-lg text-xs font-bold shadow-sm transition">
-                                                📦 Archive
-                                            </button>
-                                        </form>
+                                        <div class="flex items-center justify-end gap-2">
+                                            <form action="{{ route('admin.reports.archive', $file->name) }}" method="POST" class="inline-block" onsubmit="return confirm('Archive this file? It will be moved to the archive folder.')">
+                                                @csrf
+                                                <button type="submit" class="px-4 py-2 bg-gray-800 dark:bg-white/20 hover:bg-gray-900 dark:hover:bg-white/30 text-white rounded-lg text-xs font-bold shadow-sm transition">
+                                                    📦 Archive
+                                                </button>
+                                            </form>
+                                            
+                                            <form action="{{ route('admin.reports.destroy', $file->name) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to permanently delete this file?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold shadow-sm transition">
+                                                    🗑️ Delete
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty

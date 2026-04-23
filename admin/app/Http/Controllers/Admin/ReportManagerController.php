@@ -79,4 +79,23 @@ class ReportManagerController extends Controller
 
         return back()->with('success', "Bulk cleanup completed. {$deletedCount} old file(s) deleted.");
     }
+
+    /**
+     * Delete a specific report file.
+     */
+    public function destroy(Request $request, $file)
+    {
+        $disk = Storage::disk('reports');
+
+        if (!$disk->exists($file)) {
+            return back()->with('error', "File '{$file}' not found.");
+        }
+
+        try {
+            $disk->delete($file);
+            return back()->with('success', "File '{$file}' successfully deleted.");
+        } catch (\Exception $e) {
+            return back()->with('error', "Failed to delete '{$file}': " . $e->getMessage());
+        }
+    }
 }

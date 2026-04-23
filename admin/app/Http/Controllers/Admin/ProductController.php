@@ -235,10 +235,24 @@ class ProductController extends Controller
 
     public function export()
     {
-        $callback = $this->productService->exportCsv();
+        try {
+            $filename = 'products_report_' . date('Y-m-d') . '.csv';
+            $disk = Storage::disk('reports');
 
-        return response()->streamDownload($callback, 'products.csv', [
-            "Content-Type" => "text/csv",
-        ]);
+            // 1 & 2: Check if file exists in the reports disk
+            if ($disk->exists($filename)) {
+                return $disk->download($filename);
+            }
+
+            // 3: File does not exist, generate and store
+            $csvContent = $this->productService->getCsvString();
+            $disk->put($filename, $csvContent);
+
+            return $disk->download($filename);
+
+        } catch (\Exception $e) {
+            Log::error('Product export failed', ['error' => $e->getMessage()]);
+            return back()->with('error', 'Export failed.');
+        }
     }
 }

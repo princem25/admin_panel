@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Services\SalesAnalyticsService;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class SalesAnalyticsController extends Controller
 {
@@ -47,8 +48,17 @@ class SalesAnalyticsController extends Controller
     public function export(string $type)
     {
         try {
-            $data = collect();
             $filename = "sales_report_{$type}_" . date('Y-m-d') . ".csv";
+            $disk = Storage::disk('reports');
+
+            // 1 & 2: Check if file already exists in the reports disk
+            if ($disk->exists($filename)) {
+                // Return existing file directly, saving database and processing resources
+                return $disk->download($filename);
+            }
+
+            // 3: File does not exist, generate it
+            $data = collect();
             $headers = [];
 
             switch ($type) {
@@ -76,19 +86,21 @@ class SalesAnalyticsController extends Controller
                     return back()->with('error', 'Invalid export type.');
             }
                         
-            return response()->streamDownload(function () use ($data, $headers) {
-                $file = fopen('php://output', 'w');
-                fputcsv($file, $headers);
+            // Generate CSV content into memory
+            $handle = fopen('php://temp', 'r+');
+            fputcsv($handle, $headers);
+            foreach ($data as $row) {
+                fputcsv($handle, array_values((array)$row));
+            }
+            rewind($handle);
+            $csvContent = stream_get_contents($handle);
+            fclose($handle);
 
-                foreach ($data as $row) {
-                    fputcsv($file, array_values((array)$row));
-                }
+            // Store the generated file in the reports disk
+            $disk->put($filename, $csvContent);
 
-                fclose($file);
-            }, $filename, [
-                'Content-Type' => 'text/csv',
-                'Content-Disposition' => "attachment; filename=\"$filename\"",
-            ]);
+            // Return the newly stored file as a download
+            return $disk->download($filename);
 
         } catch (\Exception $e) {
             Log::error('Sales analytics error', [
