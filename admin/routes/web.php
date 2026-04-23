@@ -69,6 +69,11 @@ Route::prefix('admin')->middleware(['role:admin', 'throttle:100,1'])->group(func
     // Invoice Management
     Route::get('/invoices', [\App\Http\Controllers\Admin\InvoiceController::class, 'index'])->name('admin.invoices.index');
 
+    // Report Management
+    Route::get('/reports', [\App\Http\Controllers\Admin\ReportManagerController::class, 'index'])->name('admin.reports.index');
+    Route::post('/reports/{file}/archive', [\App\Http\Controllers\Admin\ReportManagerController::class, 'archive'])->name('admin.reports.archive');
+    Route::delete('/reports/cleanup', [\App\Http\Controllers\Admin\ReportManagerController::class, 'cleanup'])->name('admin.reports.cleanup');
+
     // Cache Monitor
     Route::get('/cache', [CacheMonitorController::class, 'index'])->name('admin.cache.index');
     Route::post('/cache/flush', [CacheMonitorController::class, 'flush'])->name('admin.cache.flush');
