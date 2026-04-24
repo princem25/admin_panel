@@ -64,7 +64,7 @@ class OrderController extends Controller
         try {
             DB::transaction(function () use ($order) {
                 // 3. Update order status to cancelled
-                $order->update(['status' => 'cancelled']);
+                tap($order)->update(['status' => 'cancelled']);
 
                 // 4. Restore product stock for each item
                 foreach ($order->items as $item) {

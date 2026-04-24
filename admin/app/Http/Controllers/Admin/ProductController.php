@@ -80,11 +80,13 @@ class ProductController extends Controller
                 $data['image'] = $path;
             }
 
-            if (isset($data['stock']) && $data['stock'] === 0) {
+            if (filled($data['stock'] ?? null) && $data['stock'] === 0) {
                 Log::channel('products')->warning('New product created with zero stock', ['name' => $data['name']]);
             }
 
-            $product = Product::create($data);
+            $product = tap(Product::create($data), function ($product) {
+                Log::info('Model created/updated', ['id' => $product->id]);
+            });
 
             Log::channel('products')->info('Product created successfully', [
                 'id'   => $product->id,
@@ -161,7 +163,7 @@ class ProductController extends Controller
                 throw new InvalidOrderException('Products older than 1 year cannot be updated.');
             }
 
-            $product->update($data);
+            $product = tap($product)->update($data);
 
             Log::channel('products')->info('Product updated successfully', ['id' => $product->id]);
 

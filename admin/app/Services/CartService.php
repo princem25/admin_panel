@@ -68,7 +68,7 @@ class CartService
             $cartArray = array_values($cart);
             Session::put('cart', $cartArray);
 
-            if (empty($cartArray)) {
+            if (blank($cartArray)) {
                 Redis::del('cart:user:' . auth()->id());
             } else {
                 Redis::set('cart:user:' . auth()->id(), json_encode($cartArray));
@@ -317,18 +317,17 @@ class CartService
                 $cartItems = collect($cart)->map(function ($item) {
                     $productId = $item['product_id'];
                     
-                    try {
-                        // Cache individual product details for 1 hour under 'products' tag
-                        $product = Cache::tags(['products'])->remember("product_{$productId}", 3600, function () use ($productId) {
+                    $product = rescue(function () use ($productId) {
+                        return Cache::tags(['products'])->remember("product_{$productId}", 3600, function () use ($productId) {
                             return Product::find($productId);
                         });
-                    } catch (\Exception $e) {
+                    }, function (\Exception $e) use ($productId) {
                         Log::channel('products')->error('Product cache/fetch failure', [
                             'product_id' => $productId,
                             'error' => $e->getMessage()
                         ]);
                         return null;
-                    }
+                    });
 
                     if (!$product) {
                         return null;

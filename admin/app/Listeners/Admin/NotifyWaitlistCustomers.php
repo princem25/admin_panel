@@ -32,7 +32,12 @@ class NotifyWaitlistCustomers implements ShouldQueue
 
         foreach ($waitlistEntries as $entry) {
             if ($entry->user && $entry->user->email) {
-                Mail::to($entry->user->email)->send(new ProductRestockedMail($product));
+                retry(3, function () use ($entry, $product) {
+                    Mail::to($entry->user->email)->send(new ProductRestockedMail($product));
+                }, 100, function (\Exception $e) {
+                    Log::channel('products')->warning('Email retry failed, retrying...', ['error' => $e->getMessage()]);
+                    return true;
+                });
             }
         }
 

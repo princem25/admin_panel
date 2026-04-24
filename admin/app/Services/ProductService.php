@@ -6,6 +6,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
 class ProductService
@@ -21,7 +22,7 @@ class ProductService
         $page = $request->input('page', 1);
         $queryParams = $request->except('page');
         
-        if (empty($queryParams)) {
+        if (blank($queryParams)) {
             $cacheKey = "products_default_view_page_{$page}";
             
             // Check cache first
@@ -74,7 +75,7 @@ class ProductService
     {
         $perPage = 12;
         // Ensure the collection is indexed cleanly before slicing
-        $values = $collection instanceof \Illuminate\Support\Collection ? $collection->values() : collect($collection)->values();
+        $values = $collection instanceof Collection ? $collection->values() : collect($collection)->values();
         $items = $values->forPage($page, $perPage);
         
         return new LengthAwarePaginator(

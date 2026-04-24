@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class ReportManagerController extends Controller
@@ -72,7 +73,7 @@ class ReportManagerController extends Controller
                     $deletedCount++;
                 } catch (\Exception $e) {
                     // Fail gracefully, log it, but continue to next file
-                    \Illuminate\Support\Facades\Log::warning("Could not delete {$file} during cleanup: " . $e->getMessage());
+                    Log::warning("Could not delete {$file} during cleanup: " . $e->getMessage());
                 }
             }
         }

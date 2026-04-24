@@ -60,7 +60,7 @@ class CheckoutController extends Controller
         try {
             $order = DB::transaction(function () use ($request, $summary, $cartItems) {
                 // 1. Create Order
-                $order = Order::create([
+                $order = tap(Order::create([
                     'user_id'          => auth()->id(),
                     'total_amount'     => $summary['grandTotal'],
                     'payment_method'   => $request->payment_method,
@@ -69,7 +69,9 @@ class CheckoutController extends Controller
                     'phone'            => $request->phone,
                     'shipping_address' => $request->shipping_address,
                     'notes'            => $request->notes,
-                ]);
+                ]), function ($o) {
+                    Log::channel('orders')->info('New checkout order', ['id' => $o->id]);
+                });
 
                 // 2. Create Order Items
                 foreach ($cartItems as $item) {
