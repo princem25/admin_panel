@@ -27,7 +27,7 @@
 
         <div class="product-card">
             <p class="product-name">{{ $product->name }}</p>
-            <p class="product-price">₹{{ number_format($product->price, 2) }}</p>
+            <p class="product-price">{{ Number::currency($product->price, 'INR') }}</p>
             <p><span class="stock-badge">✅ Back in Stock — {{ $product->stock }} units available</span></p>
         </div>
 

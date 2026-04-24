@@ -55,21 +55,21 @@
                             @if ($product->discount_price && $product->discount_price < $product->price)
                                 <div>
                                     <p class="text-3xl font-black text-green-600 dark:text-green-400 tracking-tight">
-                                        ₹{{ number_format($product->discount_price, 2) }}
+                                        {{ Number::currency($product->discount_price, 'INR') }}
                                     </p>
                                     <p class="text-sm line-through text-gray-400 mt-0.5">
-                                        ₹{{ number_format($product->price, 2) }}
+                                        {{ Number::currency($product->price, 'INR') }}
                                     </p>
                                 </div>
                                 <span
                                     class="mb-1 px-3 py-1 bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400 text-sm font-bold rounded-full">
                                     {{ round((($product->price - $product->discount_price) / $product->price) * 100) }}%
                                     OFF
-                                    — You save ₹{{ number_format($product->price - $product->discount_price, 2) }}
+                                    — You save {{ Number::currency($product->price - $product->discount_price, 'INR') }}
                                 </span>
                             @else
                                 <p class="text-3xl font-black text-blue-600 dark:text-cyan-400 tracking-tight">
-                                    ₹{{ number_format($product->price, 2) }}
+                                    {{ Number::currency($product->price, 'INR') }}
                                 </p>
                             @endif
                         </div>
@@ -200,7 +200,7 @@
                                     <p class="font-semibold text-gray-800 dark:text-white text-sm truncate">
                                         {{ $recentProduct->name }}</p>
                                     <p class="text-blue-600 dark:text-cyan-400 font-bold text-sm mt-1">
-                                        ₹{{ number_format($recentProduct->price, 2) }}</p>
+                                        {{ Number::currency($recentProduct->price, 'INR') }}</p>
                                 </div>
                             </a>
                         @endforeach

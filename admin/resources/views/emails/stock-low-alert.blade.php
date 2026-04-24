@@ -41,7 +41,7 @@
                 <dd>{{ $product->category->name ?? 'N/A' }}</dd>
 
                 <dt>Current Price</dt>
-                <dd>₹{{ number_format($product->price, 2) }}</dd>
+                <dd>{{ Number::currency($product->price, 'INR') }}</dd>
             </dl>
         </div>
 

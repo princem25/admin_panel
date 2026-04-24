@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class AdminService
@@ -45,7 +46,7 @@ class AdminService
 
     public function countNewCustomersToday()
     {
-        return User::where('role', 'user')->whereDate('created_at', now())->count();
+        return User::where('role', 'user')->whereDate('created_at', Carbon::today())->count();
     }
     
     public function countPendingOrders()

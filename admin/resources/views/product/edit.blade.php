@@ -81,7 +81,7 @@
                            dark:bg-white/10 dark:border-white/20 dark:text-white dark:focus:ring-green-400">
                 @if($product->discount_price)
                     <p class="text-xs text-green-600 dark:text-green-400 mt-1">
-                        Current: ₹{{ number_format($product->discount_price, 2) }}
+                        Current: {{ Number::currency($product->discount_price, 'INR') }}
                         ({{ round((($product->price - $product->discount_price) / $product->price) * 100) }}% off)
                     </p>
                 @endif

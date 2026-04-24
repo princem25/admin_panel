@@ -171,10 +171,10 @@
                                 @if($product->discount_price && $product->discount_price < $product->price)
                                     <div class="flex items-center gap-2 flex-wrap">
                                         <span class="font-black text-green-600 dark:text-green-400 text-lg">
-                                            ₹{{ number_format($product->discount_price, 2) }}
+                                            {{ Number::currency($product->discount_price, 'INR') }}
                                         </span>
                                         <span class="line-through text-gray-400 text-sm">
-                                            ₹{{ number_format($product->price, 2) }}
+                                            {{ Number::currency($product->price, 'INR') }}
                                         </span>
                                         <span class="text-xs font-bold bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400 px-2 py-0.5 rounded-full">
                                             {{ round((($product->price - $product->discount_price) / $product->price) * 100) }}% OFF
@@ -182,7 +182,7 @@
                                     </div>
                                 @else
                                     <span class="font-bold text-blue-600 dark:text-cyan-400">
-                                        ₹{{ number_format($product->price, 2) }}
+                                        {{ Number::currency($product->price, 'INR') }}
                                     </span>
                                 @endif
                             </div>

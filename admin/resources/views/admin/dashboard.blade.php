@@ -69,7 +69,7 @@
                     <div class="p-5 rounded-xl transition bg-white border border-gray-200 shadow-sm dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-md">
                         <div class="text-blue-500 text-2xl mb-2">📦</div>
                         <h3 class="text-xs font-semibold text-gray-500 dark:text-white/60 uppercase tracking-wider">Total Orders</h3>
-                        <p class="text-2xl font-bold mt-1 text-gray-900 dark:text-white">{{ $totalOrders }}</p>
+                        <p class="text-2xl font-bold mt-1 text-gray-900 dark:text-white">{{ Number::abbreviate($totalOrders) }}</p>
                     </div>
 
                     <!-- Pending Orders -->
@@ -83,7 +83,7 @@
                     <div class="p-5 rounded-xl transition bg-white border border-gray-200 shadow-sm dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-md">
                         <div class="text-green-500 text-2xl mb-2">✅</div>
                         <h3 class="text-xs font-semibold text-gray-500 dark:text-white/60 uppercase tracking-wider">Genuine Orders</h3>
-                        <p class="text-2xl font-bold mt-1 text-gray-900 dark:text-white">{{ $genuineOrders }}</p>
+                        <p class="text-2xl font-bold mt-1 text-gray-900 dark:text-white">{{ Number::abbreviate($genuineOrders) }}</p>
                     </div>
 
                     <!-- Cancelled Orders -->
@@ -97,7 +97,7 @@
                     <div class="p-5 rounded-xl transition bg-white border border-gray-200 shadow-sm dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-md">
                         <div class="text-yellow-500 text-2xl mb-2">💰</div>
                         <h3 class="text-xs font-semibold text-gray-500 dark:text-white/60 uppercase tracking-wider">Total Revenue</h3>
-                        <p class="text-2xl font-bold mt-1 text-gray-900 dark:text-white">@currency($totalRevenue)</p>
+                        <p class="text-2xl font-bold mt-1 text-gray-900 dark:text-white">{{ Number::currency($totalRevenue, 'INR') }}</p>
                     </div>
                 </div>
 
@@ -107,7 +107,7 @@
                         @foreach($revenueByPaymentMethod as $revenue)
                             <div class="p-4 rounded-xl flex justify-between items-center transition bg-gray-50 hover:bg-gray-100 dark:bg-white/5 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10 shadow-sm">
                                 <span class="font-medium capitalize text-gray-700 dark:text-gray-300">{{ str_replace('_', ' ', $revenue->payment_method) }}</span>
-                                <span class="font-bold text-green-600 dark:text-green-400">@currency($revenue->total)</span>
+                                <span class="font-bold text-green-600 dark:text-green-400">{{ Number::currency($revenue->total, 'INR') }}</span>
                             </div>
                         @endforeach
                     </div>
@@ -164,7 +164,7 @@
                                             <td class="px-6 py-4">
                                                 <div class="font-medium text-gray-900 dark:text-white">{{ $order->user->name ?? $order->full_name }}</div>
                                             </td>
-                                            <td class="px-6 py-4 font-bold text-green-600 dark:text-green-400">@currency($order->total_amount)</td>
+                                            <td class="px-6 py-4 font-bold text-green-600 dark:text-green-400">{{ Number::currency($order->total_amount, 'INR') }}</td>
                                             <td class="px-6 py-4 text-sm text-gray-500 dark:text-white/60">{{ $order->created_at->diffForHumans() }}</td>
                                             <td class="px-6 py-4 text-center">
                                                 <a href="{{ route('admin.orders.show', $order->id) }}" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-md transition transform hover:-translate-y-0.5">

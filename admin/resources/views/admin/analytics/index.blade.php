@@ -48,8 +48,8 @@
                                 @forelse($monthlySales as $sale)
                                     <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition">
                                         <td class="px-6 py-4 font-mono font-bold">{{ $sale['month'] }}</td>
-                                        <td class="px-6 py-4 text-green-600 dark:text-green-400 font-bold">₹{{ number_format($sale['total_revenue'], 2) }}</td>
-                                        <td class="px-6 py-4">₹{{ number_format($sale['average_order_value'], 2) }}</td>
+                                        <td class="px-6 py-4 text-green-600 dark:text-green-400 font-bold">{{ Number::currency($sale['total_revenue'], 'INR') }}</td>
+                                        <td class="px-6 py-4">{{ Number::currency($sale['average_order_value'], 'INR') }}</td>
                                         <td class="px-6 py-4">
                                             <span class="px-2.5 py-1 bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 rounded-full text-xs font-bold">
                                                 {{ $sale['total_orders'] }}
@@ -134,7 +134,7 @@
                                                 <div class="text-xs text-gray-400">ID: {{ $customer['customer_id'] }} | Orders: {{ $customer['total_orders'] }}</div>
                                             </td>
                                             <td class="px-6 py-4 text-right font-mono font-bold text-green-600 dark:text-green-400">
-                                                ₹{{ number_format($customer['total_spent'], 2) }}
+                                                {{ Number::currency($customer['total_spent'], 'INR') }}
                                             </td>
                                         </tr>
                                     @empty
@@ -172,7 +172,7 @@
                                 @forelse($salesByCategory as $category)
                                     <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition">
                                         <td class="px-6 py-4 font-bold text-gray-900 dark:text-white">{{ $category['category'] }}</td>
-                                        <td class="px-6 py-4 text-green-600 dark:text-green-400 font-bold">₹{{ number_format($category['total_revenue'], 2) }}</td>
+                                        <td class="px-6 py-4 text-green-600 dark:text-green-400 font-bold">{{ Number::currency($category['total_revenue'], 'INR') }}</td>
                                         <td class="px-6 py-4 font-mono">{{ number_format($category['total_items_sold']) }}</td>
                                     </tr>
                                 @empty

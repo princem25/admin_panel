@@ -192,9 +192,9 @@
             <tr style="border-bottom: 1px solid #e0e0e0;">
                 <td style="padding: 9px 12px;">{{ $index + 1 }}</td>
                 <td style="padding: 9px 12px;">{{ $item->product->name ?? 'Product Unavailable' }}</td>
-                <td style="padding: 9px 12px; text-align: right;">&#8377;{{ number_format($item->price, 2) }}</td>
+                <td style="padding: 9px 12px; text-align: right;">{{ Number::currency($item->price, 'INR') }}</td>
                 <td style="padding: 9px 12px; text-align: center;">{{ $item->quantity }}</td>
-                <td style="padding: 9px 12px; text-align: right;">&#8377;{{ number_format($item->price * $item->quantity, 2) }}</td>
+                <td style="padding: 9px 12px; text-align: right;">{{ Number::currency($item->price * $item->quantity, 'INR') }}</td>
             </tr>
             @endforeach
         </tbody>
@@ -205,7 +205,7 @@
         <tr class="grand-total-row">
             <td style="text-align: right; padding: 10px 12px; font-weight: 600; color: #555;">Grand Total</td>
             <td style="text-align: right; padding: 10px 12px; font-weight: 700; color: #1a1a1a; width: 130px; border-top: 2px solid #1a1a1a; font-size: 16px;">
-                &#8377;{{ number_format($grandTotal, 2) }}
+                {{ Number::currency($grandTotal, 'INR') }}
             </td>
         </tr>
     </table>

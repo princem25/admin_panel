@@ -73,7 +73,7 @@
                                         </div>
                                     </td>
                                     <td class="p-6 font-bold text-green-600 dark:text-green-400">
-                                        ₹{{ number_format($order->total_amount, 2) }}
+                                        {{ Number::currency($order->total_amount, 'INR') }}
                                     </td>
                                     <td class="p-6">
                                         <span class="px-3 py-1 text-xs font-bold rounded-full uppercase tracking-widest border
@@ -87,8 +87,8 @@
                                         </span>
                                     </td>
                                     <td class="p-6 text-sm text-gray-500 dark:text-white/60">
-                                        {{ $order->created_at->format('d M, Y') }}<br>
-                                        <span class="text-xs">{{ $order->created_at->format('h:i A') }}</span>
+                                        {{ $order->created_at->diffForHumans() }}<br>
+                                        <span class="text-xs">{{ $order->created_at->diffForHumans() }}</span>
                                     </td>
                                     <td class="p-6 text-center">
                                         <a href="{{ route('admin.orders.show', $order->id) }}" 

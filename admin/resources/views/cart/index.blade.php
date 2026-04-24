@@ -123,14 +123,14 @@
                                         <div class="flex-shrink-0 text-right min-w-[90px]">
                                             <p id="total-{{ $item->product_id }}"
                                                class="text-base font-bold text-gray-900 dark:text-white">
-                                                ₹{{ number_format($item->total_price, 2) }}
+                                                {{ Number::currency($item->total_price, 'INR') }}
                                             </p>
                                             @if($item->has_discount)
                                                 <p class="text-xs text-gray-400 line-through mt-0.5">
-                                                    ₹{{ number_format($item->product->price * $item->quantity, 2) }}
+                                                    {{ Number::currency($item->product->price * $item->quantity, 'INR') }}
                                                 </p>
                                                 <p class="text-xs text-red-500 font-semibold">
-                                                    Save ₹{{ number_format($item->savings, 2) }}
+                                                    Save {{ Number::currency($item->savings, 'INR') }}
                                                 </p>
                                             @endif
                                         </div>
@@ -179,7 +179,7 @@
                                     @if($grandTotal >= $freeShippingThreshold)
                                         Your order qualifies for <span class="font-bold text-gray-700 dark:text-white/80">FREE Shipping</span>. Choose this option at checkout.
                                     @else
-                                        Add ₹{{ number_format($freeShippingThreshold - $grandTotal, 2) }} more for <span class="font-bold">FREE Shipping</span>.
+                                        Add {{ Number::currency($freeShippingThreshold - $grandTotal, 'INR') }} more for <span class="font-bold">FREE Shipping</span>.
                                     @endif
                                 </p>
                             </div>
@@ -280,7 +280,7 @@
                                         <span class="text-[10px] text-gray-400">(4.8)</span>
                                     </div>
                                     <p class="mt-1 text-base font-bold text-gray-900 dark:text-white">
-                                        ₹{{ number_format($recent->discount_price > 0 ? $recent->discount_price : $recent->price, 2) }}
+                                        {{ Number::currency($recent->discount_price > 0 ? $recent->discount_price : $recent->price, 'INR') }}
                                     </p>
                                     <div class="flex items-center gap-1 mt-0.5">
                                         <span class="text-[10px] font-black italic bg-blue-500 text-white px-1 py-0.5 rounded-sm tracking-tighter leading-none shadow-sm">prime</span>

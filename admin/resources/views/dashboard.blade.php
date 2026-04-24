@@ -26,7 +26,7 @@
                     <div class="p-4 rounded-xl transition bg-white border border-gray-200 shadow-sm dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-md">
                         <div class="text-blue-500 text-xl mb-1">📦</div>
                         <h3 class="text-xs font-semibold text-gray-500 dark:text-white/60 uppercase tracking-wider">Total Orders</h3>
-                        <p class="text-xl font-bold mt-1 text-gray-900 dark:text-white">{{ $totalOrders }}</p>
+                        <p class="text-xl font-bold mt-1 text-gray-900 dark:text-white">{{ Number::abbreviate($totalOrders) }}</p>
                     </div>
 
                     <!-- Active Orders -->
@@ -54,14 +54,14 @@
                     <div class="p-4 rounded-xl transition bg-white border border-gray-200 shadow-sm dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-md">
                         <div class="text-yellow-500 text-xl mb-1">💰</div>
                         <h3 class="text-xs font-semibold text-gray-500 dark:text-white/60 uppercase tracking-wider">Total Spent</h3>
-                        <p class="text-xl font-bold mt-1 text-gray-900 dark:text-white">@currency($totalSpent)</p>
+                        <p class="text-xl font-bold mt-1 text-gray-900 dark:text-white">{{ Number::currency($totalSpent, 'INR') }}</p>
                     </div>
 
                     <!-- Avg Order Value -->
                     <div class="p-4 rounded-xl transition bg-white border border-gray-200 shadow-sm dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-md">
                         <div class="text-purple-500 text-xl mb-1">📊</div>
                         <h3 class="text-xs font-semibold text-gray-500 dark:text-white/60 uppercase tracking-wider">Avg. Order Value</h3>
-                        <p class="text-xl font-bold mt-1 text-gray-900 dark:text-white">@currency($avgOrderValue)</p>
+                        <p class="text-xl font-bold mt-1 text-gray-900 dark:text-white">{{ Number::currency($avgOrderValue, 'INR') }}</p>
                     </div>
                 </div>
             </div>
@@ -129,7 +129,7 @@
                                             </span>
                                         </td>
                                         <td class="px-4 py-3 text-right font-mono font-bold text-green-600 dark:text-green-400">
-                                            @currency($statusData['total_amount'])
+                                            {{ Number::currency($statusData['total_amount'], 'INR') }}
                                         </td>
                                     </tr>
                                 @empty

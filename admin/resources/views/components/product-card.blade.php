@@ -26,7 +26,7 @@
 
             <p class="font-bold mt-2 
             text-blue-600 dark:text-cyan-400">
-                @currency($product->price)
+                {{ Number::currency($product->price, 'INR') }}
             </p>
         </div>
 

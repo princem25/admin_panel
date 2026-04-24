@@ -73,7 +73,7 @@
                                         <p class="text-sm text-gray-500 dark:text-gray-400">₹{{ $item->price }} × {{ $item->quantity }} units</p>
                                     </div>
                                     <div class="text-right">
-                                        <span class="text-lg font-extrabold text-blue-600 dark:text-blue-400">₹{{ number_format($item->price * $item->quantity, 2) }}</span>
+                                        <span class="text-lg font-extrabold text-blue-600 dark:text-blue-400">{{ Number::currency($item->price * $item->quantity, 'INR') }}</span>
                                     </div>
                                 </div>
                             @endforeach
@@ -97,7 +97,7 @@
                         <div class="space-y-4 mb-8">
                             <div class="flex justify-between text-gray-500 text-sm">
                                 <span>Place Date</span>
-                                <span class="font-bold text-gray-800 dark:text-white">{{ $order->created_at->format('d M, Y') }}</span>
+                                <span class="font-bold text-gray-800 dark:text-white">{{ $order->created_at->diffForHumans() }}</span>
                             </div>
                             <div class="flex justify-between text-gray-500 text-sm">
                                 <span>Status</span>
@@ -121,7 +121,7 @@
                                         @if($order->payment_method === 'cod')
                                             This order was cancelled. No payment was collected.
                                         @else
-                                            Your refund of ₹{{ number_format($order->total_amount, 2) }} will be processed back to your original {{ strtoupper($order->payment_method) }} payment method within 5-7 business days.
+                                            Your refund of {{ Number::currency($order->total_amount, 'INR') }} will be processed back to your original {{ strtoupper($order->payment_method) }} payment method within 5-7 business days.
                                         @endif
                                     </span>
                                 </div>

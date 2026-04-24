@@ -103,7 +103,7 @@ dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20">
                         <h3 class="font-semibold text-gray-900 dark:text-white truncate">{{ $product->name }}</h3>
                         <p class="text-sm text-gray-500 dark:text-white/60 mb-2">{{ $product->category?->name ?? 'Uncategorized' }}</p>
                         <div class="flex justify-between items-center">
-                            <span class="font-bold text-blue-600 dark:text-cyan-400">@currency($product->price)</span>
+                            <span class="font-bold text-blue-600 dark:text-cyan-400">{{ Number::currency($product->price, 'INR') }}</span>
                             <a href="{{ route('user.products.show', $product) }}" class="text-xs bg-gray-100 hover:bg-gray-200 dark:bg-white/20 dark:hover:bg-white/30 px-2 py-1 rounded transition">Details</a>
                         </div>
                     </div>
