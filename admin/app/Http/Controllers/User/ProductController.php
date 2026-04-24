@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Cache;
 use App\Events\Customer\ProductViewed;
 use App\Models\ProductWaitlist;
+use Illuminate\Support\Arr;
 
 class ProductController extends Controller
 {
@@ -24,10 +25,14 @@ class ProductController extends Controller
 
     public function index(Request $request)
     {
-        Log::debug('User browsing products', $request->all());
+        Log::debug('User browsing products', Arr::only($request->all(), ['search', 'category', 'price', 'sort']));
 
         // Delegate all complex filtering, sorting, and caching to the Service
         $products = $this->productService->getFilteredProducts($request);
+
+        if (Arr::has($request->all(), 'category')) {
+            Log::debug('Category filter applied by user');
+        }
 
         $cart = session()->get('cart', []);
         $cartProductIds = collect($cart)->pluck('product_id')->toArray();

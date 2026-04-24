@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Events\Customer\ProductAddedToCart;
 use App\Events\Customer\CartAbandoned;
+use Illuminate\Support\Arr;
 
 class CartController extends Controller
 {
@@ -23,13 +24,13 @@ class CartController extends Controller
     public function index()
     {
         $summary      = $this->cartService->getCartSummary();
-        $cartItems    = $summary['items'];
-        $grandTotal   = $summary['grandTotal'];
-        $totalSavings = $summary['totalSavings'];
+        $cartItems    = Arr::get($summary, 'items', []);
+        $grandTotal   = Arr::get($summary, 'grandTotal', 0);
+        $totalSavings = Arr::get($summary, 'totalSavings', 0);
         $sessiondata  = session()->get('cart');
 
         // Recently Viewed Items
-        $inCartIds = collect($cartItems)->pluck('product_id')->toArray();
+        $inCartIds = Arr::pluck($cartItems, 'product_id');
         $recentIds = array_diff(session()->get('recent', []), $inCartIds);
         
         $recentProducts = Product::whereIn('id', $recentIds)
