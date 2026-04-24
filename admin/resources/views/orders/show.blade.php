@@ -1,9 +1,6 @@
 <x-app-layout>
     <div class="min-h-screen py-10 px-4">
         <div class="max-w-5xl mx-auto flex flex-col gap-10">
-
-
-            
             <div class="flex items-center justify-between">
                 <h1 class="text-3xl font-extrabold text-gray-800 dark:text-white flex items-center gap-3">
                     <a href="{{ route('orders.index') }}" class="p-2 bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 rounded-lg transition text-sm">
@@ -101,7 +98,7 @@
                             </div>
                             <div class="flex justify-between text-gray-500 text-sm">
                                 <span>Status</span>
-                                <span id="update" class="font-bold text-yellow-600 dark:text-yellow-400 uppercase">{{ $order->status }}</span>
+                                <span id="update" class="font-bold uppercase {{ order_status_badge($order->status) }}">{{ $order->status }}</span>
                             </div>
                             <div class="flex justify-between text-gray-500 text-sm">
                                 <span>Payment Method</span>

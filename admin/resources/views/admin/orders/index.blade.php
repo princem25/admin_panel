@@ -87,7 +87,7 @@
                                         </span>
                                     </td>
                                     <td class="p-6 text-sm text-gray-500 dark:text-white/60">
-                                        {{ $order->created_at->diffForHumans() }}<br>
+                                        {{ date('d M, Y H:i A', strtotime($order->created_at)) }}<br>
                                         <span class="text-xs">{{ $order->created_at->diffForHumans() }}</span>
                                     </td>
                                     <td class="p-6 text-center">

@@ -68,7 +68,7 @@
                                     </td>
                                     <td class="p-6">
                                         @if($invoice->file_size)
-                                            <p class="text-sm font-bold text-gray-800 dark:text-white">{{ Number::fileSize($invoice->file_size ) }}</p>
+                                            <p class="text-sm font-bold text-gray-800 dark:text-white">{{ human_file_size($invoice->file_size ) }}</p>
                                             <p class="text-xs text-gray-500 dark:text-white/60">Updated: {{ \Carbon\Carbon::createFromTimestamp($invoice->last_modified)->format('d M, Y h:i A') }}</p>
                                         @else
                                             <span class="px-3 py-1 text-xs font-bold rounded-full border bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-500/20 dark:text-yellow-400 dark:border-yellow-500/30">

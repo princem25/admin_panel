@@ -55,7 +55,7 @@
                             @if ($product->discount_price && $product->discount_price < $product->price)
                                 <div>
                                     <p class="text-3xl font-black text-green-600 dark:text-green-400 tracking-tight">
-                                        {{ Number::currency($product->discount_price, 'INR') }}
+                                        {{ format_price($product->discount_price) }}
                                     </p>
                                     <p class="text-sm line-through text-gray-400 mt-0.5">
                                         {{ Number::currency($product->price, 'INR') }}
