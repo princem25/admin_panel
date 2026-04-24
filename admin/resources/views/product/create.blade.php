@@ -3,7 +3,7 @@
 @section('form')
 
     <h2 class="text-center mb-6 text-2xl font-semibold">
-        Create Product
+        {{ __('products.add_product') }}
     </h2>
 
     @if ($errors->any())
@@ -49,7 +49,7 @@
         {{-- Price + Discount Price side by side --}}
         <div class="grid grid-cols-2 gap-4">
             <div>
-                <label for="price" class="text-sm font-medium text-gray-600 dark:text-white/70">Price (₹)</label>
+                <label for="price" class="text-sm font-medium text-gray-600 dark:text-white/70">{{ __('products.price') }} (₹)</label>
                 <input type="number" id="price" name="price" value="{{ old('price') }}" step="0.01" min="0"
                     class="w-full p-2 mt-1 rounded-lg bg-white border border-gray-300 text-gray-900
                            focus:outline-none focus:ring-2 focus:ring-blue-500
@@ -69,7 +69,7 @@
 
         {{-- Stock --}}
         <div>
-            <label for="stock" class="text-sm font-medium text-gray-600 dark:text-white/70">Stock Quantity</label>
+            <label for="stock" class="text-sm font-medium text-gray-600 dark:text-white/70">{{ __('products.stock') }}</label>
             <input type="number" id="stock" name="stock" value="{{ old('stock', 0) }}" min="0"
                 class="w-full p-2 mt-1 rounded-lg bg-white border border-gray-300 text-gray-900
                        focus:outline-none focus:ring-2 focus:ring-blue-500
@@ -103,7 +103,7 @@
                 class="px-5 py-2 rounded-lg text-white font-medium
                        bg-blue-600 hover:bg-blue-700
                        dark:bg-cyan-500 dark:hover:bg-cyan-600 shadow-sm hover:shadow-md transition-all">
-                Create Product
+                {{ __('products.add_product') }}
             </button>
         </div>
 

@@ -2,7 +2,7 @@
 
 @section('form')
 
-    <h2 class="text-center mb-6 text-2xl font-semibold">Edit Product</h2>
+    <h2 class="text-center mb-6 text-2xl font-semibold">{{ __('products.edit_product') }}</h2>
 
     {{-- Errors --}}
     @if ($errors->any())
@@ -64,7 +64,7 @@
         {{-- Price + Discount Price --}}
         <div class="grid grid-cols-2 gap-4">
             <div>
-                <label for="price" class="text-sm font-medium text-gray-600 dark:text-white/70">Price (₹)</label>
+                <label for="price" class="text-sm font-medium text-gray-600 dark:text-white/70">{{ __('products.price') }} (₹)</label>
                 <input type="number" id="price" name="price" value="{{ old('price', $product->price) }}" step="0.01" min="0"
                     class="w-full mt-1 p-2 rounded-lg bg-white border border-gray-300 text-gray-900
                            focus:outline-none focus:ring-2 focus:ring-blue-500
@@ -90,7 +90,7 @@
 
         {{-- Stock --}}
         <div>
-            <label for="stock" class="text-sm font-medium text-gray-600 dark:text-white/70">Stock Quantity</label>
+            <label for="stock" class="text-sm font-medium text-gray-600 dark:text-white/70">{{ __('products.stock') }}</label>
             <input type="number" id="stock" name="stock" value="{{ old('stock', $product->stock) }}" min="0"
                 class="w-full mt-1 p-2 rounded-lg bg-white border border-gray-300 text-gray-900
                        focus:outline-none focus:ring-2 focus:ring-blue-500

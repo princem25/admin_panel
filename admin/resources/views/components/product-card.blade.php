@@ -37,7 +37,7 @@
             <a href="{{ route('products.edit', $product) }}" 
                class="flex-1 text-center py-1 rounded-md text-sm 
                bg-blue-600 hover:bg-blue-700 text-white transition">
-                Edit
+                {{ __('products.edit_product') }}
             </a>
 
             <!-- Delete -->
@@ -45,7 +45,7 @@
                 @csrf
                 @method('DELETE')
 
-                <button onclick="return confirm('Are you sure?')" 
+                <button onclick="return confirm('{{ __('products.delete_confirm') }}')" 
                     class="w-full py-1 rounded-md text-sm 
                     bg-red-500 hover:bg-red-600 text-white transition">
                     Delete

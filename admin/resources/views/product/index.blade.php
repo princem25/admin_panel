@@ -121,7 +121,7 @@
                             class="px-5 py-2 rounded-lg shadow mt-5 block text-white
                             bg-blue-600 hover:bg-blue-700
                             dark:bg-cyan-500 dark:hover:bg-cyan-600">
-                            + Create Product
+                            + {{ __('products.add_product') }}
                         </button>
                     </a>
                      <a href="{{ route('admin.products.export') }}"
@@ -155,7 +155,7 @@
             @else
                 <div class="text-center mt-10 
                 text-gray-500 dark:text-white/60">
-                    No products found
+                    {{ __('products.no_products') }}
                 </div>
             @endif
 
