@@ -75,6 +75,9 @@ Route::prefix('admin')->middleware(['role:admin', 'throttle:100,1'])->group(func
     Route::delete('/reports/{file}/delete', [\App\Http\Controllers\Admin\ReportManagerController::class, 'destroy'])->name('admin.reports.destroy');
     Route::delete('/reports/cleanup', [\App\Http\Controllers\Admin\ReportManagerController::class, 'cleanup'])->name('admin.reports.cleanup');
 
+    // API Products
+    Route::get('/api-products', [\App\Http\Controllers\Admin\ApiProductController::class, 'index'])->name('admin.api-products.index');
+
     // Cache Monitor
     Route::get('/cache', [CacheMonitorController::class, 'index'])->name('admin.cache.index');
     Route::post('/cache/flush', [CacheMonitorController::class, 'flush'])->name('admin.cache.flush');

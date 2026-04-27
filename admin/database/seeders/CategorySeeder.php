@@ -23,6 +23,10 @@ class CategorySeeder extends Seeder
             ['name' => 'Automotive'],
             ['name' => 'Groceries'],
             ['name' => 'Health'],
+            ['name' => "men's clothing"],
+            ['name' => "jewelery"],
+            ['name' => "electronics"],
+            ['name' => "women's clothing"]
         ]);
     }
 }
