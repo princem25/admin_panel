@@ -46,10 +46,10 @@ class AppServiceProvider extends ServiceProvider
             $token = config('services.external_api.token');
 
             if ($this instanceof PendingRequest) {
-                return $this->withOptions(['base_uri' => $baseUrl])->withToken($token)->acceptJson();
+                return $this->withOptions(['base_uri' => $baseUrl])->withToken($token)->acceptJson()->timeout(10);
             }
 
-            return Http::baseUrl($baseUrl)->withToken($token)->acceptJson();
+            return Http::baseUrl($baseUrl)->withToken($token)->acceptJson()->timeout(10);
         };
 
         Http::macro('jsonApi', $macroClosure);
@@ -115,9 +115,6 @@ class AppServiceProvider extends ServiceProvider
             return "<?php echo '₹' . number_format($expression, 2); ?>";
         });
 
-        /**
-         * DB Query Logging (Local Only)
-         */
         if ($this->app->environment('local')) {
             DB::listen(function ($query) {
                 Log::channel('DBinteraction')->debug($query->sql, [
@@ -127,5 +124,9 @@ class AppServiceProvider extends ServiceProvider
                 ]);
             });
         }
+
+        // ✅ Register Model Observers
+        \App\Models\Product::observe(\App\Observers\ProductObserver::class);
+        \App\Models\Order::observe(\App\Observers\OrderObserver::class);
     }
 }

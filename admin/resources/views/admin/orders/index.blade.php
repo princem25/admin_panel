@@ -73,16 +73,10 @@
                                         </div>
                                     </td>
                                     <td class="p-6 font-bold text-green-600 dark:text-green-400">
-                                        {{ Number::currency($order->total_amount, 'INR') }}
+                                        {{ format_price($order->total_amount) }}
                                     </td>
                                     <td class="p-6">
-                                        <span class="px-3 py-1 text-xs font-bold rounded-full uppercase tracking-widest border
-                                            {{ $order->status === 'pending' ? 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-500/20 dark:text-yellow-400 dark:border-yellow-500/30' : '' }}
-                                            {{ $order->status === 'processing' ? 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30' : '' }}
-                                            {{ $order->status === 'shipped' ? 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-500/20 dark:text-purple-400 dark:border-purple-500/30' : '' }}
-                                            {{ $order->status === 'delivered' ? 'bg-green-100 text-green-800 border-green-200 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/30' : '' }}
-                                            {{ $order->status === 'cancelled' ? 'bg-red-100 text-red-800 border-red-200 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/30' : '' }}
-                                        ">
+                                        <span class="px-3 py-1 text-xs font-bold rounded-full uppercase tracking-widest border {{ order_status_badge($order->status) }}">
                                             {{ $order->status }}
                                         </span>
                                     </td>

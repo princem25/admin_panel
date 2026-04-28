@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Events\Admin\ProductStockChanged;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class ProductObserver
 {
@@ -43,6 +44,15 @@ class ProductObserver
             event(new ProductStockChanged($product->id, $newStock, $oldStock));
         }
 
+        // 🗑️ Cleanup old image if replaced
+        if ($product->wasChanged('image')) {
+            $oldImage = $product->getOriginal('image');
+            if ($oldImage && Storage::disk('public')->exists($oldImage)) {
+                Storage::disk('public')->delete($oldImage);
+                Log::channel('products')->info('Observer: Old product image deleted on update', ['path' => $oldImage]);
+            }
+        }
+
         Log::channel('products')->info('Observer: Product updated', ['product_id' => $product->id]);
     }
 
@@ -52,6 +62,12 @@ class ProductObserver
     public function deleted(Product $product): void
     {
         $this->invalidateCaches();
+
+        // 🗑️ Automatically delete image from storage
+        if ($product->image && Storage::disk('public')->exists($product->image)) {
+            Storage::disk('public')->delete($product->image);
+            Log::channel('products')->info('Observer: Product image deleted on deletion', ['path' => $product->image]);
+        }
 
         Log::channel('products')->warning('Observer: Product deleted', ['product_id' => $product->id]);
     }

@@ -31,7 +31,7 @@
                     </h2>
 
                     <p class="text-sm text-gray-600 dark:text-white/70">
-                        Total Products: {{ $total_products }}
+                        {{ trans_choice('products_found', $total_products, ['count' => $total_products]) }}
                     </p>
 
                     @if ($current_logged_user)
