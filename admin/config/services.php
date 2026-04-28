@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'external_api' => [
+        'base_url' => env('EXTERNAL_API_BASE_URL', 'https://fakestoreapi.com'),
+        'token' => env('EXTERNAL_API_TOKEN'),
+    ],
+
 ];

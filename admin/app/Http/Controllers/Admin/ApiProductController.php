@@ -4,11 +4,18 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
+use App\Services\ExternalApiService;
 use Illuminate\Support\Facades\Log;
 
 class ApiProductController extends Controller
 {
+    protected $apiService;
+
+    public function __construct(ExternalApiService $apiService)
+    {
+        $this->apiService = $apiService;
+    }
+
     public function index(Request $request)
     {
         $limit = $request->input('limit', 20);
@@ -20,18 +27,18 @@ class ApiProductController extends Controller
 
         try {
             // Fetch categories for the filter dropdown
-            $categoryResponse = Http::timeout(10)->get('https://fakestoreapi.com/products/categories');
+            $categoryResponse = $this->apiService->client()->get('/products/categories');
             if ($categoryResponse->successful()) {
                 $categories = $categoryResponse->json();
             }
 
             // Fetch products based on selected category
-            $url = 'https://fakestoreapi.com/products';
+            $url = '/products';
             if ($category && $category !== 'all') {
                 $url .= '/category/' . urlencode($category);
             }
 
-            $productResponse = Http::timeout(15)->get($url, [
+            $productResponse = $this->apiService->client()->get($url, [
                 'limit' => $limit
             ]);
 
@@ -54,7 +61,7 @@ class ApiProductController extends Controller
             $error = 'An error occurred while connecting to the API: ' . $e->getMessage();
             Log::error('API Product Fetch Exception.', [
                 'message' => $e->getMessage(),
-                'url' => $url ?? 'https://fakestoreapi.com/products'
+                'url' => $url ?? '/products'
             ]);
         }
 

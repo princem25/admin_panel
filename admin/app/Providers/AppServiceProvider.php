@@ -6,6 +6,7 @@ use App\Listeners\Customer\SyncCartOnLogin;
 use App\Listeners\Customer\SyncCartOnLogout;
 use App\Models\Category;
 use App\Services\greetingService;
+use App\Services\ExternalApiService;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Support\Facades\Auth;
@@ -26,6 +27,10 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind('greeting', function () {
             return new greetingService;
+        });
+
+        $this->app->singleton(ExternalApiService::class, function ($app) {
+            return new ExternalApiService();
         });
     }
 
