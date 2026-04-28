@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\ExternalApiService;
+use App\Exceptions\ExternalApiException;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Log;
 
 class ApiProductController extends Controller
@@ -27,10 +30,8 @@ class ApiProductController extends Controller
 
         try {
             // Fetch categories for the filter dropdown
-            $categoryResponse = $this->apiService->client()->get('/products/categories');
-            if ($categoryResponse->successful()) {
-                $categories = $categoryResponse->json();
-            }
+            $categoryResponse = $this->apiService->client()->get('/products/categories')->throw();
+            $categories = $categoryResponse->json();
 
             // Fetch products based on selected category
             $url = '/products';
@@ -40,29 +41,35 @@ class ApiProductController extends Controller
 
             $productResponse = $this->apiService->client()->get($url, [
                 'limit' => $limit
+            ])->throw()->throwIf(function ($response) {
+                // Custom condition: manually throw if 'error' key exists
+                return isset($response->json()['error']);
+            });
+
+            $products = $productResponse->json();
+            Log::info('Successfully fetched API products.', [
+                'count' => count($products),
+                'category' => $category,
+                'limit' => $limit
             ]);
 
-            if ($productResponse->successful()) {
-                $products = $productResponse->json();
-                Log::info('Successfully fetched API products.', [
-                    'count' => count($products),
-                    'category' => $category,
-                    'limit' => $limit
-                ]);
-            } else {
-                $error = 'Failed to fetch products from the API. (Status: ' . $productResponse->status() . ')';
-                Log::error('API Product Fetch Failed.', [
-                    'status' => $productResponse->status(),
-                    'url' => $url,
-                    'category' => $category
-                ]);
-            }
-        } catch (\Exception $e) {
-            $error = 'An error occurred while connecting to the API: ' . $e->getMessage();
-            Log::error('API Product Fetch Exception.', [
+        } catch (RequestException $e) {
+            Log::error('API Request Exception.', [
+                'status' => $e->response->status(),
+                'url' => $e->request->url(),
                 'message' => $e->getMessage(),
-                'url' => $url ?? '/products'
             ]);
+            throw new ExternalApiException('The external service returned an error.');
+        } catch (ConnectionException $e) {
+            Log::error('API Connection Exception.', [
+                'message' => $e->getMessage(),
+            ]);
+            throw new ExternalApiException('The external service is unreachable.');
+        } catch (\Exception $e) {
+            Log::error('API Generic Exception.', [
+                'message' => $e->getMessage(),
+            ]);
+            throw new ExternalApiException('An unexpected error occurred.');
         }
 
         return view('admin.api-products.index', compact('products', 'categories', 'category', 'limit', 'error'));
