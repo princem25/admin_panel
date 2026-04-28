@@ -76,10 +76,10 @@ dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20">
         <!-- Header -->
         <div class="text-center mb-10">
             <h1 class="text-4xl font-bold mb-2">
-                Product Management System
+                {{ __('Product Management System') }}
             </h1>
             <p class="text-gray-600 dark:text-white/70 text-lg">
-                Easily manage products, cart, and invoices — all in one place
+                {{ __('Welcome to our Store') }}
             </p>
         </div>
 

@@ -21,7 +21,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>
-                Back to Products
+                {{ __('Back to Products') }}
             </a>
 
             <!-- Product Container -->
@@ -81,7 +81,7 @@
                                     class="mb-6 px-4 py-2 bg-red-100 border border-red-300 text-red-700
                                             dark:bg-red-500/10 dark:border-red-500/30 dark:text-red-400
                                             rounded-lg text-sm font-semibold {{ $product->stock == 0 ? 'flex' : 'hidden' }} items-center gap-2">
-                                    🚫 This product is currently <strong>out of stock</strong>.
+                                    🚫 {{ __('Out of Stock') }}.
                                 </div>
 
                                 <div id="low-stock-alert-{{ $product->id }}"
@@ -101,7 +101,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
-                                Description
+                                {{ __('Description') }}
                             </h3>
                             <p class="text-gray-600 dark:text-gray-300 leading-relaxed text-lg">
                                 {{ $product->description ?? 'No detailed description available for this product at the moment.' }}
@@ -146,7 +146,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M5 13l4 4L19 7"></path>
                                     </svg>
-                                    Already in Cart
+                                    {{ __('Already in Cart') }}
                                 </button>
                             @else
                                 <form id="add-to-cart-form-{{ $product->id }}"
@@ -164,7 +164,7 @@
                                                 d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z">
                                             </path>
                                         </svg>
-                                        Add to Cart
+                                        {{ __('Add to Cart') }}
                                     </button>
                                 </form>
                             @endif
@@ -182,7 +182,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        Recently Viewed
+                        {{ __('Recently Viewed') }}
                     </h2>
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                         @foreach ($recentProducts as $recentProduct)
@@ -253,11 +253,11 @@
 
                     if (stock === 0) {
                         btn.disabled = true;
-                        btn.textContent = '🚫 Out of Stock';
+                        btn.textContent = '🚫 ' + "{{ __('Out of Stock') }}";
                         btn.classList.add('opacity-50', 'cursor-not-allowed');
                     } else {
                         btn.disabled = false;
-                        btn.innerHTML = '<svg class="w-6 h-6 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>Add to Cart';
+                        btn.innerHTML = '<svg class="w-6 h-6 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>' + "{{ __('Add to Cart') }}";
                         btn.classList.remove('opacity-50', 'cursor-not-allowed');
                     }
                 }

@@ -5,7 +5,7 @@
 
             {{-- Page Title --}}
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                Shopping Cart
+                {{ __('Shopping Cart') }}
             </h1>
 
             {{-- Flash Messages --}}
@@ -114,7 +114,7 @@
                                                 {{-- Remove --}}
                                                 <button onclick="removeFromCart('{{ $item->product_id }}')"
                                                     class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline transition">
-                                                    Delete
+                                                    {{ __('Delete') }}
                                                 </button>
                                             </div>
                                         </div>
@@ -187,7 +187,7 @@
                             {{-- Checkout Button --}}
                             <a href="{{ route('checkout.index') }}"
                                 class="block w-full text-center py-2.5 px-4 rounded-full bg-[#FFD814] hover:bg-[#F7CA00] text-gray-900 font-medium text-sm shadow-sm transition active:scale-95 border border-[#FCD200]">
-                                Proceed to Checkout
+                                {{ __('Proceed to Checkout') }}
                             </a>
 
                             {{-- Divider --}}

@@ -6,7 +6,7 @@
             <div class="flex-1">
                 <div class="bg-white dark:bg-white/10 shadow-lg rounded-xl p-8 border border-gray-200 dark:border-white/20">
                     <h2 class="text-3xl font-extrabold mb-8 text-gray-800 dark:text-white flex items-center gap-3">
-                        Shipping Information 🚚
+                        {{ __('Shipping Information') }} 🚚
                     </h2>
 
                     <form action="{{ route('checkout.store') }}" method="POST" class="space-y-6">
@@ -111,7 +111,7 @@
                         <div class="pt-4">
                             <button type="submit" 
                                 class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition duration-300 shadow-lg transform hover:-translate-y-1 active:scale-95">
-                                Place Order (₹{{ $grandTotal }})
+                                {{ __('Place Order') }} (₹{{ $grandTotal }})
                             </button>
                         </div>
                     </form>
