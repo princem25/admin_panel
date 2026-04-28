@@ -3,23 +3,55 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
-use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\Pool;
 
 class ExternalApiService
 {
     /**
-     * Get a pre-configured HTTP client instance.
+     * Fetch all categories.
      *
-     * @return PendingRequest
+     * @return \Illuminate\Http\Client\Response
      */
-    public function client(): PendingRequest
+    public function getCategories()
     {
-        return Http::baseUrl(config('services.external_api.base_url'))
-            ->withToken(config('services.external_api.token'))
-            ->withHeaders([
-                'Accept' => 'application/json',
-            ])
-            ->timeout(10)
-            ->retry(3, 100);
+        return Http::jsonApi()->get('/products/categories');
+    }
+
+    /**
+     * Fetch products, optionally filtered by category.
+     *
+     * @param string|null $category
+     * @param int $limit
+     * @return \Illuminate\Http\Client\Response
+     */
+    public function getProducts($category = null, $limit = 20)
+    {
+        $url = '/products';
+        
+        if ($category && $category !== 'all') {
+            $url .= '/category/' . urlencode($category);
+        }
+
+        return Http::jsonApi()->get($url, ['limit' => $limit]);
+    }
+
+    /**
+     * Fetch products and categories concurrently using Http::pool.
+     *
+     * @param string|null $category
+     * @param int $limit
+     * @return array
+     */
+    public function getDashboardData($category = null, $limit = 20)
+    {
+        $url = '/products';
+        if ($category && $category !== 'all') {
+            $url .= '/category/' . urlencode($category);
+        }
+
+        return Http::pool(fn (Pool $pool) => [
+            $pool->as('categories')->jsonApi()->get('/products/categories'),
+            $pool->as('products')->jsonApi()->get($url, ['limit' => $limit]),
+        ]);
     }
 }

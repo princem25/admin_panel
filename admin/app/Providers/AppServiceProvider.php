@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Client\PendingRequest;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -39,6 +41,20 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $macroClosure = function () {
+            $baseUrl = config('services.external_api.base_url', 'https://fakestoreapi.com');
+            $token = config('services.external_api.token');
+
+            if ($this instanceof PendingRequest) {
+                return $this->withOptions(['base_uri' => $baseUrl])->withToken($token)->acceptJson();
+            }
+
+            return Http::baseUrl($baseUrl)->withToken($token)->acceptJson();
+        };
+
+        Http::macro('jsonApi', $macroClosure);
+        PendingRequest::macro('jsonApi', $macroClosure);
+
         View::share('company_name', 'Intern Training App');
 
         View::composer('*', function ($view) {
@@ -67,7 +83,7 @@ class AppServiceProvider extends ServiceProvider
             Log::error('Categories cache failed: ' . $e->getMessage());
 
             // Fallback (no cache)
-            $categories = Category::all();
+            $categories = collect([]);
         }
 
         View::share('categories', $categories);
@@ -87,11 +103,7 @@ class AppServiceProvider extends ServiceProvider
             Log::error('Category summary cache failed: ' . $e->getMessage());
 
             // Fallback (no cache)
-            $categorySummary = DB::table('products')
-                ->join('categories', 'products.category_id', '=', 'categories.id')
-                ->select('categories.name', DB::raw('count(products.id) as total'))
-                ->groupBy('categories.name')
-                ->get();
+            $categorySummary = collect([]);
         }
 
         View::share('categorySummary', $categorySummary);

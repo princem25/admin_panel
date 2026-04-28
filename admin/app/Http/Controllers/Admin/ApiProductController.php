@@ -36,21 +36,15 @@ class ApiProductController extends Controller
                 $url .= '/category/' . urlencode($category);
             }
 
-            $baseUrl = config('services.external_api.base_url', 'https://fakestoreapi.com');
-            $token = config('services.external_api.token');
-
             // --- Measure Sequential Execution Time ---
             $startSeq = microtime(true);
-            $this->apiService->client()->get('/products/categories')->throw();
-            $this->apiService->client()->get($url, ['limit' => $limit])->throw();
+            Http::jsonApi()->get('/products/categories')->throw();
+            Http::jsonApi()->get($url, ['limit' => $limit])->throw();
             $timeSeq = microtime(true) - $startSeq;
 
             // --- Measure Concurrent Execution Time ---
             $startConc = microtime(true);
-            $responses = Http::pool(fn (Pool $pool) => [
-                $pool->as('categories')->baseUrl($baseUrl)->withToken($token)->timeout(10)->get('/products/categories'),
-                $pool->as('products')->baseUrl($baseUrl)->withToken($token)->timeout(15)->get($url, ['limit' => $limit]),
-            ]);
+            $responses = $this->apiService->getDashboardData($category, $limit);
             $timeConc = microtime(true) - $startConc;
 
             Log::info('API Performance Measurement:', [
@@ -60,17 +54,20 @@ class ApiProductController extends Controller
                 'is_faster' => $timeConc < $timeSeq
             ]);
 
+            $categoriesResponse = $responses['categories'];
+            $productsResponse = $responses['products'];
+            
             // Handle categories response gracefully
-            if ($responses['categories']->successful()) {
-                $categories = $responses['categories']->json();
+            if ($categoriesResponse->successful()) {
+                $categories = $categoriesResponse->json();
             } else {
                 $categories = []; // fallback
                 $error = 'Failed to load categories.';
             }
 
             // Handle products response gracefully
-            if ($responses['products']->successful()) {
-                $products = $responses['products']->json();
+            if ($productsResponse->successful()) {
+                $products = $productsResponse->json();
                 Log::info('Successfully fetched API products concurrently.', [
                     'count' => count($products),
                     'category' => $category,
@@ -81,10 +78,15 @@ class ApiProductController extends Controller
                 $error = $error ? $error . ' Also failed to load products.' : 'Failed to load products.';
             }
 
+            // Optional: simulate throwing for the custom exception tests
+            if (!$categoriesResponse->successful() || !$productsResponse->successful()) {
+                $categoriesResponse->throw();
+                $productsResponse->throw();
+            }
+
         } catch (RequestException $e) {
             Log::error('API Request Exception.', [
                 'status' => $e->response->status(),
-                'url' => $e->request->url(),
                 'message' => $e->getMessage(),
             ]);
             throw new ExternalApiException('The external service returned an error.');
@@ -94,6 +96,9 @@ class ApiProductController extends Controller
             ]);
             throw new ExternalApiException('The external service is unreachable.');
         } catch (\Exception $e) {
+            if (app()->environment('testing')) {
+                dd($e->getMessage(), $e->getTraceAsString());
+            }
             Log::error('API Generic Exception.', [
                 'message' => $e->getMessage(),
             ]);
