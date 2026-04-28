@@ -17,8 +17,10 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CacheMonitorController;
 use App\Http\Controllers\Admin\SalesAnalyticsController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
+use App\Http\Controllers\LocaleController;
 
 Route::get('/', [HomeController::class, 'index']);
+Route::get('/language/{locale}', [LocaleController::class, 'switch'])->name('language.switch');
 
 
 

@@ -58,6 +58,12 @@
 
             <!-- Right -->
             <div class="flex items-center space-x-6">
+                {{-- Language Switcher --}}
+                <div class="flex items-center space-x-2 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-white/40">
+                    <a href="{{ route('language.switch', 'en') }}" class="{{ app()->getLocale() == 'en' ? 'text-blue-600 dark:text-cyan-400' : 'hover:text-gray-900 dark:hover:text-white' }} transition">EN</a>
+                    <span>|</span>
+                    <a href="{{ route('language.switch', 'ar') }}" class="{{ app()->getLocale() == 'ar' ? 'text-blue-600 dark:text-cyan-400' : 'hover:text-gray-900 dark:hover:text-white' }} transition">AR</a>
+                </div>
 
                 {{-- Cart --}}
                 @if ($current_logged_user->role !== 'admin')
