@@ -13,7 +13,8 @@
                 Thank You for Your Order! 🎉
             </h1>
             <p class="text-lg text-gray-600 dark:text-gray-400 mb-10">
-                Your order <span class="font-bold text-gray-800 dark:text-white">#{{ $order->id }}</span> has been placed successfully. 
+                {{ __('Order # :id placed on :date', ['id' => $order->id, 'date' => $order->created_at->format('Y-m-d')]) }}
+                <br>
                 We'll notify you as soon as it's on its way!
             </p>
 

@@ -14,5 +14,9 @@
     "Recently Viewed": "شوهد مؤخراً",
     "Delete": "إزالة",
     "Back to Products": "العودة إلى المنتجات",
-    "Product Management System": "نظام إدارة المنتجات"
+    "Product Management System": "نظام إدارة المنتجات",
+    "Welcome, :name!": "مرحباً، :name!",
+    "Order # :id placed on :date": "تم تقديم الطلب رقم :id في :date",
+    "cart_items": "{0} لا توجد عناصر|[1] عنصر واحد|[2] عنصران|[3,10] :count عناصر|[11,*] :count عنصر",
+    "products_found": "{0} لم يتم العثور على منتجات|[1] تم العثور على منتج واحد|[2] تم العثور على منتجين|[3,10] تم العثور على :count منتجات|[11,*] تم العثور على :count منتج"
 }

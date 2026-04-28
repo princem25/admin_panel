@@ -79,7 +79,11 @@ dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20">
                 {{ __('Product Management System') }}
             </h1>
             <p class="text-gray-600 dark:text-white/70 text-lg">
-                {{ __('Welcome to our Store') }}
+                @auth
+                    {{ __('Welcome, :name!', ['name' => Auth::user()->name]) }}
+                @else
+                    {{ __('Welcome to our Store') }}
+                @endauth
             </p>
         </div>
 

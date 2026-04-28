@@ -14,5 +14,9 @@
     "Recently Viewed": "Recently Viewed",
     "Delete": "Remove",
     "Back to Products": "Back to Products",
-    "Product Management System": "Product Management System"
+    "Product Management System": "Product Management System",
+    "Welcome, :name!": "Welcome, :name!",
+    "Order # :id placed on :date": "Order # :id placed on :date",
+    "cart_items": "{0} No items|{1} 1 item|[2,*] :count items",
+    "products_found": "{0} No products found|{1} 1 product found|[2,*] :count products found"
 }

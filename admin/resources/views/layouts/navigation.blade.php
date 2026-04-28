@@ -64,7 +64,8 @@
                     <a href="{{ route('cart.index') }}"
                         class="relative transition 
                             text-gray-600 hover:text-gray-900
-                            dark:text-white/80 dark:hover:text-white">
+                            dark:text-white/80 dark:hover:text-white"
+                        title="{{ trans_choice('cart_items', $cartCount ?? 0, ['count' => $cartCount ?? 0]) }}">
 
                         <!-- Icon -->
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"

@@ -87,7 +87,7 @@
             <!-- 📊 Results Summary -->
             <div class="mb-6 flex justify-between items-center bg-gray-50/50 dark:bg-white/5 p-4 rounded-xl border border-gray-100 dark:border-white/10">
                 <div class="text-sm font-medium text-gray-600 dark:text-gray-300">
-                    Showing <span class="text-blue-600 dark:text-cyan-400 font-bold">{{ $products->total() }}</span> products
+                    {{ trans_choice('products_found', $products->total(), ['count' => $products->total()]) }}
                     @if(request('search'))
                         for <span class="italic text-gray-900 dark:text-white">"{{ request('search') }}"</span>
                     @endif
