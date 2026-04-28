@@ -9,6 +9,8 @@ use App\Exceptions\ExternalApiException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Client\Pool;
 
 class ApiProductController extends Controller
 {
@@ -29,29 +31,55 @@ class ApiProductController extends Controller
         $error = null;
 
         try {
-            // Fetch categories for the filter dropdown
-            $categoryResponse = $this->apiService->client()->get('/products/categories')->throw();
-            $categories = $categoryResponse->json();
-
-            // Fetch products based on selected category
             $url = '/products';
             if ($category && $category !== 'all') {
                 $url .= '/category/' . urlencode($category);
             }
 
-            $productResponse = $this->apiService->client()->get($url, [
-                'limit' => $limit
-            ])->throw()->throwIf(function ($response) {
-                // Custom condition: manually throw if 'error' key exists
-                return isset($response->json()['error']);
-            });
+            $baseUrl = config('services.external_api.base_url', 'https://fakestoreapi.com');
+            $token = config('services.external_api.token');
 
-            $products = $productResponse->json();
-            Log::info('Successfully fetched API products.', [
-                'count' => count($products),
-                'category' => $category,
-                'limit' => $limit
+            // --- Measure Sequential Execution Time ---
+            $startSeq = microtime(true);
+            $this->apiService->client()->get('/products/categories')->throw();
+            $this->apiService->client()->get($url, ['limit' => $limit])->throw();
+            $timeSeq = microtime(true) - $startSeq;
+
+            // --- Measure Concurrent Execution Time ---
+            $startConc = microtime(true);
+            $responses = Http::pool(fn (Pool $pool) => [
+                $pool->as('categories')->baseUrl($baseUrl)->withToken($token)->timeout(10)->get('/products/categories'),
+                $pool->as('products')->baseUrl($baseUrl)->withToken($token)->timeout(15)->get($url, ['limit' => $limit]),
             ]);
+            $timeConc = microtime(true) - $startConc;
+
+            Log::info('API Performance Measurement:', [
+                'sequential_time_seconds' => round($timeSeq, 4),
+                'concurrent_time_seconds' => round($timeConc, 4),
+                'difference_seconds' => round($timeSeq - $timeConc, 4),
+                'is_faster' => $timeConc < $timeSeq
+            ]);
+
+            // Handle categories response gracefully
+            if ($responses['categories']->successful()) {
+                $categories = $responses['categories']->json();
+            } else {
+                $categories = []; // fallback
+                $error = 'Failed to load categories.';
+            }
+
+            // Handle products response gracefully
+            if ($responses['products']->successful()) {
+                $products = $responses['products']->json();
+                Log::info('Successfully fetched API products concurrently.', [
+                    'count' => count($products),
+                    'category' => $category,
+                    'limit' => $limit
+                ]);
+            } else {
+                $products = []; // fallback
+                $error = $error ? $error . ' Also failed to load products.' : 'Failed to load products.';
+            }
 
         } catch (RequestException $e) {
             Log::error('API Request Exception.', [
