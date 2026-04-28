@@ -13,7 +13,7 @@
                 Thank You for Your Order! 🎉
             </h1>
             <p class="text-lg text-gray-600 dark:text-gray-400 mb-10">
-                {{ __('Order # :id placed on :date', ['id' => $order->id, 'date' => $order->created_at->format('Y-m-d')]) }}
+                {{ __('Order # :id placed on :date', ['id' => $order->id, 'date' => $order->created_at->isoFormat('LL')]) }}
                 <br>
                 We'll notify you as soon as it's on its way!
             </p>
@@ -36,7 +36,7 @@
                         <p class="text-gray-800 dark:text-white font-medium">Method: <span class="text-gray-600 dark:text-gray-400 font-bold uppercase tracking-widest text-xs">{{ $order->payment_method }}</span></p>
                         <p class="text-gray-800 dark:text-white font-medium mt-1">
                             {{ $order->payment_method === 'cod' ? 'Total Amount' : 'Amount Paid' }}: 
-                            <span class="text-3xl font-black text-green-600 dark:text-green-400">₹{{ $order->total_amount }}</span>
+                            <span class="text-3xl font-black text-green-600 dark:text-green-400">{{ Number::currency($order->total_amount, 'INR') }}</span>
                         </p>
                         <p class="text-gray-800 dark:text-white font-medium mt-1">Status: <span class="text-yellow-600 dark:text-yellow-400 uppercase tracking-widest text-xs font-bold">{{ $order->status }}</span></p>
                     </div>

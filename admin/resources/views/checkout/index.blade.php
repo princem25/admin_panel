@@ -111,7 +111,7 @@
                         <div class="pt-4">
                             <button type="submit" 
                                 class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition duration-300 shadow-lg transform hover:-translate-y-1 active:scale-95">
-                                {{ __('Place Order') }} (₹{{ $grandTotal }})
+                                {{ __('Place Order') }} ({{ Number::currency($grandTotal, 'INR') }})
                             </button>
                         </div>
                     </form>
@@ -137,10 +137,10 @@
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <h4 class="text-sm font-semibold text-gray-800 dark:text-white truncate">{{ $item->product->name }}</h4>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">Qty: {{ $item->quantity }} × ₹{{ $item->unit_price }}</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Qty: {{ $item->quantity }} × {{ Number::currency($item->unit_price, 'INR') }}</p>
                                 </div>
                                 <div class="text-right">
-                                    <span class="text-sm font-bold text-gray-800 dark:text-white">₹{{ $item->total_price }}</span>
+                                    <span class="text-sm font-bold text-gray-800 dark:text-white">{{ Number::currency($item->total_price, 'INR') }}</span>
                                 </div>
                             </div>
                         @endforeach
@@ -149,12 +149,12 @@
                     <div class="mt-8 space-y-3">
                         <div class="flex justify-between text-gray-600 dark:text-gray-400">
                             <span>Subtotal</span>
-                            <span>₹{{ $grandTotal }}</span>
+                            <span>{{ Number::currency($grandTotal, 'INR') }}</span>
                         </div>
                         @if($totalSavings > 0)
                             <div class="flex justify-between text-green-600 dark:text-green-400 text-sm">
                                 <span>You Save</span>
-                                <span>-₹{{ $totalSavings }}</span>
+                                <span>-{{ Number::currency($totalSavings, 'INR') }}</span>
                             </div>
                         @endif
                         <div class="flex justify-between text-gray-600 dark:text-gray-400">
@@ -163,7 +163,7 @@
                         </div>
                         <div class="pt-4 border-t border-gray-200 dark:border-white/10 flex justify-between items-center">
                             <span class="text-lg font-bold text-gray-800 dark:text-white uppercase tracking-tight">Grand Total</span>
-                            <span class="text-2xl font-black text-green-600 dark:text-green-400">₹{{ $grandTotal }}</span>
+                            <span class="text-2xl font-black text-green-600 dark:text-green-400">{{ Number::currency($grandTotal, 'INR') }}</span>
                         </div>
                     </div>
                 </div>
