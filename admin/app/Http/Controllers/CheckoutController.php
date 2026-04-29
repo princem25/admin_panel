@@ -6,9 +6,11 @@ use App\Events\Admin\OrderPlaced;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Services\CartService;
+use App\Mail\OrderConfirmation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class CheckoutController extends Controller
 {
@@ -94,6 +96,16 @@ class CheckoutController extends Controller
             // Load items and user for the broadcast payload
             $order->load(['items', 'user']);
             event(new OrderPlaced($order));
+
+            try {
+                // Delay for 5 seconds to prevent Mailtrap "Too many emails per second" error
+                Mail::to($order->user->email)->later(now()->addSeconds(5), new OrderConfirmation($order));
+            } catch (\Exception $mailException) {
+                Log::error('Failed to queue order confirmation email', [
+                    'order_id' => $order->id,
+                    'error'    => $mailException->getMessage(),
+                ]);
+            }
 
             return redirect()->route('checkout.success', $order->id)->with('success', 'Your order has been placed successfully! 🎉');
         } catch (\Exception $e) {
