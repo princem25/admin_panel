@@ -2,7 +2,6 @@
 
 namespace App\Listeners\Admin;
 
-use App\Events\Admin\OrderPaid;
 use App\Events\Admin\OrderPlaced;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -34,7 +33,7 @@ class GenerateInvoicePDF implements ShouldQueue
     /**
      * Handle the event.
      */
-    public function handle(OrderPlaced|OrderPaid $event): void
+    public function handle(OrderPlaced $event): void
     {
         $order = $event->order;
 

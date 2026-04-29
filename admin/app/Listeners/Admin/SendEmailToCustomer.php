@@ -2,10 +2,7 @@
 
 namespace App\Listeners\Admin;
 
-use App\Events\Admin\OrderDelivered;
-use App\Events\Admin\OrderPaid;
 use App\Events\Admin\OrderPlaced;
-use App\Events\Admin\OrderShipped;
 use App\Events\Admin\OrderStatusUpdated;
 use App\Mail\OrderStatusEmail;
 use App\Models\Order;
@@ -38,7 +35,7 @@ class SendEmailToCustomer implements ShouldQueue
      * Send (or simulate) a transactional email for every order lifecycle stage.
      * Logs to the dedicated orders channel with structured context.
      */
-    public function handle(OrderPlaced|OrderPaid|OrderShipped|OrderDelivered|OrderStatusUpdated $event): void
+    public function handle(OrderPlaced|OrderStatusUpdated $event): void
     {
         $eventName = class_basename($event);
         

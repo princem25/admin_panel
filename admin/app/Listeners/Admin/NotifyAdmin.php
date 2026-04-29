@@ -2,10 +2,7 @@
 
 namespace App\Listeners\Admin;
 
-use App\Events\Admin\OrderDelivered;
-use App\Events\Admin\OrderPaid;
 use App\Events\Admin\OrderPlaced;
-use App\Events\Admin\OrderShipped;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Bus\Queueable;
@@ -34,7 +31,7 @@ class NotifyAdmin implements ShouldQueue
      * Notify the admin of every order lifecycle stage.
      * Logs to the dedicated orders channel with structured context.
      */
-    public function handle(OrderPlaced|OrderPaid|OrderShipped|OrderDelivered $event): void
+    public function handle(OrderPlaced $event): void
     {
         $eventName = class_basename($event);
         $order = $event->order;
