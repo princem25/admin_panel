@@ -11,6 +11,14 @@ use Illuminate\Support\Facades\Cache;
 class OrderObserver
 {
     /**
+     * Handle events after all transactions are committed.
+     * This ensures OrderItems exist before the created event fires.
+     *
+     * @var bool
+     */
+    public bool $afterCommit = true;
+
+    /**
      * Handle the Order "created" event.
      */
     public function created(Order $order): void
@@ -20,8 +28,8 @@ class OrderObserver
 
         Log::channel('orders')->info('Observer: Order created', ['order_id' => $order->id]);
         
-        // NOTE: OrderPlaced is dispatched manually in CheckoutController 
-        // after the items are created to ensure correct item counts in the broadcast.
+        $order->load(['items', 'user']);
+        event(new OrderPlaced($order));
     }
 
     /**

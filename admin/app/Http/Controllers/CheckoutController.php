@@ -93,9 +93,7 @@ class CheckoutController extends Controller
 
             Log::info('Order placed successfully', ['order_id' => $order->id, 'user_id' => auth()->id()]);
 
-            // Load items and user for the broadcast payload
-            $order->load(['items', 'user']);
-            event(new OrderPlaced($order));
+            // NOTE: OrderPlaced event is dispatched automatically by OrderObserver after commit
 
             try {
                 // Delay for 5 seconds to prevent Mailtrap "Too many emails per second" error

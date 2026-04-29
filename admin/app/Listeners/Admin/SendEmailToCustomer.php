@@ -2,7 +2,7 @@
 
 namespace App\Listeners\Admin;
 
-use App\Events\Admin\OrderPlaced;
+
 use App\Events\Admin\OrderStatusUpdated;
 use App\Mail\OrderStatusEmail;
 use App\Models\Order;
@@ -35,34 +35,24 @@ class SendEmailToCustomer implements ShouldQueue
      * Send (or simulate) a transactional email for every order lifecycle stage.
      * Logs to the dedicated orders channel with structured context.
      */
-    public function handle(OrderPlaced|OrderStatusUpdated $event): void
+    public function handle(OrderStatusUpdated $event): void
     {
-        $eventName = class_basename($event);
-        
-        if ($event instanceof OrderStatusUpdated) {
-            $order = Order::find($event->orderId);
-            $status = $event->orderStatus;
-        } else {
-            $order = $event->order;
-            $status = str_replace('Order', '', class_basename($event)); // e.g. "Shipped"
-        }
+        $order = Order::find($event->orderId);
+        $status = $event->orderStatus;
 
         if (!$order || !$order->user || !$order->user->email) {
             return;
         }
 
-        // OrderPlaced is already handled by OrderConfirmation in CheckoutController
-        if ($eventName === 'OrderPlaced') {
-            return;
-        }
+
 
         try {
             // Sleep 5s to avoid Mailtrap rate limit
             sleep(5);
             Mail::to($order->user->email)->send(new OrderStatusEmail($order, $status));
 
-            Log::channel('customer')->info("Listener handled: SendEmailToCustomer ({$eventName}) sent email", [
-                'event' => $eventName,
+            Log::channel('customer')->info("Listener handled: SendEmailToCustomer (OrderStatusUpdated) sent email", [
+                'event' => 'OrderStatusUpdated',
                 'order_id' => $order->id,
                 'customer_email' => $order->user->email,
                 'status' => $status,
