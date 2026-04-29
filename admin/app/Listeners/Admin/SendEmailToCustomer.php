@@ -6,7 +6,11 @@ use App\Events\Admin\OrderDelivered;
 use App\Events\Admin\OrderPaid;
 use App\Events\Admin\OrderPlaced;
 use App\Events\Admin\OrderShipped;
+use App\Events\Admin\OrderStatusUpdated;
+use App\Mail\OrderStatusEmail;
+use App\Models\Order;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -34,19 +38,41 @@ class SendEmailToCustomer implements ShouldQueue
      * Send (or simulate) a transactional email for every order lifecycle stage.
      * Logs to the dedicated orders channel with structured context.
      */
-    public function handle(OrderPlaced|OrderPaid|OrderShipped|OrderDelivered $event): void
+    public function handle(OrderPlaced|OrderPaid|OrderShipped|OrderDelivered|OrderStatusUpdated $event): void
     {
         $eventName = class_basename($event);
-        $order = $event->order;
+        
+        if ($event instanceof OrderStatusUpdated) {
+            $order = Order::find($event->orderId);
+            $status = $event->orderStatus;
+        } else {
+            $order = $event->order;
+            $status = str_replace('Order', '', class_basename($event)); // e.g. "Shipped"
+        }
 
-        Log::channel('customer')->info("Listener handled: SendEmailToCustomer ({$eventName})", [
-            'event' => $eventName,
-            'order_id' => $order->id ?? 'unknown',
-            'customer_id' => $order->user_id ?? 'unknown',
-            'customer_email' => $order->user->email ?? 'unknown',
-            'total_amount' => $order->total ?? null,
-            'status' => $order->status ?? null,
-        ]);
+        if (!$order || !$order->user || !$order->user->email) {
+            return;
+        }
+
+        // OrderPlaced is already handled by OrderConfirmation in CheckoutController
+        if ($eventName === 'OrderPlaced') {
+            return;
+        }
+
+        try {
+            // Sleep 5s to avoid Mailtrap rate limit
+            sleep(5);
+            Mail::to($order->user->email)->send(new OrderStatusEmail($order, $status));
+
+            Log::channel('customer')->info("Listener handled: SendEmailToCustomer ({$eventName}) sent email", [
+                'event' => $eventName,
+                'order_id' => $order->id,
+                'customer_email' => $order->user->email,
+                'status' => $status,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to send OrderStatusEmail', ['error' => $e->getMessage()]);
+        }
     }
 
     /**

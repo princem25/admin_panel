@@ -19,8 +19,8 @@ class SendStockLowEmail implements ShouldQueue
 
         Mail::to($adminEmail)->send(new StockLowAlert($event->product));
 
-        // Sleep for 2 seconds to avoid Mailtrap 1 email/sec rate limit when processing multiple jobs
-        sleep(2);
+        // Sleep for 5 seconds to avoid Mailtrap 1 email/sec rate limit when processing multiple jobs
+        sleep(5);
 
         Log::channel('products')->info('Listener stocklow handled: SendStockLowEmail', [
             'product_id' => $event->product->id,

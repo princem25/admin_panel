@@ -125,8 +125,6 @@ class AppServiceProvider extends ServiceProvider
             });
         }
 
-        // ✅ Register Model Observers
-        \App\Models\Product::observe(\App\Observers\ProductObserver::class);
-        \App\Models\Order::observe(\App\Observers\OrderObserver::class);
+        // ✅ Model Observers are registered in CustomServiceProvider
     }
 }

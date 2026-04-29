@@ -32,6 +32,7 @@ class NotifyWaitlistCustomers implements ShouldQueue
 
         foreach ($waitlistEntries as $entry) {
             if ($entry->user && $entry->user->email) {
+                sleep(5); // Sleep 5s to avoid Mailtrap limits
                 retry(3, function () use ($entry, $product) {
                     Mail::to($entry->user->email)->send(new ProductRestockedMail($product));
                 }, 100, function (\Exception $e) {
