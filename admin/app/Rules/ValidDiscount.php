@@ -20,3 +20,4 @@ class ValidDiscount implements ValidationRule
         }
     }
 }
+    

@@ -6,6 +6,8 @@ use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Events\Admin\OrderPlaced;
+use App\Listeners\Admin\GenerateInvoicePDF;
 
 class InvoiceController extends Controller
 {
@@ -39,7 +41,12 @@ class InvoiceController extends Controller
         $invoice = $order->invoice;
 
         if (!$invoice || !Storage::disk('public')->exists($invoice->file_path)) {
-            return back()->with('info', 'Invoice is generating. Please wait.');
+            // Invoice is missing (e.g. manually deleted). Re-trigger the background generation.
+            dispatch(function () use ($order) {
+                app(GenerateInvoicePDF::class)->handle(new OrderPlaced($order));
+            });
+
+            return back()->with('info', 'Invoice is regenerating in the background. Please wait a moment and refresh.');
         }
 
         return response()->streamDownload(function () use ($invoice) {

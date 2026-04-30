@@ -10,6 +10,8 @@ use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class OrderConfirmation extends Mailable
 {
@@ -56,6 +58,17 @@ class OrderConfirmation extends Mailable
      */
     public function attachments(): array
     {
-        return [];
+        $path = 'invoices/invoice_order_' . $this->order->id . '.pdf';
+
+        if (!Storage::disk('public')->exists($path)) {
+            Log::warning("Invoice not found for order #{$this->order->id} at path: {$path}");
+            return [];
+        }
+
+        return [
+            Attachment::fromStorageDisk('public', $path)
+                ->as("invoice-{$this->order->id}.pdf")
+                ->withMime('application/pdf'),
+        ];
     }
 }

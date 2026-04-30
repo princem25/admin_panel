@@ -96,8 +96,8 @@ class CheckoutController extends Controller
             // NOTE: OrderPlaced event is dispatched automatically by OrderObserver after commit
 
             try {
-                // Delay for 5 seconds to prevent Mailtrap "Too many emails per second" error
-                Mail::to($order->user->email)->later(now()->addSeconds(5), new OrderConfirmation($order));
+                // Delay for 30 seconds to allow background invoice generation to complete before attaching
+                Mail::to($order->user->email)->later(now()->addSeconds(30), new OrderConfirmation($order));
             } catch (\Exception $mailException) {
                 Log::error('Failed to queue order confirmation email', [
                     'order_id' => $order->id,
