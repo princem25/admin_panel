@@ -110,5 +110,27 @@ Instead of hardcoding email addresses directly in the listeners or mailables, we
 ### Throttling & Spam Prevention
 
 To prevent flooding admin inboxes, we use Laravel's **Cache** system to ensure only one alert is sent per product per hour.
-*   **Key**: `low_stock_alert_{product_id}`
 *   **Duration**: 3600 seconds (1 hour)
+
+## Localized Emails & Development Previews
+
+The application now supports automatic email localization based on user preferences and secure in-browser previews for developers.
+
+### User Locale Preferences
+
+The `User` model implements `HasLocalePreference`. This allows Laravel to automatically detect and apply the user's preferred language when sending emails.
+*   **Automatic Switching**: When you call `Mail::to($user)->send(...)`, Laravel checks if the `$user` object has a `preferredLocale()` method. If it does, it automatically switches the application's locale for that specific email.
+*   **Manual Override**: You can still manually override the locale for testing or specific cases using `Mail::to($user)->locale('ar')->send(...)`.
+
+### Why Localize?
+Localized emails ensure that customers receive order confirmations and alerts in their native language, significantly improving user experience and professionalism. All strings are stored in `lang/{locale}/emails.php`.
+
+### Secure Email Previews
+
+Developers can preview how emails will look in the browser without actually sending them.
+*   **Route**: `/dev/mail/order/{order_id}`
+*   **Environment Restricted**: This route is only registered if `APP_ENV=local`. It will return a 404 error in production.
+*   **Why render Mailables?**: Directly returning a Mailable object in a route (e.g., `return new OrderConfirmation($order)`) is superior to rendering a Blade view because:
+    1.  **CSS Inlining**: Laravel automatically applies CSS inlining as it would in a real email.
+    2.  **Context**: It tests the entire Mailable class logic, including the `envelope()`, `content()`, and `attachments()`.
+    3.  **Realism**: You see exactly what the user will see in their inbox.

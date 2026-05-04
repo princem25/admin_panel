@@ -18,6 +18,8 @@ use App\Http\Controllers\Admin\CacheMonitorController;
 use App\Http\Controllers\Admin\SalesAnalyticsController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
 use App\Http\Controllers\LocaleController;
+use App\Models\Order;
+use App\Mail\OrderConfirmation;
 
 Route::get('/', [HomeController::class, 'index']);
 Route::get('/language/{locale}', [LocaleController::class, 'switch'])->name('language.switch');
@@ -118,6 +120,14 @@ Route::prefix('user')->middleware(['role:user', 'auth'])->group(function () {
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     Route::patch('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
 });
+
+// ------------------------------DEVELOPMENT ROUTES------------------------------//
+
+if (app()->environment('local')) {
+    Route::get('/dev/mail/order/{order}', function (Order $order) {
+        return new OrderConfirmation($order);
+    })->name('dev.mail.order');
+}
 
 Route::fallback(function () {
     return view('errors.404');

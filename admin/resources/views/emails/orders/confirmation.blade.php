@@ -3,9 +3,9 @@
     <img src="{{ $message->embed(public_path('images/logo.png')) }}" alt="Company Logo" style="max-width: 150px; height: auto;">
 </div>
 
-# Order Confirmation #{{ $order->id }}
+# {{ __('emails.order.greeting', ['name' => $order->user->name ?? 'Customer']) }}
 
-Thank you for your order! Here are the details:
+{{ __('emails.order.intro', ['id' => $order->id]) }}
 
 <x-mail::table>
 | Item       | Quantity | Price  |
@@ -17,8 +17,10 @@ Thank you for your order! Here are the details:
 </x-mail::table>
 
 <x-mail::button :url="$url">
-View Order
+{{ __('emails.order.details_button') }}
 </x-mail::button>
+
+{{ __('emails.order.footer') }}
 
 Thanks,<br>
 {{ config('app.name') }}
