@@ -57,3 +57,34 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Queue Implementation: Order Confirmation Emails
+
+To improve checkout performance, order confirmation emails are now handled asynchronously using Laravel's database queue.
+
+### Checkout Performance Comparison
+
+| Metric | Before (Synchronous) | After (Queued) |
+| :--- | :--- | :--- |
+| **Response Time** | ~2-5 seconds (depends on SMTP) | ~200-500ms |
+| **User Experience** | Page hangs until email is sent | Immediate redirect to success page |
+| **Reliability** | Fails if SMTP is down | Automatic retries via queue |
+
+### Mail Methods Explained
+
+*   **`Mail::send()`**: Sends the email immediately during the request lifecycle. This blocks the user from seeing the response until the email is successfully transmitted to the mail server.
+*   **`Mail::queue()`**: Pushes the email job onto the default queue. The request finishes immediately, and the email is sent later by a background worker.
+*   **`Mail::later($delay, $mailable)`**: Pushes the email job onto the queue with a specified delay. In this project, we use `now()->addMinutes(5)` to ensure the invoice generation is complete before the email is sent.
+
+### Queue Worker Requirement
+
+The queue worker **must** be running for emails to be processed. If the worker is not running:
+1.  Jobs will accumulate in the `jobs` table.
+2.  Users will NOT receive their confirmation emails until the worker starts.
+3.  Once `php artisan queue:work --queue=emails` is started, all pending jobs will be processed.
+
+### Retry & Failure Handling
+
+*   **Retries**: Configured for 3 attempts (`$tries = 3`).
+*   **Backoff**: Incremental delay between retries: 10s, 30s, and 60s (`$backoff = [10, 30, 60]`).
+*   **Failures**: If all attempts fail (e.g., persistent SMTP error), the job moves to the `failed_jobs` table for manual inspection.

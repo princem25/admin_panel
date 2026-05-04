@@ -13,11 +13,30 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
-class OrderConfirmation extends Mailable
+class OrderConfirmation extends Mailable implements ShouldQueue
 {
-    use Queueable, SerializesModels;
-
     public Order $order;
+
+    /**
+     * The number of times the job may be attempted.
+     *
+     * @var int
+     */
+    public $tries = 3;
+
+    /**
+     * The number of seconds to wait before retrying the job.
+     *
+     * @var array
+     */
+    public $backoff = [10, 30, 60];
+
+    /**
+     * The name of the queue the job should be sent to.
+     *
+     * @var string|null
+     */
+    public $queue = 'emails';
 
     /**
      * Create a new message instance.

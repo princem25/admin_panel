@@ -97,7 +97,7 @@ class CheckoutController extends Controller
 
             try {
                 // Delay for 30 seconds to allow background invoice generation to complete before attaching
-                Mail::to($order->user->email)->later(now()->addSeconds(30), new OrderConfirmation($order));
+                Mail::to($order->user->email)->later(now()->addSeconds(15), new OrderConfirmation($order));
             } catch (\Exception $mailException) {
                 Log::error('Failed to queue order confirmation email', [
                     'order_id' => $order->id,
