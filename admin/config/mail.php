@@ -111,4 +111,16 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Email Addresses
+    |--------------------------------------------------------------------------
+    */
+
+    'admin' => [
+        'primary' => env('MAIL_ADMIN_PRIMARY'),
+        'warehouse' => env('MAIL_ADMIN_WAREHOUSE'),
+        'archive' => env('MAIL_ADMIN_ARCHIVE'),
+    ],
+
 ];

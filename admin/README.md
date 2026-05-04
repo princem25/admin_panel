@@ -88,3 +88,27 @@ The queue worker **must** be running for emails to be processed. If the worker i
 *   **Retries**: Configured for 3 attempts (`$tries = 3`).
 *   **Backoff**: Incremental delay between retries: 10s, 30s, and 60s (`$backoff = [10, 30, 60]`).
 *   **Failures**: If all attempts fail (e.g., persistent SMTP error), the job moves to the `failed_jobs` table for manual inspection.
+
+## Admin Notifications: Low Stock Alerts
+
+The system automatically notifies administrators when a product's stock falls below the threshold (10 units).
+
+### Mailing Best Practices
+
+*   **`to()`**: The primary recipient of the email. They are visible to all other recipients.
+*   **`cc()` (Carbon Copy)**: Additional recipients who should be informed. They are visible to everyone else.
+*   **`bcc()` (Blind Carbon Copy)**: Recipients who receive the email privately. Neither the `to` nor `cc` recipients can see who is in the `bcc` list. This is useful for archiving or auditing without cluttering the recipient list.
+
+### Why Use Config Files?
+
+Instead of hardcoding email addresses directly in the listeners or mailables, we use `config/mail.php` and `.env`:
+1.  **Security**: Keeps sensitive email addresses out of version control (GIT).
+2.  **Environment Flexibility**: Use different addresses for local testing (Mailtrap) vs production (Real admin emails).
+3.  **Maintainability**: If an admin's email changes, you only need to update the `.env` file instead of searching through code files.
+4.  **Scalability**: Allows easy addition of more administrative roles without modifying core logic.
+
+### Throttling & Spam Prevention
+
+To prevent flooding admin inboxes, we use Laravel's **Cache** system to ensure only one alert is sent per product per hour.
+*   **Key**: `low_stock_alert_{product_id}`
+*   **Duration**: 3600 seconds (1 hour)

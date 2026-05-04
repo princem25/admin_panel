@@ -3,29 +3,46 @@
 namespace App\Listeners\Admin;
 
 use App\Events\Admin\ProductStockLow;
-use App\Mail\StockLowAlert;
+use App\Mail\LowStockAlert;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
 
 class SendStockLowEmail implements ShouldQueue
 {
     /**
-     * Sends a low-stock alert email to the admin.
+     * Sends a low-stock alert email to the admin with throttling.
      */
     public function handle(ProductStockLow $event): void
     {
-        $adminEmail = config('mail.admin_address', 'admin@example.com');
+        $product = $event->product;
+        $key = 'low_stock_alert_' . $product->id;
 
-        Mail::to($adminEmail)->send(new StockLowAlert($event->product));
+        // Throttling: only one alert per product per hour
+        if (!Cache::has($key)) {
+            try {
+                Mail::to(config('mail.admin.primary'))
+                    ->cc(config('mail.admin.warehouse'))
+                    ->bcc(config('mail.admin.archive'))
+                    ->send(new LowStockAlert(collect([$product])));
 
-        // Sleep for 5 seconds to avoid Mailtrap 1 email/sec rate limit when processing multiple jobs
-        sleep(5);
+                Cache::put($key, true, 3600); // 1 hour (3600 seconds)
 
-        Log::channel('products')->info('Listener stocklow handled: SendStockLowEmail', [
-            'product_id' => $event->product->id,
-            'stock' => $event->product->stock,
-            'admin_email' => $adminEmail,
-        ]);
+                Log::channel('products')->info('Low stock alert sent and throttled for 1 hour', [
+                    'product_id' => $product->id,
+                    'stock' => $product->stock,
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Failed to send LowStockAlert', [
+                    'product_id' => $product->id,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        } else {
+            Log::channel('products')->info('Low stock alert suppressed due to throttling', [
+                'product_id' => $product->id,
+            ]);
+        }
     }
 }
