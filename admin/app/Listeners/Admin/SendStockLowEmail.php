@@ -3,10 +3,11 @@
 namespace App\Listeners\Admin;
 
 use App\Events\Admin\ProductStockLow;
-use App\Mail\LowStockAlert;
+use App\Models\User;
+use App\Notifications\ProductLowStock;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Cache;
 
 class SendStockLowEmail implements ShouldQueue
@@ -22,21 +23,19 @@ class SendStockLowEmail implements ShouldQueue
         // Throttling: only one alert per product per hour
         if (!Cache::has($key)) {
             try {
-                $product->load('category'); // Eager load category for the email template
+                $product->load('category'); // Eager load category
 
-                Mail::to(config('mail.admin.primary'))
-                    ->cc(config('mail.admin.warehouse'))
-                    ->bcc(config('mail.admin.archive'))
-                    ->send(new LowStockAlert(collect([$product])));
+                $admins = User::where('is_admin', true)->get();
+                Notification::send($admins, new ProductLowStock($product));
 
                 Cache::put($key, true, 3600); // 1 hour (3600 seconds)
 
-                Log::channel('products')->info('Low stock alert sent and throttled for 1 hour', [
+                Log::channel('products')->info('Low stock notification sent and throttled for 1 hour', [
                     'product_id' => $product->id,
                     'stock' => $product->stock,
                 ]);
             } catch (\Exception $e) {
-                Log::error('Failed to send LowStockAlert', [
+                Log::error('Failed to send ProductLowStock notification', [
                     'product_id' => $product->id,
                     'error' => $e->getMessage()
                 ]);

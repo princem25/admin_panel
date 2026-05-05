@@ -3,7 +3,10 @@
 namespace App\Listeners\Admin;
 
 use App\Events\Admin\OrderPlaced;
+use App\Models\User;
+use App\Notifications\NewOrderReceived;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -43,6 +46,10 @@ class NotifyAdmin implements ShouldQueue
             'total_amount' => $order->total ?? null,
             'status' => $order->status ?? null,
         ]);
+
+        // Send notification to all admins
+        $admins = User::where('is_admin', true)->get();
+        Notification::send($admins, new NewOrderReceived($order));
     }
 
     /**
