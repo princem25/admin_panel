@@ -40,4 +40,8 @@ return [
         'token' => env('EXTERNAL_API_TOKEN'),
     ],
 
+    'webhook' => [
+        'url' => env('WEBHOOK_URL'),
+    ],
+
 ];

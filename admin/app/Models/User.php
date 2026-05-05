@@ -77,4 +77,13 @@ class User extends Authenticatable implements HasLocalePreference
         return $this->belongsToMany(Product::class, 'product_waitlists')
             ->withTimestamps();
     }
+    /**
+     * Route notifications for the webhook channel.
+     *
+     * @return string|null
+     */
+    public function routeNotificationForWebhook()
+    {
+        return $this->webhook_url;
+    }
 }

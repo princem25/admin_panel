@@ -7,6 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
+use App\Notifications\Channels\WebhookChannel;
 use Illuminate\Notifications\Notification;
 
 class NewOrderReceived extends Notification implements ShouldQueue
@@ -30,7 +31,7 @@ class NewOrderReceived extends Notification implements ShouldQueue
      */
     public function via($notifiable): array
     {
-        return ['mail', 'database', 'broadcast'];
+        return ['mail', 'database', 'broadcast', WebhookChannel::class];
     }
 
     /**
@@ -70,5 +71,21 @@ class NewOrderReceived extends Notification implements ShouldQueue
             'order_id' => $this->order->id,
             'message' => 'New order received',
         ]);
+    }
+
+    /**
+     * Get the webhook representation of the notification.
+     *
+     * @return array<string, mixed>
+     */
+    public function toWebhook($notifiable): array
+    {
+        return [
+            'event' => 'order.received',
+            'order_id' => $this->order->id,
+            'total' => $this->order->total_amount,
+            'customer' => $this->order->full_name,
+            'timestamp' => now()->toIso8601String(),
+        ];
     }
 }
