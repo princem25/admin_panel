@@ -138,50 +138,64 @@
                 <div class="space-y-8">
                     
                     {{-- STATUS UPDATE ACTION --}}
-                    <div class="bg-white dark:bg-white/10 shadow-xl rounded-3xl p-8 border border-gray-200 dark:border-white/20">
-                        <h3 class="text-lg font-bold mb-6 text-gray-800 dark:text-white flex items-center gap-2">
-                            Update Order ⚙️
-                        </h3>
-                        
-                        <form action="{{ route('admin.orders.update', $order->id) }}" method="POST" class="space-y-6">
-                            @csrf
-                            @method('PUT')
+                    @if($order->status !== 'cancelled')
+                        <div class="bg-white dark:bg-white/10 shadow-xl rounded-3xl p-8 border border-gray-200 dark:border-white/20">
+                            <h3 class="text-lg font-bold mb-6 text-gray-800 dark:text-white flex items-center gap-2">
+                                Update Order ⚙️
+                            </h3>
                             
-                            <div>
-                                <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-3">Order Status</label>
-                                <select name="status" class="w-full rounded-2xl border-gray-200 dark:border-white/10 dark:bg-[#2f4f54] dark:text-white font-bold h-12 focus:ring-blue-500 focus:border-blue-500">
-                                    <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>Pending</option>
-                                    <option value="processing" {{ $order->status === 'processing' ? 'selected' : '' }}>Processing</option>
-                                    <option value="shipped" {{ $order->status === 'shipped' ? 'selected' : '' }}>Shipped</option>
-                                    <option value="delivered" {{ $order->status === 'delivered' ? 'selected' : '' }}>Delivered</option>
-                                    <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                                </select>
-                            </div>
+                            <form action="{{ route('admin.orders.update', $order->id) }}" method="POST" class="space-y-6">
+                                @csrf
+                                @method('PUT')
+                                
+                                <div>
+                                    <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-3">Order Status</label>
+                                    <select name="status" class="w-full rounded-2xl border-gray-200 dark:border-white/10 dark:bg-[#2f4f54] dark:text-white font-bold h-12 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>Pending</option>
+                                        <option value="processing" {{ $order->status === 'processing' ? 'selected' : '' }}>Processing</option>
+                                        <option value="shipped" {{ $order->status === 'shipped' ? 'selected' : '' }}>Shipped</option>
+                                        <option value="delivered" {{ $order->status === 'delivered' ? 'selected' : '' }}>Delivered</option>
+                                        <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                    </select>
+                                </div>
 
-                            <div>
-                                <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-3">Tracking Number</label>
-                                <input type="text" name="tracking_number" value="{{ $order->tracking_number }}" placeholder="TRK123456..." 
-                                    class="w-full h-12 px-4 rounded-2xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white text-sm focus:ring-blue-500 focus:border-blue-500">
-                            </div>
+                                <div>
+                                    <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-3">Tracking Number</label>
+                                    <input type="text" name="tracking_number" value="{{ $order->tracking_number }}" placeholder="TRK123456..." 
+                                        class="w-full h-12 px-4 rounded-2xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white text-sm focus:ring-blue-500 focus:border-blue-500">
+                                </div>
 
-                            <div>
-                                <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-3">Public Timeline Note</label>
-                                <input type="text" name="history_note" placeholder="Visible in timeline..." 
-                                    class="w-full h-12 px-4 rounded-2xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white text-sm focus:ring-blue-500 focus:border-blue-500">
-                            </div>
+                                <div>
+                                    <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-3">Public Timeline Note</label>
+                                    <input type="text" name="history_note" placeholder="Visible in timeline..." 
+                                        class="w-full h-12 px-4 rounded-2xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white text-sm focus:ring-blue-500 focus:border-blue-500">
+                                </div>
 
-                            <div class="pt-4 border-t border-gray-100 dark:border-white/5">
-                                <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-3">Private Admin Note 🔓</label>
-                                <textarea name="admin_note" rows="4" placeholder="Internal communication only..."
-                                    class="w-full px-4 py-3 rounded-2xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white text-sm focus:ring-blue-500 focus:border-blue-500">{{ $order->admin_note }}</textarea>
-                            </div>
+                                <div class="pt-4 border-t border-gray-100 dark:border-white/5">
+                                    <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-3">Private Admin Note 🔓</label>
+                                    <textarea name="admin_note" rows="4" placeholder="Internal communication only..."
+                                        class="w-full px-4 py-3 rounded-2xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white text-sm focus:ring-blue-500 focus:border-blue-500">{{ $order->admin_note }}</textarea>
+                                </div>
 
-                            <button type="submit" 
-                                class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl transition shadow-xl transform hover:-translate-y-1 active:scale-95">
-                                Save Changes
-                            </button>
-                        </form>
-                    </div>
+                                <button type="submit" 
+                                    class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl transition shadow-xl transform hover:-translate-y-1 active:scale-95">
+                                    Save Changes
+                                </button>
+                            </form>
+                        </div>
+                    @else
+                        <div class="bg-red-50 dark:bg-red-500/10 shadow-xl rounded-3xl p-8 border border-red-100 dark:border-red-500/20">
+                            <h3 class="text-lg font-bold mb-4 text-red-600 dark:text-red-400 flex items-center gap-2">
+                                Order Cancelled 🚫
+                            </h3>
+                            <p class="text-sm text-red-500 dark:text-red-300 italic font-medium leading-relaxed">
+                                This order was cancelled and is now in a <strong>terminal state</strong>. For security and inventory integrity, no further modifications or status reverts are permitted.
+                            </p>
+                            <div class="mt-6 pt-6 border-t border-red-200 dark:border-red-500/20">
+                                <p class="text-[10px] text-red-400 uppercase tracking-widest font-black">Admin Access Locked</p>
+                            </div>
+                        </div>
+                    @endif
 
                     {{-- CUSTOMER & SHIPPING INFO --}}
                     <div class="bg-gray-800 text-white shadow-xl rounded-3xl p-8 space-y-8">
