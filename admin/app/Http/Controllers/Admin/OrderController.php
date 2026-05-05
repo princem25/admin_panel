@@ -6,6 +6,7 @@ use App\Events\Admin\OrderStatusUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderStatusHistory;
+use App\Notifications\OrderShipped;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -61,9 +62,10 @@ class OrderController extends Controller
     public function update(Request $request, Order $order)
     {
         $request->validate([
-            'status'     => 'required|in:pending,processing,shipped,delivered,cancelled',
-            'admin_note' => 'nullable|string',
-            'history_note' => 'nullable|string|max:255',
+            'status'          => 'required|in:pending,processing,shipped,delivered,cancelled',
+            'tracking_number' => 'nullable|string|max:100',
+            'admin_note'      => 'nullable|string',
+            'history_note'    => 'nullable|string|max:255',
         ]);
 
         $oldStatus = $order->status;
@@ -98,9 +100,15 @@ class OrderController extends Controller
 
                 // 2. Update the Order
                 $order->update([
-                    'status'     => $newStatus,
-                    'admin_note' => $request->admin_note,
+                    'status'          => $newStatus,
+                    'tracking_number' => $request->tracking_number ?? $order->tracking_number,
+                    'admin_note'      => $request->admin_note,
                 ]);
+
+                // 3. Dispatch Notification if Shipped
+                if ($newStatus === 'shipped' && $oldStatus !== 'shipped') {
+                    $order->user->notify(new OrderShipped($order));
+                }
             });
 
             Log::info('Order updated by admin', ['order_id' => $order->id, 'admin_id' => auth()->id(), 'new_status' => $newStatus]);

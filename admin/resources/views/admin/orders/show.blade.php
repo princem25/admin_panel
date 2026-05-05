@@ -159,6 +159,12 @@
                             </div>
 
                             <div>
+                                <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-3">Tracking Number</label>
+                                <input type="text" name="tracking_number" value="{{ $order->tracking_number }}" placeholder="TRK123456..." 
+                                    class="w-full h-12 px-4 rounded-2xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white text-sm focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+
+                            <div>
                                 <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-3">Public Timeline Note</label>
                                 <input type="text" name="history_note" placeholder="Visible in timeline..." 
                                     class="w-full h-12 px-4 rounded-2xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white text-sm focus:ring-blue-500 focus:border-blue-500">
@@ -191,6 +197,9 @@
                                 <p class="text-sm"><span class="text-gray-400">Recipient:</span> {{ $order->full_name }}</p>
                                 <p class="text-sm leading-relaxed"><span class="text-gray-400">Address:</span><br>{{ $order->shipping_address }}</p>
                                 <p class="text-sm"><span class="text-gray-400">Phone:</span> {{ $order->phone }}</p>
+                                @if($order->tracking_number)
+                                    <p class="text-sm font-bold text-blue-400"><span class="text-gray-400 font-normal">Tracking:</span> {{ $order->tracking_number }}</p>
+                                @endif
                             </div>
                         </div>
 

@@ -65,6 +65,12 @@ class AppServiceProvider extends ServiceProvider
             $cart = session()->get('cart', []);
             $count = collect($cart)->sum('qty');
             $view->with('cartCount', $count);
+            
+            if (Auth::check()) {
+                $user = Auth::user();
+                $view->with('unreadNotificationsCount', $user->unreadNotifications()->count());
+                $view->with('recentNotifications', $user->notifications()->take(5)->get());
+            }
         });
 
         Event::listen(Login::class, SyncCartOnLogin::class);

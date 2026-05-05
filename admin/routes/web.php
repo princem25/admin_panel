@@ -8,6 +8,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\User\ProductController as UserProductController;
 use App\Http\Controllers\User\WaitlistController;
@@ -49,6 +50,11 @@ Route::middleware('auth')->group(function () {
 
     // Generate Invoice from Order (Accessible by both User and Admin)
     Route::get('/invoices/{order}/download', [InvoiceController::class, 'generate'])->name('invoices.download');
+
+    // Notifications
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
 });
 
 require __DIR__.'/auth.php';
