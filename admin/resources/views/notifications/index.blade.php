@@ -31,14 +31,9 @@
                                     
                                     @if(isset($notification->data['url']))
                                         <div class="mt-4 flex items-center gap-4">
-                                            <a href="{{ $notification->data['url'] }}" @click="markAsRead('{{ $notification->id }}')" class="px-4 py-2 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 text-gray-700 dark:text-white rounded-xl text-xs font-bold transition">
+                                            <button onclick="markAsRead('{{ $notification->id }}')" class="px-4 py-2 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 text-gray-700 dark:text-white rounded-xl text-xs font-bold transition">
                                                 View Details
-                                            </a>
-                                            @if($notification->unread())
-                                                <button onclick="markAsRead('{{ $notification->id }}')" class="text-xs font-bold text-blue-600 dark:text-cyan-400 hover:underline">
-                                                    Mark as read
-                                                </button>
-                                            @endif
+                                            </button>
                                         </div>
                                     @endif
                                 </div>

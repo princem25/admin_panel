@@ -22,6 +22,8 @@ class SendStockLowEmail implements ShouldQueue
         // Throttling: only one alert per product per hour
         if (!Cache::has($key)) {
             try {
+                $product->load('category'); // Eager load category for the email template
+
                 Mail::to(config('mail.admin.primary'))
                     ->cc(config('mail.admin.warehouse'))
                     ->bcc(config('mail.admin.archive'))

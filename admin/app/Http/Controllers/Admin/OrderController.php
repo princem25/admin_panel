@@ -61,6 +61,11 @@ class OrderController extends Controller
      */
     public function update(Request $request, Order $order)
     {
+        // 🚀 terminal state: cancelled orders cannot be modified
+        if ($order->status === 'cancelled') {
+            return back()->with('error', 'This order is cancelled and cannot be modified further.');
+        }
+
         $request->validate([
             'status'          => 'required|in:pending,processing,shipped,delivered,cancelled',
             'tracking_number' => 'nullable|string|max:100',

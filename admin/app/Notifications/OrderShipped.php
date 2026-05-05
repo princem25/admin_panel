@@ -39,6 +39,7 @@ class OrderShipped extends Notification
         return (new MailMessage)
             ->greeting('Hello ' . $notifiable->name)
             ->line('Great news! Your order has been shipped successfully.')
+            ->line('Tracking Number: ' . ($this->order->tracking_number ?? 'In Progress'))
             ->line('You can check the real-time status and delivery progress on your order details page.')
             ->action('View Your Order', url('/orders/' . $this->order->id))
             ->line('Thank you for shopping with us!');
@@ -52,10 +53,11 @@ class OrderShipped extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'order_id' => $this->order->id,
-            'message'  => 'Your order has been shipped',
-            'url'      => "/orders/{$this->order->id}",
-            'icon'     => 'truck',
+            'order_id'        => $this->order->id,
+            'tracking_number' => $this->order->tracking_number,
+            'message'         => 'Your order has been shipped',
+            'url'             => "/orders/{$this->order->id}",
+            'icon'            => 'truck',
         ];
     }
 }

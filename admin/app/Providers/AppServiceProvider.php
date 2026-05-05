@@ -68,8 +68,14 @@ class AppServiceProvider extends ServiceProvider
             
             if (Auth::check()) {
                 $user = Auth::user();
-                $view->with('unreadNotificationsCount', $user->unreadNotifications()->count());
-                $view->with('recentNotifications', $user->notifications()->take(5)->get());
+
+                // Cache unread count for 60 seconds (safe because we invalidate on read)
+                $unreadCount = Cache::remember("unread_count_{$user->id}", 60, function () use ($user) {
+                    return $user->unreadNotifications()->count();
+                });
+
+                $view->with('unreadNotificationsCount', $unreadCount);
+                $view->with('recentNotifications', $user->notifications()->latest()->take(10)->get());
             }
         });
 

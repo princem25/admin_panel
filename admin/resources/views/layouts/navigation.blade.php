@@ -131,11 +131,11 @@
                                                 @if($icon == 'truck') 🚚 @elseif($icon == 'package') 📦 @else 🔔 @endif
                                             </span>
                                         </div>
-                                        <div class="flex-1">
+                                        <div class="flex-1 cursor-pointer" onclick="markAsRead('{{ $notification->id }}')">
                                             <p class="text-sm font-bold text-gray-800 dark:text-white">{{ $notification->data['message'] ?? 'New Notification' }}</p>
                                             <p class="text-[10px] text-gray-500 mt-1 uppercase">{{ $notification->created_at->diffForHumans() }}</p>
                                             @if (isset($notification->data['url']))
-                                                <a href="{{ $notification->data['url'] }}" @click="markAsRead('{{ $notification->id }}')" class="mt-2 block text-xs font-bold text-blue-600 dark:text-cyan-400 hover:underline">View Details</a>
+                                                <span class="mt-2 block text-xs font-bold text-blue-600 dark:text-cyan-400 hover:underline">View Details</span>
                                             @endif
                                         </div>
                                     </div>
@@ -213,9 +213,12 @@
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             }
-        }).then(response => {
-            if (response.ok) {
-                // Let the browser follow the link if it was a link click
+        }).then(response => response.json())
+          .then(data => {
+            if (data.redirect) {
+                window.location.href = data.redirect;
+            } else {
+                window.location.reload();
             }
         });
     }

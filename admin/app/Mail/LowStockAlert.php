@@ -13,13 +13,16 @@ class LowStockAlert extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
+    public $products;
+
     /**
      * Create a new message instance.
      *
      * @param mixed $products Collection or array of low-stock products
      */
-    public function __construct(public $products)
+    public function __construct($products)
     {
+        $this->products = $products;
     }
 
     /**
@@ -28,8 +31,11 @@ class LowStockAlert extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         $count = count($this->products);
+        $firstProduct = $this->products->first();
+        $productName = $firstProduct ? $firstProduct->name : 'Unknown';
+
         $subject = $count === 1 
-            ? "⚠️ Low Stock Alert: " . $this->products->first()->name 
+            ? "⚠️ Low Stock Alert: " . $productName 
             : "⚠️ Low Stock Alert: Multiple Products ({$count})";
 
         return new Envelope(
