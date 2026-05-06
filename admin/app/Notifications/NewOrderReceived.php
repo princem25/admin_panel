@@ -9,6 +9,7 @@ use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use App\Notifications\Channels\WebhookChannel;
 use Illuminate\Notifications\Notification;
+use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Support\Facades\Log;
 
 class NewOrderReceived extends Notification implements ShouldQueue
@@ -32,7 +33,7 @@ class NewOrderReceived extends Notification implements ShouldQueue
      */
     public function via($notifiable): array
     {
-        return ['mail', 'database', 'broadcast', WebhookChannel::class];
+        return ['mail', 'database', 'broadcast', 'slack', WebhookChannel::class];
     }
 
     /**
@@ -100,6 +101,24 @@ class NewOrderReceived extends Notification implements ShouldQueue
             'customer' => $this->order->full_name,
             'timestamp' => now()->toIso8601String(),
         ];
+    }
+
+    /**
+     * Get the Slack representation of the notification.
+     */
+    public function toSlack($notifiable): SlackMessage
+    {
+        return (new SlackMessage)
+            ->success()
+            ->content(__('notifications.new_order_received_message'))
+            ->attachment(function ($attachment) {
+                $attachment->title(__('Order ID: ') . $this->order->id, url('/admin/orders/' . $this->order->id))
+                           ->fields([
+                                __('Total') => '₹' . number_format($this->order->total_amount, 2),
+                                __('Customer') => $this->order->full_name,
+                                __('Status') => strtoupper($this->order->status),
+                           ]);
+            });
     }
 
     /**

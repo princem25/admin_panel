@@ -21,6 +21,8 @@ use App\Http\Controllers\User\DashboardController as UserDashboardController;
 use App\Http\Controllers\LocaleController;
 use App\Models\Order;
 use App\Mail\OrderConfirmation;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Config;
 
 Route::get('/', [HomeController::class, 'index']);
 Route::get('/language/{locale}', [LocaleController::class, 'switch'])->name('language.switch');
@@ -134,6 +136,22 @@ if (app()->environment('local')) {
     Route::get('/dev/mail/order/{order}', function (Order $order) {
         return new OrderConfirmation($order);
     })->name('dev.mail.order');
+
+    Route::get('/dev/slack/test', function () {
+        $webhook = config('services.slack.orders_webhook');
+        
+        if (!$webhook) {
+            return "Slack webhook URL not found in .env (SLACK_ORDERS_WEBHOOK_URL)";
+        }
+
+        $response = Http::post($webhook, [
+            'text' => 'Hello from Laravel! Your Slack integration is working. 🚀'
+        ]);
+
+        return $response->successful() 
+            ? "Test message sent to Slack successfully!" 
+            : "Failed to send message. Error: " . $response->body();
+    })->name('dev.slack.test');
 }
 
 Route::fallback(function () {

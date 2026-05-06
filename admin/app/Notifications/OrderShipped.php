@@ -29,7 +29,7 @@ class OrderShipped extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return $notifiable->role === 'admin' ? ['mail', 'database'] : ['mail'];
+        return ['mail', 'database'];
     }
 
     /**
