@@ -9,6 +9,7 @@ use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use App\Notifications\Channels\WebhookChannel;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Log;
 
 class NewOrderReceived extends Notification implements ShouldQueue
 {
@@ -35,30 +36,44 @@ class NewOrderReceived extends Notification implements ShouldQueue
     }
 
     /**
+     * Route channels to different queues.
+     */
+    public function viaQueues(): array
+    {
+        return [
+            'mail' => 'emails',
+            'broadcast' => 'realtime',
+            'database' => 'default',
+        ];
+    }
+
+    /**
      * Get the mail representation of the notification.
      */
     public function toMail($notifiable): MailMessage
     {
+        app()->setLocale($notifiable->preferred_locale ?? config('app.locale'));
+
         return (new MailMessage)
-            ->subject('New Order Received - #' . $this->order->id)
-            ->line('A new order has been placed.')
-            ->line('Order ID: ' . $this->order->id)
-            ->line('Total: ' . number_format($this->order->total_amount, 2))
-            ->action('View Order', url('/admin/orders/' . $this->order->id))
-            ->line('Thank you for using our application!');
+            ->subject(__('notifications.new_order_received_subject', ['order_id' => $this->order->id]))
+            ->line(__('notifications.new_order_received_message'))
+            ->line(__('Order ID: ') . $this->order->id)
+            ->line(__('Total: ') . number_format($this->order->total_amount, 2))
+            ->action(__('View Order'), url('/admin/orders/' . $this->order->id))
+            ->line(__('Thank you for using our application!'));
     }
 
     /**
      * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
      */
     public function toArray($notifiable): array
     {
+        app()->setLocale($notifiable->preferred_locale ?? config('app.locale'));
+
         return [
             'order_id' => $this->order->id,
             'total_amount' => $this->order->total_amount,
-            'message' => 'New order received',
+            'message' => __('notifications.new_order_received_message'),
         ];
     }
 
@@ -69,14 +84,12 @@ class NewOrderReceived extends Notification implements ShouldQueue
     {
         return new BroadcastMessage([
             'order_id' => $this->order->id,
-            'message' => 'New order received',
+            'message' => __('notifications.new_order_received_message'),
         ]);
     }
 
     /**
      * Get the webhook representation of the notification.
-     *
-     * @return array<string, mixed>
      */
     public function toWebhook($notifiable): array
     {
@@ -87,5 +100,16 @@ class NewOrderReceived extends Notification implements ShouldQueue
             'customer' => $this->order->full_name,
             'timestamp' => now()->toIso8601String(),
         ];
+    }
+
+    /**
+     * Handle notification failure.
+     */
+    public function failed(\Throwable $exception): void
+    {
+        Log::error('NewOrderReceived notification failed', [
+            'order_id' => $this->order->id,
+            'error' => $exception->getMessage(),
+        ]);
     }
 }

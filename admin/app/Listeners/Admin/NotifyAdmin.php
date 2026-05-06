@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Notifications\NewOrderReceived;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -47,9 +48,26 @@ class NotifyAdmin implements ShouldQueue
             'status' => $order->status ?? null,
         ]);
 
-        // Send notification to all admins
+        // Send notification to all admins with Rate Limiting
         $admins = User::where('role', 'admin')->get();
-        Notification::send($admins, new NewOrderReceived($order));
+        
+        foreach ($admins as $admin) {
+            $executed = RateLimiter::attempt(
+                'notifications:' . $admin->id,
+                5,
+                function () use ($admin, $order) {
+                    $admin->notify(new NewOrderReceived($order));
+                },
+                60
+            );
+
+            if (!$executed) {
+                Log::warning('Notification rate limit exceeded', [
+                    'user_id' => $admin->id,
+                    'notification' => 'NewOrderReceived',
+                ]);
+            }
+        }
     }
 
     /**

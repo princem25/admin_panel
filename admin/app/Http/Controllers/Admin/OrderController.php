@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\RateLimiter;
 
 class OrderController extends Controller
 {
@@ -110,9 +111,24 @@ class OrderController extends Controller
                     'admin_note'      => $request->admin_note,
                 ]);
 
-                // 3. Dispatch Notification if Shipped
+                // 3. Dispatch Notification if Shipped with Rate Limiting
                 if ($newStatus === 'shipped' && $oldStatus !== 'shipped') {
-                    $order->user->notify(new OrderShipped($order));
+                    $user = $order->user;
+                    $executed = RateLimiter::attempt(
+                        'notifications:' . $user->id,
+                        5,
+                        function () use ($user, $order) {
+                            $user->notify(new OrderShipped($order));
+                        },
+                        60
+                    );
+
+                    if (!$executed) {
+                        Log::warning('Notification rate limit exceeded', [
+                            'user_id' => $user->id,
+                            'notification' => 'OrderShipped',
+                        ]);
+                    }
                 }
             });
 
