@@ -5,6 +5,7 @@ namespace App\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
 
@@ -29,7 +30,7 @@ class OrderShipped extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['mail', 'database','slack'];
     }
 
     /**
@@ -40,6 +41,7 @@ class OrderShipped extends Notification implements ShouldQueue
         return [
             'mail' => 'emails',
             'database' => 'default',
+            'slack' => 'realtime',
         ];
     }
 
@@ -85,5 +87,20 @@ class OrderShipped extends Notification implements ShouldQueue
             'order_id' => $this->order->id,
             'error' => $exception->getMessage(),
         ]);
+    }
+
+    public function toSlack($notifiable): SlackMessage
+    {
+        return (new SlackMessage)
+            ->success()
+            ->content(__('notifications.order_shipped_message'))
+            ->attachment(function ($attachment) {
+                $attachment->title(__('Order ID: ') . $this->order->id, url('/orders/' . $this->order->id))
+                           ->fields([
+                                __('Tracking #') => $this->order->tracking_number ?? __('In Progress'),
+                                __('Status') => strtoupper($this->order->status),
+                                __('Total') => '₹' . number_format($this->order->total_amount, 2),
+                           ]);
+            });
     }
 }
