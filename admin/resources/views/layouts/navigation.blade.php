@@ -104,11 +104,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                         </svg>
 
-                        @if (isset($unreadNotificationsCount) && $unreadNotificationsCount > 0)
-                            <span class="absolute -top-1 -right-1 text-[10px] rounded-full px-1 font-bold bg-red-600 text-white border-2 border-white dark:border-[#2f4f54]">
-                                {{ $unreadNotificationsCount }}
-                            </span>
-                        @endif
+                        <span id="notifications-count" class="notifications-count absolute -top-1 -right-1 text-[10px] rounded-full px-1 font-bold bg-red-600 text-white border-2 border-white dark:border-[#2f4f54] {{ (isset($unreadNotificationsCount) && $unreadNotificationsCount > 0) ? '' : 'hidden' }}">
+                            {{ $unreadNotificationsCount ?? 0 }}
+                        </span>
                     </button>
 
                     <div x-show="open" @click.outside="open = false" x-transition x-cloak

@@ -25,7 +25,7 @@ class SendStockLowEmail implements ShouldQueue
             try {
                 $product->load('category'); // Eager load category
 
-                $admins = User::where('is_admin', true)->get();
+                $admins = User::where('role', 'admin')->get();
                 Notification::send($admins, new ProductLowStock($product));
 
                 Cache::put($key, true, 3600); // 1 hour (3600 seconds)

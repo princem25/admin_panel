@@ -43,12 +43,12 @@ class NotifyAdmin implements ShouldQueue
             'event' => $eventName,
             'order_id' => $order->id ?? 'unknown',
             'customer_id' => $order->user_id ?? 'unknown',
-            'total_amount' => $order->total ?? null,
+            'total_amount' => $order->total_amount ?? null,
             'status' => $order->status ?? null,
         ]);
 
         // Send notification to all admins
-        $admins = User::where('is_admin', true)->get();
+        $admins = User::where('role', 'admin')->get();
         Notification::send($admins, new NewOrderReceived($order));
     }
 
