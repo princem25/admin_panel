@@ -9,6 +9,9 @@ use App\Services\greetingService;
 use App\Services\ExternalApiService;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
+use Illuminate\Notifications\Events\NotificationSent;
+use Illuminate\Notifications\Events\NotificationFailed;
+use App\Listeners\Notifications\LogNotificationActivity;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
@@ -81,6 +84,10 @@ class AppServiceProvider extends ServiceProvider
 
         Event::listen(Login::class, SyncCartOnLogin::class);
         Event::listen(Logout::class, SyncCartOnLogout::class);
+
+        // Notification Monitoring
+        Event::listen(NotificationSent::class, [LogNotificationActivity::class, 'handleSent']);
+        Event::listen(NotificationFailed::class, [LogNotificationActivity::class, 'handleFailed']);
 
    
 
