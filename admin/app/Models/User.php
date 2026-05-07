@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 use Illuminate\Contracts\Translation\HasLocalePreference;
+use App\Notifications\ProductLowStock;
 
 class User extends Authenticatable implements HasLocalePreference
 {
@@ -92,8 +93,12 @@ class User extends Authenticatable implements HasLocalePreference
      *
      * @return string|null
      */
-    public function routeNotificationForSlack()
+    public function routeNotificationForSlack($notification = null)
     {
+        if ($notification instanceof ProductLowStock) {
+            return config('services.slack.alerts_webhook');
+        }
+        
         return config('services.slack.orders_webhook');
     }
 }

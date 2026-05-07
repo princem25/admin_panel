@@ -11,6 +11,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\ProductLowStock;
+use App\Models\User;
 
 class CheckoutController extends Controller
 {
@@ -83,6 +86,14 @@ class CheckoutController extends Controller
                         'quantity'   => $item->quantity,
                         'price'      => $item->unit_price,
                     ]);
+
+                    // Trigger Low Stock Notification if applicable
+                    $product = $item->product;
+                    $product->refresh();
+                    if ($product->stock <= 10) {
+                        $admins = User::where('role', 'admin')->get();
+                        Notification::send($admins, new ProductLowStock($product, $order->id));
+                    }
                 }
 
                 // 3. Complete Order (Clear Cart without restoring stock)

@@ -6,6 +6,7 @@ use App\Models\Product;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
 
 class ProductLowStock extends Notification implements ShouldQueue
@@ -13,13 +14,15 @@ class ProductLowStock extends Notification implements ShouldQueue
     use Queueable;
 
     public $product;
+    public $orderId;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(Product $product)
+    public function __construct(Product $product, $orderId = null)
     {
         $this->product = $product;
+        $this->orderId = $orderId;
     }
 
     /**
@@ -29,7 +32,7 @@ class ProductLowStock extends Notification implements ShouldQueue
      */
     public function via($notifiable): array
     {
-        return ['mail', 'database'];
+        return ['slack', 'mail', 'database'];
     }
 
     /**
@@ -47,6 +50,17 @@ class ProductLowStock extends Notification implements ShouldQueue
     }
 
     /**
+     * Get the Slack representation of the notification.
+     */
+    public function toSlack($notifiable): SlackMessage
+    {
+        $orderInfo = $this->orderId ? "• Order ID: #{$this->orderId}" : "";
+
+        return (new SlackMessage)
+            ->content("⚠️ Low Stock Alert\n\n• Product: {$this->product->name}\n• Remaining Stock: {$this->product->stock}\n{$orderInfo}");
+    }
+
+    /**
      * Get the array representation of the notification.
      *
      * @return array<string, mixed>
@@ -57,6 +71,7 @@ class ProductLowStock extends Notification implements ShouldQueue
             'product_id' => $this->product->id,
             'product_name' => $this->product->name,
             'current_stock' => $this->product->stock,
+            'order_id' => $this->orderId,
             'message' => 'Product ' . $this->product->name . ' is low on stock',
         ];
     }
