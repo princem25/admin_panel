@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\ProductLowStock;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 
 class CheckoutController extends Controller
 {
@@ -91,8 +92,13 @@ class CheckoutController extends Controller
                     $product = $item->product;
                     $product->refresh();
                     if ($product->stock <= 10) {
-                        $admins = User::where('role', 'admin')->get();
-                        Notification::send($admins, new ProductLowStock($product, $order->id));
+                        $cacheKey = "low_stock_alert_{$product->id}";
+                        
+                        Cache::remember($cacheKey, 600, function () use ($product, $order) {
+                            $admins = User::where('role', 'admin')->get();
+                            Notification::send($admins, new ProductLowStock($product, $order->id));
+                            return true; // Mark as sent in cache
+                        });
                     }
                 }
 
