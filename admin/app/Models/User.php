@@ -98,7 +98,7 @@ class User extends Authenticatable implements HasLocalePreference
         if ($notification instanceof ProductLowStock) {
             return config('services.slack.alerts_webhook');
         }
-        
+  
         return config('services.slack.orders_webhook');
     }
 }

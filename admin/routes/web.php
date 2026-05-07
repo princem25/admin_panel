@@ -23,9 +23,17 @@ use App\Models\Order;
 use App\Mail\OrderConfirmation;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Config;
+use App\Http\Controllers\SlackInteractionController;
+use App\Http\Middleware\VerifySlackSignature;
+
+Route::post('/api/slack/interactions', [SlackInteractionController::class, 'handle'])
+    ->middleware(VerifySlackSignature::class)
+    ->name('api.slack.interactions');
 
 Route::get('/', [HomeController::class, 'index']);
 Route::get('/language/{locale}', [LocaleController::class, 'switch'])->name('language.switch');
+Route::get('/support', function() { return view('support.create'); })->name('support.create');
+Route::post('/support/tickets', [\App\Http\Controllers\SupportTicketController::class, 'store'])->name('support.tickets.store');
 
 
 

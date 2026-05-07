@@ -26,6 +26,11 @@
                         Orders
                     </a>
 
+                    <a href="{{ route('support.create') }}"
+                        class="transition py-2 px-1 border-b-2 {{ request()->routeIs('support.*') ? 'text-gray-900 border-blue-600 font-bold dark:text-white dark:border-cyan-400' : 'text-gray-600 border-transparent hover:text-gray-900 dark:text-white/80 dark:hover:text-white' }}">
+                        Support
+                    </a>
+
                     @if ($current_logged_user->role === 'admin')
                         <a href="{{ route('admin.users.index') }}"
                             class="transition py-2 px-1 border-b-2 {{ request()->routeIs('admin.users.*') ? 'text-gray-900 border-blue-600 font-bold dark:text-white dark:border-cyan-400' : 'text-gray-600 border-transparent hover:text-gray-900 dark:text-white/80 dark:hover:text-white' }}">

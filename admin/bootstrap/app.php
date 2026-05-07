@@ -30,6 +30,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => roleMiddleware::class,
         ]);
+
+        $middleware->validateCsrfTokens(except: [
+            '/api/slack/interactions',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->context(function () {
