@@ -22,6 +22,8 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\Channels\FaultTolerantSlackChannel;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -143,6 +145,11 @@ class AppServiceProvider extends ServiceProvider
                 ]);
             });
         }
+
+        // Register custom fault-tolerant Slack channel
+        Notification::extend('slack', function ($app) {
+            return new FaultTolerantSlackChannel();
+        });
 
         // ✅ Model Observers are registered in CustomServiceProvider
     }

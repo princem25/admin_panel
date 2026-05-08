@@ -23,7 +23,9 @@ class SupportTicketController extends Controller
 
         // Notify Admins (this will use the Bot Token since we returned a channel name in User.php)
         $admins = User::where('role', 'admin')->get();
-        Notification::send($admins, new NewSupportTicket($ticket));
+        rescue(function () use ($admins, $ticket) {
+            Notification::send($admins, new NewSupportTicket($ticket));
+        });
 
         return back()->with('success', 'Support ticket submitted successfully!');
     }

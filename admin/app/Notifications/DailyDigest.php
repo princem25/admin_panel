@@ -4,11 +4,13 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\SlackMessage;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Notifications\Traits\FaultTolerantSlack;
 use Illuminate\Notifications\Notification;
 
-class DailyDigest extends Notification
+class DailyDigest extends Notification implements ShouldQueue
 {
-    use Queueable;
+    use Queueable, FaultTolerantSlack;
 
     public $metrics;
 

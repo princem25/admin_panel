@@ -96,7 +96,9 @@ class CheckoutController extends Controller
                         
                         Cache::remember($cacheKey, 600, function () use ($product, $order) {
                             $admins = User::where('role', 'admin')->get();
-                            Notification::send($admins, new ProductLowStock($product, $order->id));
+                            rescue(function () use ($admins, $product, $order) {
+                                Notification::send($admins, new ProductLowStock($product, $order->id));
+                            });
                             return true; // Mark as sent in cache
                         });
                     }
