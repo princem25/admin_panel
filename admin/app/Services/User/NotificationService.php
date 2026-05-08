@@ -10,7 +10,7 @@ class NotificationService
     /**
      * Get paginated notifications for the user.
      *
-     * @param \App\Models\User $user
+     * @param User $user
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public function getNotifications($user)
@@ -21,7 +21,7 @@ class NotificationService
     /**
      * Get paginated unread notifications for the user.
      *
-     * @param \App\Models\User $user
+     * @param User $user
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public function getUnreadNotifications($user)
@@ -32,7 +32,7 @@ class NotificationService
     /**
      * Mark a single notification as read and return the redirect URL.
      *
-     * @param \App\Models\User $user
+     * @param User $user
      * @param string $id
      * @return string
      */
@@ -53,7 +53,7 @@ class NotificationService
     /**
      * Mark all unread notifications as read.
      *
-     * @param \App\Models\User $user
+     * @param User $user
      */
     public function markAllAsRead($user): void
     {

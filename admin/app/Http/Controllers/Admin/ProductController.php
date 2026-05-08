@@ -39,12 +39,7 @@ class ProductController extends Controller
         $greeting = Greeting::greet('Product Section');
         $filters = $request->only(['search', 'category', 'price']);
 
-        // Fetch products directly (simple caching requested for frontend only)
-        $products = Product::filter($filters)
-            ->latest()
-            ->paginate(12)
-            ->withQueryString();
-
+        $products = $this->productService->getProductsForAdmin($filters);
         $total_products = $products->total();
 
         // Log::info
@@ -75,23 +70,7 @@ class ProductController extends Controller
             // Log::debug — log validated request data for developer inspection
             Log::debug('Store product validated data', $data);
 
-            if ($request->hasFile('file')) {
-                $path = $request->file('file')->store('images', 'public');
-                $data['image'] = basename($path);
-            }
-
-            if (filled($data['stock'] ?? null) && $data['stock'] === 0) {
-                Log::channel('products')->warning('New product created with zero stock', ['name' => $data['name']]);
-            }
-
-            $product = tap(Product::create($data), function ($product) {
-                Log::info('Model created/updated', ['id' => $product->id]);
-            });
-
-            Log::channel('products')->info('Product created successfully', [
-                'id'   => $product->id,
-                'name' => $product->name,
-            ]);
+            $product = $this->productService->createProduct($data, $request->file('file'));
 
             return redirect()->route('products.index')
                 ->with('success', 'Product created!');
@@ -112,10 +91,7 @@ class ProductController extends Controller
     {
         try {
             // Session: track recently viewed products
-            $recent = session()->get('recent', []);
-            if (! in_array($product->id, $recent)) {
-                session()->push('recent', $product->id);
-            }
+            $this->productService->pushRecentlyViewed($product->id);
 
             // Log::info — normal action: product was viewed
             Log::channel('products')->info('Product viewed', ['id' => $product->id, 'name' => $product->name]);
@@ -149,23 +125,7 @@ class ProductController extends Controller
 
             Log::debug('Update product validated data', $data);
 
-            if ($request->hasFile('file')) {
-                if ($product->image && Storage::disk('public')->exists('images/' . $product->image)) {
-                    Storage::disk('public')->delete('images/' . $product->image);
-                }
-
-                $path = $request->file('file')->store('images', 'public');
-                $data['image'] = basename($path);
-            }
-
-            // Throw custom exception for records older than 1 year
-            if ($product->created_at && $product->created_at->diffInDays(now()) > 365) {
-                throw new InvalidOrderException('Products older than 1 year cannot be updated.');
-            }
-
-            $product = tap($product)->update($data);
-
-            Log::channel('products')->info('Product updated successfully', ['id' => $product->id]);
+            $this->productService->updateProduct($product, $data, $request->file('file'));
 
             return redirect()->route('products.index')
                 ->with('success', 'Updated!');
@@ -189,16 +149,7 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         try {
-            $productId = $product->id;
-
-            if ($product->image && Storage::disk('public')->exists('images/' . $product->image)) {
-                Storage::disk('public')->delete('images/' . $product->image);
-            }
-
-            $product->delete();
-
-            // Log::warning — deletion is a significant action
-            Log::channel('security')->warning('Product deleted', ['id' => $productId]);
+            $this->productService->deleteProduct($product);
 
             return redirect()->route('products.index')->with('success', 'Product deleted!');
         } catch (\Exception $e) {

@@ -6,21 +6,23 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
 use App\Services\ProductService;
+use App\Services\WaitlistService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Cache;
 use App\Events\Customer\ProductViewed;
-use App\Models\ProductWaitlist;
 use Illuminate\Support\Arr;
 
 class ProductController extends Controller
 {
-    protected $productService;
+    protected ProductService $productService;
+    protected WaitlistService $waitlistService;
 
-    public function __construct(ProductService $productService)
+    public function __construct(ProductService $productService, WaitlistService $waitlistService)
     {
         $this->productService = $productService;
+        $this->waitlistService = $waitlistService;
     }
 
     public function index(Request $request)
@@ -61,11 +63,7 @@ class ProductController extends Controller
             });
 
             // Session: track recently viewed products (unique, capped at 10, newest first)
-            $recent = session()->get('recent', []);
-            $recent = array_diff($recent, [$product->id]); // remove if already exists
-            array_unshift($recent, $product->id);          // add to front
-            $recent = array_slice($recent, 0, 10);         // limit to 10
-            session()->put('recent', $recent);
+            $this->productService->trackRecentlyViewed($product->id);
 
             // Fire event for product viewed
             event(new ProductViewed($product, auth()->user()));
@@ -74,19 +72,10 @@ class ProductController extends Controller
             $cartProductIds = collect($cart)->pluck('product_id')->toArray();
 
             // Fetch recently viewed products excluding the current one
-            $recentIds = session()->get('recent', []);
-            $recentProducts = Product::whereIn('id', $recentIds)
-                ->where('id', '!=', $product->id)
-                ->latest()
-                ->take(4)
-                ->get();
+            $recentProducts = $this->productService->getRecentlyViewedProducts([$product->id], 4);
 
             // Check if the user is already on waitlist (for showing button state)
-            $onWaitlist = auth()->check()
-                ? ProductWaitlist::where('product_id', $product->id)
-                    ->where('user_id', auth()->id())
-                    ->exists()
-                : false;
+            $onWaitlist = $this->waitlistService->isUserOnWaitlist(auth()->user(), $product->id);
 
             return view('user.show', compact('product', 'cartProductIds', 'recentProducts', 'onWaitlist'));
         } catch (ModelNotFoundException $e) {

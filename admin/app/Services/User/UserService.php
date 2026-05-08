@@ -10,7 +10,7 @@ class UserService
     /**
      * Set the preferred locale for the user and session.
      *
-     * @param \App\Models\User|null $user
+     * @param User|null $user
      * @param string $locale
      */
     public function setLocale($user, string $locale): void

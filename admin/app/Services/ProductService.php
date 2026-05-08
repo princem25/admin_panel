@@ -3,11 +3,14 @@
 namespace App\Services;
 
 use App\Models\Product;
+use App\Exceptions\InvalidOrderException;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class ProductService
 {
@@ -163,14 +166,14 @@ class ProductService
     /**
      * Get recently viewed products, excluding specified IDs.
      */
-    public function getRecentlyViewedProducts(array $excludeIds = [])
+    public function getRecentlyViewedProducts(array $excludeIds = [], int $limit = 5)
     {
         $recentIds = array_diff(session()->get('recent', []), $excludeIds);
         
         return Product::whereIn('id', $recentIds)
             ->with(['category'])
             ->latest()
-            ->take(5)
+            ->take($limit)
             ->get();
     }
 
@@ -185,5 +188,95 @@ class ProductService
                 ->take(8)
                 ->get();
         });
+    }
+
+    /**
+     * Get products for admin listing.
+     */
+    public function getProductsForAdmin(array $filters)
+    {
+        return Product::filter($filters)
+            ->latest()
+            ->paginate(12)
+            ->withQueryString();
+    }
+
+    /**
+     * Track a product as recently viewed (pushed to end of array).
+     */
+    public function pushRecentlyViewed(int $productId): void
+    {
+        $recent = session()->get('recent', []);
+        if (! in_array($productId, $recent)) {
+            session()->push('recent', $productId);
+        }
+    }
+
+    /**
+     * Create a new product.
+     */
+    public function createProduct(array $data, $file = null)
+    {
+        if ($file) {
+            $path = $file->store('images', 'public');
+            $data['image'] = basename($path);
+        }
+
+        if (filled($data['stock'] ?? null) && $data['stock'] === 0) {
+            Log::channel('products')->warning('New product created with zero stock', ['name' => $data['name']]);
+        }
+
+        $product = tap(Product::create($data), function ($product) {
+            Log::info('Model created/updated', ['id' => $product->id]);
+        });
+
+        Log::channel('products')->info('Product created successfully', [
+            'id'   => $product->id,
+            'name' => $product->name,
+        ]);
+
+        return $product;
+    }
+
+    /**
+     * Update an existing product.
+     */
+    public function updateProduct(Product $product, array $data, $file = null)
+    {
+        if ($file) {
+            if ($product->image && Storage::disk('public')->exists('images/' . $product->image)) {
+                Storage::disk('public')->delete('images/' . $product->image);
+            }
+
+            $path = $file->store('images', 'public');
+            $data['image'] = basename($path);
+        }
+
+        // Throw custom exception for records older than 1 year
+        if ($product->created_at && $product->created_at->diffInDays(now()) > 365) {
+            throw new InvalidOrderException('Products older than 1 year cannot be updated.');
+        }
+
+        $product->update($data);
+
+        Log::channel('products')->info('Product updated successfully', ['id' => $product->id]);
+
+        return $product;
+    }
+
+    /**
+     * Delete a product and its image.
+     */
+    public function deleteProduct(Product $product): void
+    {
+        $productId = $product->id;
+
+        if ($product->image && Storage::disk('public')->exists('images/' . $product->image)) {
+            Storage::disk('public')->delete('images/' . $product->image);
+        }
+
+        $product->delete();
+
+        Log::channel('security')->warning('Product deleted', ['id' => $productId]);
     }
 }
