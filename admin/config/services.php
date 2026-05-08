@@ -37,6 +37,8 @@ return [
         'signing_secret' => env('SLACK_SIGNING_SECRET'),
         'orders_webhook' => env('SLACK_ORDERS_WEBHOOK_URL'),
         'alerts_webhook' => env('SLACK_ALERTS_WEBHOOK_URL'),
+        'leadership_webhook' => env('SLACK_LEADERSHIP_WEBHOOK_URL'),
+        'testing_webhook' => env('SLACK_TESTING_WEBHOOK_URL'),
     ],
 
     'external_api' => [

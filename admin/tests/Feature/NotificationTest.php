@@ -76,8 +76,8 @@ class NotificationTest extends TestCase
         $admin = User::factory()->create(['role' => 'admin']);
         $customer = User::factory()->create(['role' => 'user']);
 
-        // Admins receive mail and database (as per requirement 4)
-        $this->assertEquals(['mail', 'database'], $notification->via($admin));
+        // Admins receive mail, database and slack
+        $this->assertEquals(['mail', 'database', 'slack'], $notification->via($admin));
 
         // Regular users receive only mail (as per requirement 4)
         // Note: The actual implementation in OrderShipped.php currently returns ['mail', 'database'] for everyone.
