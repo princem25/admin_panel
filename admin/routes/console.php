@@ -105,3 +105,9 @@ app(Schedule::class)
     ->dailyAt('8:00')
     ->withoutOverlapping();
 
+app(Schedule::class)
+    ->command('slack:daily-digest')
+    ->dailyAt('09:00')
+    ->withoutOverlapping();
+
+
