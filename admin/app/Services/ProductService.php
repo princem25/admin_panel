@@ -148,4 +148,42 @@ class ProductService
 
         return $csv;
     }
+    /**
+     * Track a product as recently viewed in the session.
+     */
+    public function trackRecentlyViewed(int $productId): void
+    {
+        $recent = session()->get('recent', []);
+        $recent = array_diff($recent, [$productId]); // remove if already exists
+        array_unshift($recent, $productId);          // add to front
+        $recent = array_slice($recent, 0, 10);         // limit to 10
+        session()->put('recent', $recent);
+    }
+
+    /**
+     * Get recently viewed products, excluding specified IDs.
+     */
+    public function getRecentlyViewedProducts(array $excludeIds = [])
+    {
+        $recentIds = array_diff(session()->get('recent', []), $excludeIds);
+        
+        return Product::whereIn('id', $recentIds)
+            ->with(['category'])
+            ->latest()
+            ->take(5)
+            ->get();
+    }
+
+    /**
+     * Get featured products for home page.
+     */
+    public function getFeaturedProducts()
+    {
+        return Cache::tags(['products'])->remember('featured_products', 3600, function () {
+            return Product::with('category')
+                ->latest()
+                ->take(8)
+                ->get();
+        });
+    }
 }

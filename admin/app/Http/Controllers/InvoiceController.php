@@ -3,14 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Services\Order\InvoiceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use App\Events\Admin\OrderPlaced;
-use App\Listeners\Admin\GenerateInvoicePDF;
 
 class InvoiceController extends Controller
 {
+    protected InvoiceService $invoiceService;
+
+    public function __construct(InvoiceService $invoiceService)
+    {
+        $this->invoiceService = $invoiceService;
+    }
+
     /**
      * Generate and directly download an invoice PDF from a specific order.
      */
@@ -38,14 +44,9 @@ class InvoiceController extends Controller
             return back()->with('error', 'Invoices cannot be generated for cancelled orders.');
         }
 
-        $invoice = $order->invoice;
+        $invoice = $this->invoiceService->getInvoiceForOrder($order);
 
-        if (!$invoice || !Storage::disk('public')->exists($invoice->file_path)) {
-            // Invoice is missing (e.g. manually deleted). Re-trigger the background generation.
-            dispatch(function () use ($order) {
-                app(GenerateInvoicePDF::class)->handle(new OrderPlaced($order));
-            });
-
+        if (!$invoice) {
             return back()->with('info', 'Invoice is regenerating in the background. Please wait a moment and refresh.');
         }
 

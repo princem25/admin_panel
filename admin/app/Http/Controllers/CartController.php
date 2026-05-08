@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exceptions\ProductOutOfStockException;
 use App\Models\Product;
 use App\Services\CartService;
+use App\Services\ProductService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Events\Customer\ProductAddedToCart;
@@ -14,10 +15,12 @@ use Illuminate\Support\Arr;
 class CartController extends Controller
 {
     protected CartService $cartService;
+    protected ProductService $productService;
 
-    public function __construct(CartService $cartService)
+    public function __construct(CartService $cartService, ProductService $productService)
     {
         $this->cartService = $cartService;
+        $this->productService = $productService;
     }
 
     // View Cart
@@ -31,13 +34,7 @@ class CartController extends Controller
 
         // Recently Viewed Items
         $inCartIds = Arr::pluck($cartItems, 'product_id');
-        $recentIds = array_diff(session()->get('recent', []), $inCartIds);
-        
-        $recentProducts = Product::whereIn('id', $recentIds)
-            ->with(['category'])
-            ->latest()
-            ->take(5)
-            ->get();
+        $recentProducts = $this->productService->getRecentlyViewedProducts($inCartIds);
 
         return view('cart.index', compact(
             'cartItems', 
@@ -55,13 +52,8 @@ class CartController extends Controller
             // CartService handles all stock validation and DB decrement
             $this->cartService->addToCart($product->id, 1);
 
-            // Also track as 'recently viewed' when added to cart
-            $recent = session()->get('recent', []);
-            $recent = array_diff($recent, [$product->id]); // remove if already exists
-            array_unshift($recent, $product->id);          // add to front
-            $recent = array_slice($recent, 0, 10);         // limit to 10
-            $recent = array_slice($recent, 0, 10);         // limit to 10
-            session()->put('recent', $recent);
+            // Track as 'recently viewed'
+            $this->productService->trackRecentlyViewed($product->id);
 
             // Fire event for product added to cart
             event(new ProductAddedToCart($product, auth()->user()));

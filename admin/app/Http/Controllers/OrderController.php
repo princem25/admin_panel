@@ -3,25 +3,24 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
-use Illuminate\Support\Facades\DB;
+use App\Services\Order\OrderService;
 use Illuminate\Support\Facades\URL;
 
 class OrderController extends Controller
 {
+    protected OrderService $orderService;
+
+    public function __construct(OrderService $orderService)
+    {
+        $this->orderService = $orderService;
+    }
+
     /**
      * Display a listing of orders.
      */
     public function index()
     {
-        $user = auth()->user();
-
-        if ($user->role === 'admin') {
-            // Admin sees all orders
-            $orders = Order::with('user')->latest()->paginate(12);
-        } else {
-            // Regular user only sees their own orders
-            $orders = $user->orders()->latest()->paginate(12);
-        }
+        $orders = $this->orderService->getOrdersForUser(auth()->user());
 
         return view('orders.index', compact('orders'));
     }
@@ -62,17 +61,7 @@ class OrderController extends Controller
         }
 
         try {
-            DB::transaction(function () use ($order) {
-                // 3. Update order status to cancelled
-                tap($order)->update(['status' => 'cancelled']);
-
-                // 4. Restore product stock for each item
-                foreach ($order->items as $item) {
-                    if ($item->product) {
-                        $item->product->increment('stock', $item->quantity);
-                    }
-                }
-            });
+            $this->orderService->cancelOrder($order);
 
             return back()->with('success', 'Order #' . $order->id . ' has been cancelled and stock has been restored.');
 

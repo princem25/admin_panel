@@ -2,19 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\User\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-use Illuminate\Support\Facades\Cache;
-
 class NotificationController extends Controller
 {
+    protected NotificationService $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     /**
      * Display a listing of notifications (Latest first).
      */
     public function index()
     {
-        $notifications = Auth::user()->notifications()->latest()->paginate(15);
+        $notifications = $this->notificationService->getNotifications(Auth::user());
         return view('notifications.index', compact('notifications'));
     }
 
@@ -23,7 +29,7 @@ class NotificationController extends Controller
      */
     public function unread()
     {
-        $notifications = Auth::user()->unreadNotifications()->latest()->paginate(15);
+        $notifications = $this->notificationService->getUnreadNotifications(Auth::user());
         return view('notifications.index', compact('notifications'));
     }
 
@@ -32,16 +38,7 @@ class NotificationController extends Controller
      */
     public function markAsRead($id)
     {
-        $notification = Auth::user()->notifications()->findOrFail($id);
-        
-        if ($notification->unread()) {
-            $notification->markAsRead();
-            
-            // Invalidate unread count cache
-            Cache::forget('unread_count_' . Auth::id());
-        }
-
-        $url = $notification->data['url'] ?? route('notifications.index');
+        $url = $this->notificationService->markAsRead(Auth::user(), $id);
 
         if (request()->ajax()) {
             return response()->json(['success' => true, 'redirect' => $url]);
@@ -55,10 +52,7 @@ class NotificationController extends Controller
      */
     public function markAllAsRead()
     {
-        Auth::user()->unreadNotifications->markAsRead();
-
-        // Invalidate unread count cache
-        Cache::forget('unread_count_' . Auth::id());
+        $this->notificationService->markAllAsRead(Auth::user());
 
         if (request()->ajax()) {
             return response()->json(['success' => true]);
@@ -67,3 +61,4 @@ class NotificationController extends Controller
         return back()->with('success', 'All notifications marked as read.');
     }
 }
+

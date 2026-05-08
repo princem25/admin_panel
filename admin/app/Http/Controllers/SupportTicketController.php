@@ -2,30 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\SupportTicket;
-use App\Models\User;
-use App\Notifications\NewSupportTicket;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Notification;
+use App\Http\Requests\StoreSupportTicketRequest;
+use App\Services\Support\SupportTicketService;
 
 class SupportTicketController extends Controller
 {
-    public function store(Request $request)
+    protected SupportTicketService $supportTicketService;
+
+    public function __construct(SupportTicketService $supportTicketService)
     {
-        $validated = $request->validate([
-            'subject' => 'required|string|max:255',
-            'customer_name' => 'required|string|max:255',
-            'priority' => 'required|in:low,medium,high',
-            'message' => 'required|string',
-        ]);
+        $this->supportTicketService = $supportTicketService;
+    }
 
-        $ticket = SupportTicket::create($validated);
-
-        // Notify Admins (this will use the Bot Token since we returned a channel name in User.php)
-        $admins = User::where('role', 'admin')->get();
-        rescue(function () use ($admins, $ticket) {
-            Notification::send($admins, new NewSupportTicket($ticket));
-        });
+    public function store(StoreSupportTicketRequest $request)
+    {
+        $this->supportTicketService->createTicket($request->validated());
 
         return back()->with('success', 'Support ticket submitted successfully!');
     }
