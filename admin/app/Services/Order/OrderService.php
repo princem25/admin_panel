@@ -3,6 +3,7 @@
 namespace App\Services\Order;
 
 use App\Models\Order;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class OrderService
@@ -10,7 +11,7 @@ class OrderService
     /**
      * Get orders based on user role.
      *
-     * @param \App\Models\User $user
+     * @param User $user
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public function getOrdersForUser($user)
@@ -25,7 +26,7 @@ class OrderService
     /**
      * Cancel a pending order and restore stock.
      *
-     * @param \App\Models\Order $order
+     * @param Order $order
      * @throws \Exception
      */
     public function cancelOrder(Order $order)

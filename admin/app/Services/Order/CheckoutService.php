@@ -27,8 +27,8 @@ class CheckoutService
      * Place a new order.
      *
      * @param array $data
-     * @param \App\Models\User $user
-     * @return \App\Models\Order
+     * @param User $user
+     * @return Order
      * @throws \Exception
      */
     public function placeOrder(array $data, $user)

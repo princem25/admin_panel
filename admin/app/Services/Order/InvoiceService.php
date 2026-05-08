@@ -3,6 +3,7 @@
 namespace App\Services\Order;
 
 use App\Models\Order;
+use App\Models\Invoice;
 use Illuminate\Support\Facades\Storage;
 use App\Events\Admin\OrderPlaced;
 use App\Listeners\Admin\GenerateInvoicePDF;
@@ -12,8 +13,8 @@ class InvoiceService
     /**
      * Get the invoice for an order or trigger regeneration if missing.
      *
-     * @param \App\Models\Order $order
-     * @return \App\Models\Invoice|null
+     * @param Order $order
+     * @return Invoice|null
      */
     public function getInvoiceForOrder(Order $order)
     {
@@ -30,7 +31,7 @@ class InvoiceService
     /**
      * Trigger invoice regeneration in the background.
      *
-     * @param \App\Models\Order $order
+     * @param Order $order
      */
     public function regenerateInvoice(Order $order)
     {

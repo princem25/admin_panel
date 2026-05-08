@@ -13,7 +13,7 @@ class SupportTicketService
      * Create a new support ticket and notify admins.
      *
      * @param array $data
-     * @return \App\Models\SupportTicket
+     * @return SupportTicket
      */
     public function createTicket(array $data)
     {
