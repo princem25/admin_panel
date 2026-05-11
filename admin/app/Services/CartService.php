@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Events\Admin\ProductStockChanged;
+use App\Events\Customer\ProductAddedToCart;
 use App\Exceptions\ProductOutOfStockException;
 use App\Models\Product;
 use Illuminate\Support\Facades\Cache;
@@ -14,10 +15,12 @@ use Illuminate\Support\Facades\Session;
 class CartService
 {
     protected DiscountService $discountService;
+    protected ProductService $productService;
 
-    public function __construct(DiscountService $discountService)
+    public function __construct(DiscountService $discountService, ProductService $productService)
     {
         $this->discountService = $discountService;
+        $this->productService = $productService;
     }
 
     /**
@@ -97,7 +100,7 @@ class CartService
     public function addToCart(int $productId, int $qty = 1): void
     {
         $this->withinLock(function () use ($productId, $qty) {
-            DB::transaction(function () use ($productId, $qty) {
+            $product = DB::transaction(function () use ($productId, $qty) {
                 //  Lock the product row for update to prevent desync
                 $product = Product::where('id', $productId)->lockForUpdate()->firstOrFail();
 
@@ -142,7 +145,15 @@ class CartService
                     'qty'        => $qty,
                     'new_stock'  => $product->fresh()->stock,
                 ]);
+
+                return $product;
             });
+
+            // Track as 'recently viewed'
+            $this->productService->trackRecentlyViewed($productId);
+
+            // Fire event for product added to cart
+            event(new ProductAddedToCart($product, auth()->user()));
         });
     }
 

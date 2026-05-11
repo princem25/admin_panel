@@ -8,7 +8,6 @@ use App\Services\CartService;
 use App\Services\ProductService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use App\Events\Customer\ProductAddedToCart;
 use App\Events\Customer\CartAbandoned;
 use Illuminate\Support\Arr;
 
@@ -46,170 +45,72 @@ class CartController extends Controller
     }
 
     // Add to Cart
-    public function add(Product $product)
+    public function add(Product $product, Request $request)
     {
         try {
-            // CartService handles all stock validation and DB decrement
+            // CartService handles all stock validation, DB decrement, tracking, and events
             $this->cartService->addToCart($product->id, 1);
 
-            // Track as 'recently viewed'
-            $this->productService->trackRecentlyViewed($product->id);
-
-            // Fire event for product added to cart
-            event(new ProductAddedToCart($product, auth()->user()));
-
-            return back()->with('success', "'{$product->name}' added to cart!");
+            return $this->cartResponse($request, "'{$product->name}' added to cart!");
         } catch (ProductOutOfStockException $e) {
             Log::warning('Out of stock add attempt', [
                 'product_id' => $product->id,
                 'message'    => $e->getMessage(),
             ]);
 
-            return back()->with('error', $e->getMessage());
+            return $this->cartResponse($request, $e->getMessage(), false, 400);
         } catch (\Exception $e) {
             Log::error('Cart Add Error', ['error' => $e->getMessage()]);
-            return back()->with('error', $e->getMessage());
+            return $this->cartResponse($request, $e->getMessage(), false, 500);
         }
     }
 
-    // Remove from Cart — stock is auto-restored in CartService
+    // Remove from Cart
     public function remove(Product $product, Request $request)
     {
         try {
             $this->cartService->remove($product->id);
-            $message = 'Product removed from cart!';
-            session()->flash('success', $message);
-
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $message,
-                    'summary' => $this->cartService->getCartSummary(),
-                    'flash_html' => view('components.flash-message')->render(),
-                ]);
-            }
-
-            return back()->with('success', $message);
+            return $this->cartResponse($request, 'Product removed from cart!');
         } catch (\Exception $e) {
-            $message = $e->getMessage();
-            Log::error('Cart Remove Error', ['error' => $message]);
-            session()->flash('error', $message);
-
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $message,
-                    'flash_html' => view('components.flash-message')->render(),
-                ], 500);
-            }
-
-            return back()->with('error', $message);
+            Log::error('Cart Remove Error', ['error' => $e->getMessage()]);
+            return $this->cartResponse($request, $e->getMessage(), false, 500);
         }
     }
 
-    // Clear Cart — all stock auto-restored
+    // Clear Cart
     public function clear(Request $request)
     {
         try {
             $this->cartService->clearCart();
-            $message = 'Cart cleared!';
-            session()->flash('success', $message);
-
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $message,
-                    'summary' => $this->cartService->getCartSummary(),
-                    'flash_html' => view('components.flash-message')->render(),
-                ]);
-            }
-
-            return back()->with('success', $message);
+            return $this->cartResponse($request, 'Cart cleared!');
         } catch (\Exception $e) {
-            $message = $e->getMessage();
-            Log::error('Cart Clear Error', ['error' => $message]);
-            session()->flash('error', $message);
-
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $message,
-                    'flash_html' => view('components.flash-message')->render(),
-                ], 500);
-            }
-
-            return back()->with('error', $message);
+            Log::error('Cart Clear Error', ['error' => $e->getMessage()]);
+            return $this->cartResponse($request, $e->getMessage(), false, 500);
         }
     }
 
-    // Increase Quantity — checks stock via CartService
+    // Increase Quantity
     public function increase($id, Request $request)
     {
         try {
             $this->cartService->increase((int) $id);
-            $message = 'Quantity increased!';
-            session()->flash('success', $message);
-
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $message,
-                    'summary' => $this->cartService->getCartSummary(),
-                    'flash_html' => view('components.flash-message')->render(),
-                ]);
-            }
+            return $this->cartResponse($request, 'Quantity increased!');
         } catch (\Exception $e) {
-            $message = $e->getMessage();
-            Log::error('Cart Increase Error', ['error' => $message]);
-            session()->flash('error', $message);
-            
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $message,
-                    'flash_html' => view('components.flash-message')->render(),
-                ], 400);
-            }
-
-            return back()->with('error', $message);
+            Log::error('Cart Increase Error', ['error' => $e->getMessage()]);
+            return $this->cartResponse($request, $e->getMessage(), false, 400);
         }
-
-        return back()->with('success', 'Quantity increased!');
     }
 
-    // Decrease Quantity — restores 1 unit of stock
+    // Decrease Quantity
     public function decrease($id, Request $request)
     {
         try {
             $this->cartService->decrease((int) $id);
-            $message = 'Quantity decreased!';
-            session()->flash('success', $message);
-
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $message,
-                    'summary' => $this->cartService->getCartSummary(),
-                    'flash_html' => view('components.flash-message')->render(),
-                ]);
-            }
+            return $this->cartResponse($request, 'Quantity decreased!');
         } catch (\Exception $e) {
-            $message = $e->getMessage();
-            Log::error('Cart Decrease Error', ['error' => $message]);
-            session()->flash('error', $message);
-            
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $message,
-                    'flash_html' => view('components.flash-message')->render(),
-                ], 400);
-            }
-
-            return back()->with('error', $message);
+            Log::error('Cart Decrease Error', ['error' => $e->getMessage()]);
+            return $this->cartResponse($request, $e->getMessage(), false, 400);
         }
-
-        return back();
     }
 
     // Simulate Abandoned Cart
@@ -220,5 +121,29 @@ class CartController extends Controller
         event(new CartAbandoned($cart));
         
         return response()->json(['message' => 'Cart Abandoned event fired!']);
+    }
+
+    /**
+     * Helper to handle responses consistently (AJAX vs Normal).
+     */
+    private function cartResponse(Request $request, string $message, bool $success = true, int $statusCode = 200)
+    {
+        session()->flash($success ? 'success' : 'error', $message);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            $data = [
+                'success' => $success,
+                'message' => $message,
+                'flash_html' => view('components.flash-message')->render(),
+            ];
+
+            if ($success) {
+                $data['summary'] = $this->cartService->getCartSummary();
+            }
+
+            return response()->json($data, $statusCode);
+        }
+
+        return back()->with($success ? 'success' : 'error', $message);
     }
 }
