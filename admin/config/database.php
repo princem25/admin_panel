@@ -113,6 +113,15 @@ return [
             // 'encrypt' => env('DB_ENCRYPT', 'yes'),
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
+        
+        'analytics' => [
+        'driver' => 'mysql',
+        'host' => env('DB_ANALYTICS_HOST'),
+        'port' => env('DB_ANALYTICS_PORT'),
+        'database' => env('DB_ANALYTICS_DATABASE'),
+        'username' => env('DB_ANALYTICS_USERNAME'),
+        'password' => env('DB_ANALYTICS_PASSWORD'),
+],
 
     ],
 

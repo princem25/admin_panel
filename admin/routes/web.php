@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\CacheMonitorController;
 use App\Http\Controllers\Admin\SalesAnalyticsController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
 use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\DatabaseTestController;
 use App\Models\Order;
 use App\Mail\OrderConfirmation;
 use Illuminate\Support\Facades\Http;
@@ -141,6 +142,7 @@ Route::prefix('user')->middleware(['role:user', 'auth'])->group(function () {
 // ------------------------------DEVELOPMENT ROUTES------------------------------//
 
 if (app()->environment('local')) {
+    Route::get('/test-db', [DatabaseTestController::class, 'testConnections'])->name('dev.test-db');
     Route::get('/dev/mail/order/{order}', function (Order $order) {
         return new OrderConfirmation($order);
     })->name('dev.mail.order');
