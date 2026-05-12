@@ -17,7 +17,7 @@ class CacheMonitorController extends Controller
     {
         // --- Redis Stats (safe read-only calls) ---
         try {
-            $raw  = Redis::info();
+            $raw  = Redis::connection('cache')->info();
 
             // Flatten nested sections (Predis returns sections as nested arrays;
             // phpredis returns a flat array). This handles both drivers.
@@ -30,7 +30,7 @@ class CacheMonitorController extends Controller
                 }
             }
 
-            $totalKeys  = Redis::dbSize();
+            $totalKeys  = Redis::connection('cache')->dbSize();
             $usedMemory = isset($info['used_memory'])
                             ? round($info['used_memory'] / 1048576, 2) . ' MB'
                             : 'N/A';
