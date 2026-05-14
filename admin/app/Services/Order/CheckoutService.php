@@ -5,6 +5,7 @@ namespace App\Services\Order;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\User;
+use App\Models\Product;
 use App\Notifications\ProductLowStock;
 use App\Services\CartService;
 use App\Mail\OrderConfirmation;
@@ -35,12 +36,12 @@ class CheckoutService
     {
         $summary = $this->cartService->getCartSummary();
         $cartItems = $summary['items'];
+        $lowStockProducts = [];
 
-        // Note: Empty cart check is kept in the controller to preserve specific redirect behavior.
-
-        $order = DB::transaction(function () use ($data, $summary, $cartItems, $user) {
+        // 🚀 Refactored for Exercise 40.2: Atomic transaction with 3 retry attempts
+        $order = DB::transaction(function () use ($data, $summary, $cartItems, $user, &$lowStockProducts) {
             // 1. Create Order
-            $order = tap(Order::create([
+            $order = Order::create([
                 'user_id'          => $user->id,
                 'total_amount'     => $summary['grandTotal'],
                 'payment_method'   => $data['payment_method'],
@@ -49,12 +50,19 @@ class CheckoutService
                 'phone'            => $data['phone'],
                 'shipping_address' => $data['shipping_address'],
                 'notes'            => $data['notes'] ?? null,
-            ]), function ($o) {
-                Log::channel('orders')->info('New checkout order', ['id' => $o->id]);
-            });
+            ]);
 
-            // 2. Create Order Items
+            Log::channel('orders')->info('New checkout order created inside transaction', ['id' => $order->id]);
+
+            // 2. Create Order Items & Decrement Stock (Moved here from CartService)
             foreach ($cartItems as $item) {
+                // 🔒 Row locking to prevent overselling
+                $product = Product::where('id', $item->product_id)->lockForUpdate()->firstOrFail();
+
+                if ($product->stock < $item->quantity) {
+                    throw new \Exception("Sorry, '{$product->name}' is no longer available in the requested quantity.");
+                }
+
                 OrderItem::create([
                     'order_id'   => $order->id,
                     'product_id' => $item->product_id,
@@ -62,32 +70,36 @@ class CheckoutService
                     'price'      => $item->unit_price,
                 ]);
 
-                // Trigger Low Stock Notification if applicable
-                $product = $item->product;
-                $product->refresh();
-                if ($product->stock <= 10) {
-                    $cacheKey = "low_stock_alert_{$product->id}";
-                    
-                    Cache::remember($cacheKey, 600, function () use ($product, $order) {
-                        $admins = User::where('role', 'admin')->get();
-                        rescue(function () use ($admins, $product, $order) {
-                            Notification::send($admins, new ProductLowStock($product, $order->id));
-                        });
-                        return true; // Mark as sent in cache
-                    });
+                // Stock decrement happens here now
+                $product->decrement('stock', $item->quantity);
+
+                if ($product->fresh()->stock <= 10) {
+                    $lowStockProducts[] = $product;
                 }
             }
 
-            // 3. Complete Order (Clear Cart without restoring stock)
+            // 3. Complete Order (Clear Cart)
             $this->cartService->completeOrder();
 
             return $order;
-        });
+        }, 3); // 🔄 3 retry attempts for deadlocks
 
-        Log::info('Order placed successfully', ['order_id' => $order->id, 'user_id' => $user->id]);
+        // 🚀 Side effects moved OUTSIDE transaction closure
+        
+        // 1. Notifications
+        foreach ($lowStockProducts as $product) {
+            $cacheKey = "low_stock_alert_{$product->id}";
+            Cache::remember($cacheKey, 600, function () use ($product, $order) {
+                $admins = User::where('role', 'admin')->get();
+                rescue(function () use ($admins, $product, $order) {
+                    Notification::send($admins, new ProductLowStock($product, $order->id));
+                });
+                return true;
+            });
+        }
 
+        // 2. Emails
         try {
-            // Delay for 15 seconds to allow background invoice generation to complete before attaching
             Mail::to($order->user->email)->later(now()->addSeconds(15), new OrderConfirmation($order));
         } catch (\Exception $mailException) {
             Log::error('Failed to queue order confirmation email', [

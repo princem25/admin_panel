@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\CacheMonitorController;
 use App\Http\Controllers\Admin\SalesAnalyticsController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
 use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\DatabaseTestController;
 use App\Models\Order;
 use App\Mail\OrderConfirmation;
@@ -33,8 +34,7 @@ Route::post('/api/slack/interactions', [SlackInteractionController::class, 'hand
 
 Route::get('/', [HomeController::class, 'index']);
 Route::get('/language/{locale}', [LocaleController::class, 'switch'])->name('language.switch');
-Route::get('/support', function() { return view('support.create'); })->name('support.create');
-Route::post('/support/tickets', [\App\Http\Controllers\SupportTicketController::class, 'store'])->name('support.tickets.store');
+// Support routes moved to auth and admin groups.
 
 
 
@@ -67,6 +67,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/notifications/unread', [NotificationController::class, 'unread'])->name('notifications.unread');
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
+
+    // Support Tickets
+    Route::get('/support', [SupportTicketController::class, 'index'])->name('support.index');
+    Route::get('/support/create', function() {
+        if (auth()->user()->role === 'admin') {
+            return redirect()->route('admin.support.index');
+        }
+        return view('support.create');
+    })->name('support.create');
+    Route::post('/support/tickets', [SupportTicketController::class, 'store'])->name('support.tickets.store');
 });
 
 require __DIR__.'/auth.php';
@@ -107,6 +117,11 @@ Route::prefix('admin')->middleware(['role:admin', 'throttle:100,1'])->group(func
     // Sales Analytics
     Route::get('/analytics', [SalesAnalyticsController::class, 'index'])->name('admin.analytics.index');
     Route::get('/analytics/export/{type}', [SalesAnalyticsController::class, 'export'])->name('admin.analytics.export');
+
+    // Support Tickets Admin
+    Route::get('/support', [SupportTicketController::class, 'index'])->name('admin.support.index');
+    Route::get('/support/{supportTicket}/edit', [SupportTicketController::class, 'edit'])->name('admin.support.edit');
+    Route::put('/support/{supportTicket}', [SupportTicketController::class, 'update'])->name('admin.support.update');
 });
 
 

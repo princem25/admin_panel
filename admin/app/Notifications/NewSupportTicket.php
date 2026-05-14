@@ -37,17 +37,26 @@ class NewSupportTicket extends Notification implements ShouldQueue
      */
     public function toSlack(object $notifiable): SlackMessage
     {
+        $color = '#36a64f'; // Default green
+        if ($this->ticket->priority === 'high') {
+            $color = '#ff0000'; // Red
+        } elseif ($this->ticket->priority === 'medium') {
+            $color = '#ffa500'; // Orange
+        }
+
         return (new SlackMessage)
             ->from('Support Bot', ':lifesaver:')
             ->to('#support')
             ->content("🛟 New Support Ticket")
-            ->attachment(function ($attachment) {
+            ->attachment(function ($attachment) use ($color) {
                 $attachment->title("Ticket: {$this->ticket->subject}")
                     ->callbackId("support_ticket_{$this->ticket->id}")
+                    ->color($color)
                     ->fields([
                         'Customer' => $this->ticket->customer_name,
                         'Priority' => ucfirst($this->ticket->priority),
                         'Ticket ID' => "#{$this->ticket->id}",
+                        'Message' => $this->ticket->message ?? 'No message provided.',
                     ])
                     ->fallback("New support ticket: {$this->ticket->subject}")
                     ->action('Assign to me', 'assign', 'default')

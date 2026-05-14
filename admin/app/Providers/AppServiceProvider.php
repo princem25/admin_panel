@@ -94,7 +94,7 @@ class AppServiceProvider extends ServiceProvider
    
 
         /**
-         * ✅ SAFE CACHE: Categories
+         *  SAFE CACHE: Categories
          */
         try {
             $categories = Cache::tags(['products', 'admin'])->remember('categories', 7200, function () {
@@ -110,7 +110,7 @@ class AppServiceProvider extends ServiceProvider
         View::share('categories', $categories);
 
         /**
-         * ✅ SAFE CACHE: Category Summary
+         *  SAFE CACHE: Category Summary
          */
         try {
             $categorySummary = Cache::tags(['products', 'admin'])->remember('category_summary', 7200, function () {
@@ -136,13 +136,16 @@ class AppServiceProvider extends ServiceProvider
             return "<?php echo '₹' . number_format($expression, 2); ?>";
         });
 
-        if ($this->app->environment('local')) {
+        if (! app()->isProduction()) {
             DB::listen(function ($query) {
-                Log::channel('DBinteraction')->debug($query->sql, [
-                    'sql' => $query->sql,
-                    'bindings' => $query->bindings,
-                    'time' => $query->time,
-                ]);
+                if ($query->time > 100) { // 100ms
+                    Log::channel('slow_queries')->warning('Slow query detected', [
+                        'sql' => $query->sql,
+                        'bindings' => $query->bindings,
+                        'time' => $query->time . 'ms',
+                        'timestamp' => now()->toDateTimeString(),
+                    ]);
+                }
             });
         }
 
@@ -151,6 +154,6 @@ class AppServiceProvider extends ServiceProvider
             return new FaultTolerantSlackChannel();
         });
 
-        // ✅ Model Observers are registered in CustomServiceProvider
+        //  Model Observers are registered in CustomServiceProvider
     }
 }

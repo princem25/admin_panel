@@ -6,28 +6,44 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class SalesAnalyticsService
 {
     /**
      * Get Monthly Sales Report
-     * Group orders by month (YYYY-MM)
+     * Refactored for Exercise 40.2: Uses raw SQL with parameter bindings.
      */
-    public function getMonthlySales(): Collection
+    public function getMonthlySales($userId = null): Collection
     {
         try {
-            $orders = Order::genuine()->get();
+            $sql = "SELECT DATE_FORMAT(created_at, '%Y-%m') as month, 
+                           SUM(total_amount) as total_revenue, 
+                           AVG(total_amount) as average_order_value, 
+                           COUNT(*) as total_orders 
+                    FROM orders 
+                    WHERE status NOT IN ('cancelled', 'pending')";
 
-            return $orders->groupBy(function ($order) {
-                return $order->created_at->format('Y-m');
-            })->map(function ($group, $month) {
+            $params = [];
+
+            if ($userId) {
+                $sql .= " AND user_id = :user_id";
+                $params['user_id'] = $userId;
+            }
+
+            $sql .= " GROUP BY month ORDER BY month DESC";
+
+            $results = DB::select($sql, $params);
+
+            // Convert to collection of arrays for consistency with previous return type
+            return collect($results)->map(function ($row) {
                 return [
-                    'month'               => $month,
-                    'total_revenue'       => $group->sum('total_amount'),
-                    'average_order_value' => $group->avg('total_amount'),
-                    'total_orders'        => $group->count(),
+                    'month'               => $row->month,
+                    'total_revenue'       => (float) $row->total_revenue,
+                    'average_order_value' => (float) $row->average_order_value,
+                    'total_orders'        => (int) $row->total_orders,
                 ];
-            })->sortByDesc('month')->values();
+            });
         } catch (\Exception $e) {
             Log::error('Sales analytics error', [
                 'message' => $e->getMessage(),

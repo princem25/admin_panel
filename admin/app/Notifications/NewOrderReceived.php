@@ -121,7 +121,7 @@ class NewOrderReceived extends Notification implements ShouldQueue
             });
     }
 
-    /**
+    /** 
      * Handle notification failure.
      */
     public function failed(\Throwable $exception): void

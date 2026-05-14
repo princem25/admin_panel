@@ -167,6 +167,13 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'slow_queries' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/slow-queries.log'),
+            'level' => 'debug',
+            'replace_placeholders' => true,
+        ],
+
     ],
 
 ];

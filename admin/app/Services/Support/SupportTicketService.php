@@ -17,6 +17,10 @@ class SupportTicketService
      */
     public function createTicket(array $data)
     {
+        if (auth()->check()) {
+            $data['user_id'] = auth()->id();
+        }
+
         $ticket = SupportTicket::create($data);
 
         // Notify Admins (this will use the Bot Token since we returned a channel name in User.php)

@@ -54,10 +54,19 @@ class ProductLowStock extends Notification implements ShouldQueue
      */
     public function toSlack($notifiable): SlackMessage
     {
-        $orderInfo = $this->orderId ? "• Order ID: #{$this->orderId}" : "";
-
         return (new SlackMessage)
-            ->content("⚠️ Low Stock Alert\n\n• Product: {$this->product->name}\n• Remaining Stock: {$this->product->stock}\n{$orderInfo}");
+            ->from('Stock Bot', ':warning:')
+            ->content("⚠️ Low Stock Alert")
+            ->attachment(function ($attachment) {
+                $attachment->title($this->product->name)
+                    ->color('#ffa500') // Orange
+                    ->fields([
+                        'Product' => $this->product->name,
+                        'Remaining Stock' => $this->product->stock,
+                        'Order ID' => $this->orderId ?? 'N/A',
+                    ])
+                    ->fallback("Low Stock Alert: {$this->product->name} (Stock: {$this->product->stock})");
+            });
     }
 
     /**

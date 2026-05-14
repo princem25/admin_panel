@@ -77,6 +77,10 @@ class CartService
                 Redis::set('cart:user:' . auth()->id(), json_encode($cartArray));
             }
 
+            // Invalidate the cart summary cache for this user
+            $userTag = 'customer_' . (auth()->id() ?? 'guest');
+            Cache::tags([$userTag])->flush();
+
             Log::channel('products')->info('Cart session/redis updated', [
                 'user_id' => auth()->id(),
                 'items_count' => count($cartArray)
@@ -100,10 +104,8 @@ class CartService
     public function addToCart(int $productId, int $qty = 1): void
     {
         $this->withinLock(function () use ($productId, $qty) {
-            $product = DB::transaction(function () use ($productId, $qty) {
-                //  Lock the product row for update to prevent desync
-                $product = Product::where('id', $productId)->lockForUpdate()->firstOrFail();
-
+            $product = Product::findOrFail($productId);
+                
                 //  Prevent adding if no stock
                 if ($product->stock <= 0) {
                     throw new ProductOutOfStockException("'{$product->name}' is out of stock.");
@@ -137,17 +139,6 @@ class CartService
                 }
 
                 $this->setCart($cart);
-
-                $product->decrement('stock', $qty);
-
-                Log::channel('products')->info('Stock decremented', [
-                    'product_id' => $productId,
-                    'qty'        => $qty,
-                    'new_stock'  => $product->fresh()->stock,
-                ]);
-
-                return $product;
-            });
 
             // Track as 'recently viewed'
             $this->productService->trackRecentlyViewed($productId);
@@ -187,33 +178,24 @@ class CartService
     public function decrease(int $productId): void
     {
         $this->withinLock(function () use ($productId) {
-            DB::transaction(function () use ($productId) {
-                $cart = $this->getCart();
-                $found = false;
+            $cart = $this->getCart();
+            $found = false;
 
-                foreach ($cart as $key => &$item) {
-                    if ($item['product_id'] === $productId) {
-                        $found = true;
-                        if ($item['qty'] > 1) {
-                            $item['qty'] -= 1;
-                        } else {
-                            unset($cart[$key]);
-                        }
-
-                        // Restore 1 unit of stock safely
-                        $product = Product::where('id', $productId)->lockForUpdate()->first();
-                        if ($product) {
-                            $product->increment('stock', 1);
-                        }
-                        break;
+            foreach ($cart as $key => &$item) {
+                if ($item['product_id'] === $productId) {
+                    $found = true;
+                    if ($item['qty'] > 1) {
+                        $item['qty'] -= 1;
+                    } else {
+                        unset($cart[$key]);
                     }
+                    break;
                 }
+            }
 
-                if ($found) {
-                    $this->setCart($cart);
-                    Log::channel('products')->info('Stock restored (decrease)', ['product_id' => $productId]);
-                }
-            });
+            if ($found) {
+                $this->setCart($cart);
+            }
         });
     }
 
@@ -223,32 +205,20 @@ class CartService
     public function remove(int $productId): void
     {
         $this->withinLock(function () use ($productId) {
-            DB::transaction(function () use ($productId) {
-                $cart = $this->getCart();
-                $found = false;
+            $cart = $this->getCart();
+            $found = false;
 
-                foreach ($cart as $key => $item) {
-                    if ($item['product_id'] === $productId) {
-                        $found = true;
-                        //  Auto-restore stock safely
-                        $product = Product::where('id', $productId)->lockForUpdate()->first();
-                        if ($product) {
-                            $product->increment('stock', $item['qty']);
-                            Log::channel('products')->info('Stock restored on cart removal', [
-                                'product_id' => $productId,
-                                'qty'        => $item['qty'],
-                            ]);
-                        }
-
-                        unset($cart[$key]);
-                        break;
-                    }
+            foreach ($cart as $key => $item) {
+                if ($item['product_id'] === $productId) {
+                    $found = true;
+                    unset($cart[$key]);
+                    break;
                 }
+            }
 
-                if ($found) {
-                    $this->setCart($cart);
-                }
-            });
+            if ($found) {
+                $this->setCart($cart);
+            }
         });
     }
 
@@ -261,20 +231,7 @@ class CartService
                 return;
             }
 
-            // Step 1: Atomically restore stock in DB safely for valid products.
-            DB::transaction(function () use ($cart) {
-                foreach ($cart as $item) {
-                    $product = Product::where('id', $item['product_id'])->lockForUpdate()->first();
-                    if ($product) {
-                        $product->increment('stock', $item['qty']);
-                    }
-                }
-            });
-
-            // Step 2: Only reached after successful DB operations.
-            // Clear session, Redis persistence.
-            Session::forget('cart');
-            Redis::del('cart:user:' . auth()->id());
+            $this->setCart([]);
 
             Log::channel('products')->info('Cart cleared and stock restored', ['count' => count($cart)]);
         });
@@ -320,9 +277,10 @@ class CartService
             }
 
             $cacheKey = 'cart_summary_' . (auth()->id() ?? 'guest');
+            $userTag = 'customer_' . (auth()->id() ?? 'guest');
 
-            // Cache the entire cart summary for 10 minutes under 'customer' tag
-            return Cache::tags(['customer'])->remember($cacheKey, 600, function () {
+            // Cache the entire cart summary for 10 minutes under 'customer' and user-specific tag
+            return Cache::tags(['customer', $userTag])->remember($cacheKey, 600, function () {
                 $cart = $this->getCart();
                 
                 $cartItems = collect($cart)->map(function ($item) {
