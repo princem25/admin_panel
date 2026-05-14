@@ -60,14 +60,11 @@
                                             </td>
                                             <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{{ $ticket->created_at->format('M d, Y H:i') }}</td>
                                             <td class="px-6 py-4 text-sm">
+                                                <a href="{{ route('support.show', $ticket) }}" class="text-indigo-600 hover:text-indigo-900 font-semibold mr-2">View</a>
                                                 @if(auth()->user()->role === 'admin')
-                                                    @if($ticket->status === 'closed')
-                                                        <span class="text-gray-500 dark:text-gray-400">Closed</span>
-                                                    @else
+                                                    @if($ticket->status !== 'closed')
                                                         <a href="{{ route('admin.support.edit', $ticket) }}" class="text-indigo-600 hover:text-indigo-900 font-semibold">Edit</a>
                                                     @endif
-                                                @else
-                                                    <span class="text-gray-400">View Only</span>
                                                 @endif
                                             </td>
                                         </tr>

@@ -12,25 +12,22 @@
                     <div class="mb-6">
                         <a href="{{ route('support.index') }}" class="text-indigo-600 hover:text-indigo-900 font-semibold">&larr; Back to List</a>
                     </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <div>
-                            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Ticket Details</h3>
-                            <p class="mb-2"><strong>Subject:</strong> {{ $supportTicket->subject }}</p>
-                            <p class="mb-2"><strong>Customer:</strong> {{ $supportTicket->customer_name }}</p>
-                            <p class="mb-2"><strong>Created:</strong> {{ $supportTicket->created_at->format('M d, Y H:i') }}</p>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Message</h3>
-                            <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                                {{ $supportTicket->message ?? 'No message provided.' }}
-                            </div>
-                        </div>
-                    </div>
-
                     <form action="{{ route('admin.support.update', $supportTicket) }}" method="POST" class="space-y-6">
                         @csrf
                         @method('PUT')
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Ticket Details</h3>
+                                <p class="mb-2"><strong>Subject:</strong> {{ $supportTicket->subject }}</p>
+                                <p class="mb-2"><strong>Customer:</strong> {{ $supportTicket->customer_name }}</p>
+                                <p class="mb-2"><strong>Created:</strong> {{ $supportTicket->created_at->format('M d, Y H:i') }}</p>
+                            </div>
+                            <div>
+                                <label for="message" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Message / Query</label>
+                                <textarea id="message" name="message" rows="4" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">{{ $supportTicket->message }}</textarea>
+                            </div>
+                        </div>
 
                         <div>
                             <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
@@ -48,6 +45,11 @@
                                 <option value="medium" @if($supportTicket->priority === 'medium') selected @endif>Medium</option>
                                 <option value="high" @if($supportTicket->priority === 'high') selected @endif>High</option>
                             </select>
+                        </div>
+
+                        <div>
+                            <label for="admin_comment" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Admin Comment / Response</label>
+                            <textarea id="admin_comment" name="admin_comment" rows="4" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" placeholder="Add a response or comment...">{{ $supportTicket->admin_comment }}</textarea>
                         </div>
 
                         <div class="flex justify-end">

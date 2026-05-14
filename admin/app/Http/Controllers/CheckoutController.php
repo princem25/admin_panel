@@ -8,6 +8,7 @@ use App\Services\Order\CheckoutService;
 use App\Http\Requests\StoreCheckoutRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class CheckoutController extends Controller
 {
@@ -25,17 +26,22 @@ class CheckoutController extends Controller
      */
     public function index()
     {
-        $summary = $this->cartService->getCartSummary();
+        try {
+            $summary = $this->cartService->getCartSummary();
 
-        if ($summary['items']->isEmpty()) {
-            return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
+            if ($summary['items']->isEmpty()) {
+                return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
+            }
+
+            return view('checkout.index', [
+                'cartItems'    => $summary['items'],
+                'grandTotal'   => $summary['grandTotal'],
+                'totalSavings' => $summary['totalSavings'],
+            ]);
+        } catch (\Exception $e) {
+            Log::error('CheckoutController@index error', ['error' => $e->getMessage()]);
+            throw $e;
         }
-
-        return view('checkout.index', [
-            'cartItems'    => $summary['items'],
-            'grandTotal'   => $summary['grandTotal'],
-            'totalSavings' => $summary['totalSavings'],
-        ]);
     }
 
     /**
@@ -69,11 +75,19 @@ class CheckoutController extends Controller
      */
     public function success(Order $order)
     {
-        // Ensure the order belongs to the authenticated user
-        if ($order->user_id !== auth()->id()) {
-            abort(403);
-        }
+        try {
+            // Ensure the order belongs to the authenticated user
+            if ($order->user_id !== auth()->id()) {
+                abort(403);
+            }
 
-        return view('checkout.success', compact('order'));
+            return view('checkout.success', compact('order'));
+        } catch (\Exception $e) {
+            if ($e instanceof HttpException) {
+                throw $e;
+            }
+            Log::error('CheckoutController@success error', ['error' => $e->getMessage()]);
+            throw $e;
+        }
     }
 }

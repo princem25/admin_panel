@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Log;
 
 class CacheMonitorController extends Controller
 {
@@ -47,6 +48,7 @@ class CacheMonitorController extends Controller
 
             $redisAvailable = true;
         } catch (\Exception $e) {
+            Log::error('Redis Stats Fetch Error', ['error' => $e->getMessage()]);
             $totalKeys      = 'N/A';
             $usedMemory     = 'N/A';
             $peakMemory     = 'N/A';
@@ -128,9 +130,15 @@ class CacheMonitorController extends Controller
      */
     public function flush(Request $request)
     {
-        Cache::flush();
+        try {
+            Cache::flush();
 
-        return redirect()->route('admin.cache.index')
-            ->with('success', 'All application cache has been cleared successfully.');
+            return redirect()->route('admin.cache.index')
+                ->with('success', 'All application cache has been cleared successfully.');
+        } catch (\Exception $e) {
+            Log::error('Admin\CacheMonitorController@flush error', ['error' => $e->getMessage()]);
+            return redirect()->route('admin.cache.index')
+                ->with('error', 'Failed to clear cache.');
+        }
     }
 }

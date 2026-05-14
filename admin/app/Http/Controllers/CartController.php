@@ -25,23 +25,28 @@ class CartController extends Controller
     // View Cart
     public function index()
     {
-        $summary      = $this->cartService->getCartSummary();
-        $cartItems    = Arr::get($summary, 'items', []);
-        $grandTotal   = Arr::get($summary, 'grandTotal', 0);
-        $totalSavings = Arr::get($summary, 'totalSavings', 0);
-        $sessiondata  = session()->get('cart');
+        try {
+            $summary      = $this->cartService->getCartSummary();
+            $cartItems    = Arr::get($summary, 'items', []);
+            $grandTotal   = Arr::get($summary, 'grandTotal', 0);
+            $totalSavings = Arr::get($summary, 'totalSavings', 0);
+            $sessiondata  = session()->get('cart');
 
-        // Recently Viewed Items
-        $inCartIds = Arr::pluck($cartItems, 'product_id');
-        $recentProducts = $this->productService->getRecentlyViewedProducts($inCartIds);
+            // Recently Viewed Items
+            $inCartIds = Arr::pluck($cartItems, 'product_id');
+            $recentProducts = $this->productService->getRecentlyViewedProducts($inCartIds);
 
-        return view('cart.index', compact(
-            'cartItems', 
-            'grandTotal', 
-            'totalSavings', 
-            'sessiondata',
-            'recentProducts'
-        ));
+            return view('cart.index', compact(
+                'cartItems', 
+                'grandTotal', 
+                'totalSavings', 
+                'sessiondata',
+                'recentProducts'
+            ));
+        } catch (\Exception $e) {
+            Log::error('CartController@index error', ['error' => $e->getMessage()]);
+            throw $e;
+        }
     }
 
     // Add to Cart
@@ -116,11 +121,16 @@ class CartController extends Controller
     // Simulate Abandoned Cart
     public function simulateAbandon(Request $request)
     {
-        $cart = session()->get('cart', []);
-        
-        event(new CartAbandoned($cart));
-        
-        return response()->json(['message' => 'Cart Abandoned event fired!']);
+        try {
+            $cart = session()->get('cart', []);
+            
+            event(new CartAbandoned($cart));
+            
+            return response()->json(['message' => 'Cart Abandoned event fired!']);
+        } catch (\Exception $e) {
+            Log::error('CartController@simulateAbandon error', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Failed to fire event.'], 500);
+        }
     }
 
     /**

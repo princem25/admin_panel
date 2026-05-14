@@ -18,6 +18,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
@@ -33,33 +34,43 @@ class ProductController extends Controller
 
     public function index(Request $request)
     {
-        // Log::debug — developer debug
-        Log::debug('Product index requested', $request->only(['search', 'category', 'price']));
+        try {
+            // Log::debug — developer debug
+            Log::debug('Product index requested', $request->only(['search', 'category', 'price']));
 
-        $greeting = Greeting::greet('Product Section');
-        $filters = $request->only(['search', 'category', 'price']);
+            $greeting = Greeting::greet('Product Section');
+            $filters = $request->only(['search', 'category', 'price']);
 
-        $products = $this->productService->getProductsForAdmin($filters);
-        $total_products = $products->total();
+            $products = $this->productService->getProductsForAdmin($filters);
+            $total_products = $products->total();
 
-        // Log::info
-        Log::channel('products')->info('Admin viewed products list', ['total' => $total_products]);
+            // Log::info
+            Log::channel('products')->info('Admin viewed products list', ['total' => $total_products]);
 
-        return view('product.index', compact(
-            'products',
-            'greeting',
-            'total_products'
-        ));
+            return view('product.index', compact(
+                'products',
+                'greeting',
+                'total_products'
+            ));
+        } catch (\Exception $e) {
+            Log::error('Admin\ProductController@index error', ['error' => $e->getMessage()]);
+            throw $e;
+        }
     }
 
     public function create()
     {
-        $categories = Category::all();
+        try {
+            $categories = Category::all();
 
-        // Log::debug — developer debug
-        Log::debug('Product create form accessed');
+            // Log::debug — developer debug
+            Log::debug('Product create form accessed');
 
-        return view('product.create', compact('categories'));
+            return view('product.create', compact('categories'));
+        } catch (\Exception $e) {
+            Log::error('Admin\ProductController@create error', ['error' => $e->getMessage()]);
+            throw $e;
+        }
     }
 
     public function store(StoreProductRequest $request)
@@ -105,17 +116,22 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        // Check stock: throw custom exception if product is out of stock and being edited
-        if (isset($product->stock) && $product->stock <= 0) {
-            // Log::warning — low/zero stock business warning
-            Log::channel('products')->warning('Editing product with zero stock', ['id' => $product->id]);
+        try {
+            // Check stock: throw custom exception if product is out of stock and being edited
+            if (isset($product->stock) && $product->stock <= 0) {
+                // Log::warning — low/zero stock business warning
+                Log::channel('products')->warning('Editing product with zero stock', ['id' => $product->id]);
+            }
+
+            $categories = Category::all();
+
+            Log::debug('Product edit form accessed', ['product_id' => $product->id]);
+
+            return view('product.edit', compact('product', 'categories'));
+        } catch (\Exception $e) {
+            Log::error('Admin\ProductController@edit error', ['error' => $e->getMessage()]);
+            throw $e;
         }
-
-        $categories = Category::all();
-
-        Log::debug('Product edit form accessed', ['product_id' => $product->id]);
-
-        return view('product.edit', compact('product', 'categories'));
     }
 
     public function update(UpdateProductRequest $request, Product $product)
@@ -162,16 +178,24 @@ class ProductController extends Controller
 
     public function download(Product $product)
     {
-        if (! $product->image || ! Storage::disk('public')->exists('images/' . $product->image)) {
-            // Log::error — resource not found for download
-            Log::error('Product image not found for download', ['product_id' => $product->id]);
-            abort(404);
+        try {
+            if (! $product->image || ! Storage::disk('public')->exists('images/' . $product->image)) {
+                // Log::error — resource not found for download
+                Log::error('Product image not found for download', ['product_id' => $product->id]);
+                abort(404);
+            }
+
+            // Log::info — normal download action
+            Log::info('Product image downloaded', ['product_id' => $product->id]);
+
+            return Storage::disk('public')->download('images/' . $product->image);
+        } catch (\Exception $e) {
+            if ($e instanceof HttpException) {
+                throw $e;
+            }
+            Log::error('Admin\ProductController@download error', ['error' => $e->getMessage()]);
+            throw $e;
         }
-
-        // Log::info — normal download action
-        Log::info('Product image downloaded', ['product_id' => $product->id]);
-
-        return Storage::disk('public')->download('images/' . $product->image);
     }
 
     /**
@@ -180,10 +204,15 @@ class ProductController extends Controller
      */
     public function triggerEmergencyLog()
     {
-        Log::emergency('CRITICAL: Product storage system is unreachable!');
-        Log::alert('Alert: Product database connection intermittent.');
+        try {
+            Log::emergency('CRITICAL: Product storage system is unreachable!');
+            Log::alert('Alert: Product database connection intermittent.');
 
-        return response()->json(['message' => 'Emergency log triggered. Check storage/logs/laravel.log.']);
+            return response()->json(['message' => 'Emergency log triggered. Check storage/logs/laravel.log.']);
+        } catch (\Exception $e) {
+            Log::error('Admin\ProductController@triggerEmergencyLog error', ['error' => $e->getMessage()]);
+            throw $e;
+        }
     }
 
     public function export()

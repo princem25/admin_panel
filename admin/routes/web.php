@@ -77,6 +77,7 @@ Route::middleware('auth')->group(function () {
         return view('support.create');
     })->name('support.create');
     Route::post('/support/tickets', [SupportTicketController::class, 'store'])->name('support.tickets.store');
+    Route::get('/support/{supportTicket}', [SupportTicketController::class, 'show'])->name('support.show');
 });
 
 require __DIR__.'/auth.php';

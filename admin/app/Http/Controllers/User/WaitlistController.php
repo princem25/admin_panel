@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Services\WaitlistService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class WaitlistController extends Controller
 {
@@ -22,8 +23,13 @@ class WaitlistController extends Controller
      */
     public function join(Request $request, Product $product)
     {
-        $result = $this->waitlistService->joinWaitlist($request->user(), $product);
+        try {
+            $result = $this->waitlistService->joinWaitlist($request->user(), $product);
 
-        return back()->with($result['status'], $result['message']);
+            return back()->with($result['status'], $result['message']);
+        } catch (\Exception $e) {
+            Log::error('User\WaitlistController@join error', ['error' => $e->getMessage()]);
+            throw $e;
+        }
     }
 }

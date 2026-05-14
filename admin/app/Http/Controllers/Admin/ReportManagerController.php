@@ -15,22 +15,27 @@ class ReportManagerController extends Controller
      */
     public function index()
     {
-        $disk = Storage::disk('reports');
-        $files = $disk->files(); // Only gets files in the root, ignores subdirectories like 'archive'
+        try {
+            $disk = Storage::disk('reports');
+            $files = $disk->files(); // Only gets files in the root, ignores subdirectories like 'archive'
 
-        $reportFiles = [];
-        foreach ($files as $file) {
-            $reportFiles[] = (object) [
-                'name' => $file,
-                'size_kb' => round($disk->size($file) / 1024, 2),
-                'last_modified' => Carbon::createFromTimestamp($disk->lastModified($file))->format('d M, Y h:i A'),
-            ];
+            $reportFiles = [];
+            foreach ($files as $file) {
+                $reportFiles[] = (object) [
+                    'name' => $file,
+                    'size_kb' => round($disk->size($file) / 1024, 2),
+                    'last_modified' => Carbon::createFromTimestamp($disk->lastModified($file))->format('d M, Y h:i A'),
+                ];
+            }
+
+            // Convert to collection for easier view handling
+            $reportFiles = collect($reportFiles);
+
+            return view('admin.reports.index', compact('reportFiles'));
+        } catch (\Exception $e) {
+            Log::error('Admin\ReportManagerController@index error', ['error' => $e->getMessage()]);
+            throw $e;
         }
-
-        // Convert to collection for easier view handling
-        $reportFiles = collect($reportFiles);
-
-        return view('admin.reports.index', compact('reportFiles'));
     }
 
     /**
@@ -51,6 +56,7 @@ class ReportManagerController extends Controller
 
             return back()->with('success', "File '{$file}' successfully archived.");
         } catch (\Exception $e) {
+            Log::error('Admin\ReportManagerController@archive error', ['error' => $e->getMessage()]);
             return back()->with('error', "Failed to archive '{$file}': " . $e->getMessage());
         }
     }
@@ -60,25 +66,30 @@ class ReportManagerController extends Controller
      */
     public function cleanup()
     {
-        $disk = Storage::disk('reports');
-        $files = $disk->files();
-        $cutoffTimestamp = now()->subDays(30)->timestamp;
+        try {
+            $disk = Storage::disk('reports');
+            $files = $disk->files();
+            $cutoffTimestamp = now()->subDays(30)->timestamp;
 
-        $deletedCount = 0;
+            $deletedCount = 0;
 
-        foreach ($files as $file) {
-            if ($disk->exists($file) && $disk->lastModified($file) < $cutoffTimestamp) {
-                try {
-                    $disk->delete($file);
-                    $deletedCount++;
-                } catch (\Exception $e) {
-                    // Fail gracefully, log it, but continue to next file
-                    Log::warning("Could not delete {$file} during cleanup: " . $e->getMessage());
+            foreach ($files as $file) {
+                if ($disk->exists($file) && $disk->lastModified($file) < $cutoffTimestamp) {
+                    try {
+                        $disk->delete($file);
+                        $deletedCount++;
+                    } catch (\Exception $e) {
+                        // Fail gracefully, log it, but continue to next file
+                        Log::warning("Could not delete {$file} during cleanup: " . $e->getMessage());
+                    }
                 }
             }
-        }
 
-        return back()->with('success', "Bulk cleanup completed. {$deletedCount} old file(s) deleted.");
+            return back()->with('success', "Bulk cleanup completed. {$deletedCount} old file(s) deleted.");
+        } catch (\Exception $e) {
+            Log::error('Admin\ReportManagerController@cleanup error', ['error' => $e->getMessage()]);
+            throw $e;
+        }
     }
 
     /**
@@ -96,6 +107,7 @@ class ReportManagerController extends Controller
             $disk->delete($file);
             return back()->with('success', "File '{$file}' successfully deleted.");
         } catch (\Exception $e) {
+            Log::error('Admin\ReportManagerController@destroy error', ['error' => $e->getMessage()]);
             return back()->with('error', "Failed to delete '{$file}': " . $e->getMessage());
         }
     }

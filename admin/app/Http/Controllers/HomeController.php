@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\ProductService;
+use Illuminate\Support\Facades\Log;
 
 class HomeController extends Controller
 {
@@ -18,8 +19,13 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $featuredProducts = $this->productService->getFeaturedProducts();
+        try {
+            $featuredProducts = $this->productService->getFeaturedProducts();
 
-        return view('welcome', compact('featuredProducts'));
+            return view('welcome', compact('featuredProducts'));
+        } catch (\Exception $e) {
+            Log::error('HomeController@index error', ['error' => $e->getMessage()]);
+            throw $e;
+        }
     }
 }

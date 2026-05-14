@@ -14,6 +14,7 @@ class SupportTicket extends Model
         'status',
         'assigned_user_id',
         'message',
+        'admin_comment',
     ];
 
     public function assignedUser()

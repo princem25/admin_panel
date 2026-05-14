@@ -27,30 +27,35 @@ class ProductController extends Controller
 
     public function index(Request $request)
     {
-        Log::debug('User browsing products', Arr::only($request->all(), ['search', 'category', 'price', 'sort']));
+        try {
+            Log::debug('User browsing products', Arr::only($request->all(), ['search', 'category', 'price', 'sort']));
 
-        // Delegate all complex filtering, sorting, and caching to the Service
-        $products = $this->productService->getFilteredProducts($request);
+            // Delegate all complex filtering, sorting, and caching to the Service
+            $products = $this->productService->getFilteredProducts($request);
 
-        if (Arr::has($request->all(), 'category')) {
-            Log::debug('Category filter applied by user');
+            if (Arr::has($request->all(), 'category')) {
+                Log::debug('Category filter applied by user');
+            }
+
+            $cart = session()->get('cart', []);
+            $cartProductIds = collect($cart)->pluck('product_id')->toArray();
+
+            // Fetch categories for the filter dropdown
+            $categories = Category::all();
+
+            // User Preference: apply session theme
+            $theme = session('theme', 'light');
+
+            Log::channel('products')->info('User viewed product listing (Service Layer Processed)', [
+                'total_found' => $products->total(),
+                'current_page' => $products->currentPage()
+            ]);
+
+            return view('user.products', compact('products', 'cartProductIds', 'theme', 'categories'));
+        } catch (\Exception $e) {
+            Log::error('User\ProductController@index error', ['error' => $e->getMessage()]);
+            throw $e;
         }
-
-        $cart = session()->get('cart', []);
-        $cartProductIds = collect($cart)->pluck('product_id')->toArray();
-
-        // Fetch categories for the filter dropdown
-        $categories = Category::all();
-
-        // User Preference: apply session theme
-        $theme = session('theme', 'light');
-
-        Log::channel('products')->info('User viewed product listing (Service Layer Processed)', [
-            'total_found' => $products->total(),
-            'current_page' => $products->currentPage()
-        ]);
-
-        return view('user.products', compact('products', 'cartProductIds', 'theme', 'categories'));
     }
 
     public function show(Product $product)

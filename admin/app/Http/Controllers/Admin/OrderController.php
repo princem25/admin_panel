@@ -20,27 +20,32 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Order::with('user')->latest();
+        try {
+            $query = Order::with('user')->latest();
 
-        // 1. Search by Order ID or Customer Name
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('id', 'like', "%{$search}%")
-                  ->orWhereHas('user', function ($uq) use ($search) {
-                      $uq->where('name', 'like', "%{$search}%");
-                  });
-            });
+            // 1. Search by Order ID or Customer Name
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('id', 'like', "%{$search}%")
+                      ->orWhereHas('user', function ($uq) use ($search) {
+                          $uq->where('name', 'like', "%{$search}%");
+                      });
+                });
+            }
+
+            // 2. Filter by Status
+            if ($request->filled('status')) {
+                $query->where('status', $request->status);
+            }
+
+            $orders = $query->paginate(12)->withQueryString();
+            
+            return view('admin.orders.index', compact('orders'));
+        } catch (\Exception $e) {
+            Log::error('Admin\OrderController@index error', ['error' => $e->getMessage()]);
+            throw $e;
         }
-
-        // 2. Filter by Status
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        $orders = $query->paginate(12)->withQueryString();
-        
-        return view('admin.orders.index', compact('orders'));
     }
 
     /**
@@ -48,13 +53,18 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        $order->load(['items.product', 'user', 'statusHistories.user']);
-        
-        $downloadUrl = URL::temporarySignedRoute(
-            'invoices.download', now()->addMinutes(10), ['order' => $order->id]
-        );
+        try {
+            $order->load(['items.product', 'user', 'statusHistories.user']);
+            
+            $downloadUrl = URL::temporarySignedRoute(
+                'invoices.download', now()->addMinutes(10), ['order' => $order->id]
+            );
 
-        return view('admin.orders.show', compact('order', 'downloadUrl'));
+            return view('admin.orders.show', compact('order', 'downloadUrl'));
+        } catch (\Exception $e) {
+            Log::error('Admin\OrderController@show error', ['error' => $e->getMessage()]);
+            throw $e;
+        }
     }
 
     /**

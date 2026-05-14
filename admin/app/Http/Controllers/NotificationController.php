@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\User\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class NotificationController extends Controller
 {
@@ -20,8 +21,13 @@ class NotificationController extends Controller
      */
     public function index()
     {
-        $notifications = $this->notificationService->getNotifications(Auth::user());
-        return view('notifications.index', compact('notifications'));
+        try {
+            $notifications = $this->notificationService->getNotifications(Auth::user());
+            return view('notifications.index', compact('notifications'));
+        } catch (\Exception $e) {
+            Log::error('NotificationController@index error', ['error' => $e->getMessage()]);
+            throw $e;
+        }
     }
 
     /**
@@ -29,8 +35,13 @@ class NotificationController extends Controller
      */
     public function unread()
     {
-        $notifications = $this->notificationService->getUnreadNotifications(Auth::user());
-        return view('notifications.index', compact('notifications'));
+        try {
+            $notifications = $this->notificationService->getUnreadNotifications(Auth::user());
+            return view('notifications.index', compact('notifications'));
+        } catch (\Exception $e) {
+            Log::error('NotificationController@unread error', ['error' => $e->getMessage()]);
+            throw $e;
+        }
     }
 
     /**
@@ -38,13 +49,21 @@ class NotificationController extends Controller
      */
     public function markAsRead($id)
     {
-        $url = $this->notificationService->markAsRead(Auth::user(), $id);
+        try {
+            $url = $this->notificationService->markAsRead(Auth::user(), $id);
 
-        if (request()->ajax()) {
-            return response()->json(['success' => true, 'redirect' => $url]);
+            if (request()->ajax()) {
+                return response()->json(['success' => true, 'redirect' => $url]);
+            }
+
+            return redirect($url);
+        } catch (\Exception $e) {
+            Log::error('NotificationController@markAsRead error', ['error' => $e->getMessage()]);
+            if (request()->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Failed to mark notification as read.'], 500);
+            }
+            return back()->with('error', 'Failed to mark notification as read.');
         }
-
-        return redirect($url);
     }
 
     /**
@@ -52,13 +71,21 @@ class NotificationController extends Controller
      */
     public function markAllAsRead()
     {
-        $this->notificationService->markAllAsRead(Auth::user());
+        try {
+            $this->notificationService->markAllAsRead(Auth::user());
 
-        if (request()->ajax()) {
-            return response()->json(['success' => true]);
+            if (request()->ajax()) {
+                return response()->json(['success' => true]);
+            }
+
+            return back()->with('success', 'All notifications marked as read.');
+        } catch (\Exception $e) {
+            Log::error('NotificationController@markAllAsRead error', ['error' => $e->getMessage()]);
+            if (request()->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Failed to mark all notifications as read.'], 500);
+            }
+            return back()->with('error', 'Failed to mark all notifications as read.');
         }
-
-        return back()->with('success', 'All notifications marked as read.');
     }
 }
 

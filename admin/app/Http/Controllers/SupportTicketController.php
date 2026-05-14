@@ -6,6 +6,8 @@ use App\Http\Requests\StoreSupportTicketRequest;
 use App\Services\Support\SupportTicketService;
 use App\Models\SupportTicket;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class SupportTicketController extends Controller
 {
@@ -18,54 +20,102 @@ class SupportTicketController extends Controller
 
     public function index()
     {
-        $user = auth()->user();
-        
-        if ($user->role === 'admin') {
-            $tickets = SupportTicket::latest()->get();
-        } else {
-            $tickets = SupportTicket::where('user_id', $user->id)->latest()->get();
+        try {
+            $user = auth()->user();
+            
+            if ($user->role === 'admin') {
+                $tickets = SupportTicket::latest()->get();
+            } else {
+                $tickets = SupportTicket::where('user_id', $user->id)->latest()->get();
+            }
+            
+            return view('support.index', compact('tickets'));
+        } catch (\Exception $e) {
+            Log::error('SupportTicketController@index error', ['error' => $e->getMessage()]);
+            throw $e;
         }
-        
-        return view('support.index', compact('tickets'));
+    }
+
+    public function show(SupportTicket $supportTicket)
+    {
+        try {
+            $user = auth()->user();
+
+            // Check authorization
+            if ($user->role !== 'admin' && $supportTicket->user_id !== $user->id) {
+                abort(403);
+            }
+
+            return view('support.show', compact('supportTicket'));
+        } catch (\Exception $e) {
+            if ($e instanceof HttpException) {
+                throw $e;
+            }
+            Log::error('SupportTicketController@show error', ['error' => $e->getMessage()]);
+            throw $e;
+        }
     }
 
     public function store(StoreSupportTicketRequest $request)
     {
-        $this->supportTicketService->createTicket($request->validated());
+        try {
+            $this->supportTicketService->createTicket($request->validated());
 
-        return back()->with('success', 'Support ticket submitted successfully!');
+            return back()->with('success', 'Support ticket submitted successfully!');
+        } catch (\Exception $e) {
+            Log::error('SupportTicketController@store error', ['error' => $e->getMessage()]);
+            return back()->with('error', 'Failed to submit support ticket.');
+        }
     }
 
     public function edit(SupportTicket $supportTicket)
     {
-        if (auth()->user()->role !== 'admin') {
-            abort(403);
-        }
+        try {
+            if (auth()->user()->role !== 'admin') {
+                abort(403);
+            }
 
-        if ($supportTicket->status === 'closed') {
-            return redirect()->route('support.index')->with('error', 'Closed tickets cannot be edited.');
-        }
+            if ($supportTicket->status === 'closed') {
+                return redirect()->route('support.index')->with('error', 'Closed tickets cannot be edited.');
+            }
 
-        return view('support.edit', compact('supportTicket'));
+            return view('support.edit', compact('supportTicket'));
+        } catch (\Exception $e) {
+            if ($e instanceof HttpException) {
+                throw $e;
+            }
+            Log::error('SupportTicketController@edit error', ['error' => $e->getMessage()]);
+            throw $e;
+        }
     }
 
     public function update(Request $request, SupportTicket $supportTicket)
     {
-        if (auth()->user()->role !== 'admin') {
-            abort(403);
+        try {
+            if (auth()->user()->role !== 'admin') {
+                abort(403);
+            }
+
+            if ($supportTicket->status === 'closed') {
+                return redirect()->route('support.index')->with('error', 'Closed tickets cannot be edited.');
+            }
+
+            $request->validate([
+                'status' => 'required|string',
+                'priority' => 'required|string',
+                'message' => 'required|string',
+                'admin_comment' => 'nullable|string',
+            ]);
+
+            $supportTicket->update($request->only('status', 'priority', 'message', 'admin_comment'));
+
+            return redirect()->route('support.index')->with('success', 'Ticket updated successfully!');
+        } catch (\Exception $e) {
+            if ($e instanceof HttpException) {
+                throw $e;
+            }
+            Log::error('SupportTicketController@update error', ['error' => $e->getMessage()]);
+            return back()->with('error', 'Failed to update ticket.');
         }
-
-        if ($supportTicket->status === 'closed') {
-            return redirect()->route('support.index')->with('error', 'Closed tickets cannot be edited.');
-        }
-
-        $request->validate([
-            'status' => 'required|string',
-            'priority' => 'required|string',
-        ]);
-
-        $supportTicket->update($request->only('status', 'priority'));
-
-        return redirect()->route('support.index')->with('success', 'Ticket updated successfully!');
     }
 }
