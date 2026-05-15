@@ -23,7 +23,11 @@
                         <div>
                             <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Ticket Details</h3>
                             <p class="mb-2"><strong>Subject:</strong> {{ $supportTicket->subject }}</p>
-                            <p class="mb-2"><strong>Customer:</strong> {{ $supportTicket->customer_name }}</p>
+                            <p class="mb-2"><strong>Customer:</strong> {{ $supportTicket->customer_name }}
+                                @if(auth()->user()->role === 'admin')
+                                    <span class="text-xs text-gray-500">(ID: {{ $supportTicket->user_id }})</span>
+                                @endif
+                            </p>
                             <p class="mb-2"><strong>Created:</strong> {{ $supportTicket->created_at->format('M d, Y H:i') }}</p>
                             <p class="mb-2"><strong>Status:</strong> 
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 

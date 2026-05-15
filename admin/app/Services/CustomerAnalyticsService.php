@@ -49,7 +49,9 @@ class CustomerAnalyticsService
                 ->where('status', '!=', 'cancelled')
                 ->pluck('id');
 
-            $items = OrderItem::with('product')
+            $items = OrderItem::with(['product' => function ($query) {
+                    $query->withTrashed();
+                }])
                 ->whereIn('order_id', $orderIds)
                 ->get();
 

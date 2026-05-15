@@ -11,6 +11,20 @@
                         </h2>
                         <p class="text-gray-500 dark:text-white/60 text-sm mt-1">Manage and download customer invoices.</p>
                     </div>
+
+                    <!-- Search Form -->
+                    <form method="GET" action="{{ route('admin.invoices.index') }}" class="flex gap-2">
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Invoice # or name..."
+                            class="rounded-2xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white text-sm focus:ring-blue-500 focus:border-blue-500 w-64 h-12 px-4">
+                        <button type="submit" class="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl transition duration-200 shadow-lg shadow-blue-600/20 active:scale-95 h-12 flex items-center justify-center">
+                            Search
+                        </button>
+                        @if(request('search'))
+                            <a href="{{ route('admin.invoices.index') }}" class="px-5 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold rounded-2xl transition duration-200 h-12 flex items-center justify-center">
+                                Clear
+                            </a>
+                        @endif
+                    </form>
                 </div>
 
                 @if(session('success'))

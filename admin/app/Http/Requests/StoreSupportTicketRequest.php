@@ -22,10 +22,10 @@ class StoreSupportTicketRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'subject' => 'required|string|max:255',
-            'customer_name' => 'required|string|max:255',
+            'subject' => 'required|string|min:3|max:100|regex:/^[a-zA-Z0-9\s]+$/',
+            'customer_name' => 'required|string|min:2|max:100|regex:/^[a-zA-Z\s]+$/',
             'priority' => 'required|in:low,medium,high',
-            'message' => 'required|string',
+            'message' => 'required|string|min:10|max:100',
         ];
     }
 }

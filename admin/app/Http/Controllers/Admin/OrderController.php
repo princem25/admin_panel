@@ -78,6 +78,11 @@ class OrderController extends Controller
             return back()->with('error', 'This order is cancelled and cannot be modified further.');
         }
 
+        // 🔒 terminal state: delivered orders cannot be modified
+        if ($order->status === 'delivered') {
+            return back()->with('error', 'This order is delivered and cannot be modified further.');
+        }
+
         $oldStatus = $order->status;
         $newStatus = $request->status;
 
@@ -101,28 +106,21 @@ class OrderController extends Controller
         try {
             DB::transaction(function () use ($order, $oldStatus, $newStatus, $request) {
                 
-                // 1. If status changed, log the history and handle stock if cancelled
-                if ($oldStatus !== $newStatus) {
-                    
-                    // Create History Record
-                    OrderStatusHistory::create([
-                        'order_id'   => $order->id,
-                        'status'     => $newStatus,
-                        'changed_by' => auth()->id(),
-                        'notes'      => $request->history_note ?? "Status changed from {$oldStatus} to {$newStatus}",
-                    ]);
+                // 1. Create History Record (Always log updates since fields are required)
+                OrderStatusHistory::create([
+                    'order_id'   => $order->id,
+                    'status'     => $newStatus,
+                    'changed_by' => auth()->id(),
+                    'notes'      => $request->history_note,
+                ]);
 
-                    // Restore Stock if specifically being cancelled now (and wasn't cancelled before)
-                    if ($newStatus === 'cancelled' && $oldStatus !== 'cancelled') {
-                        foreach ($order->items as $item) {
-                            if ($item->product) {
-                                $item->product->increment('stock', $item->quantity);
-                            }
+                // 2. Restore Stock if specifically being cancelled now (and wasn't cancelled before)
+                if ($newStatus === 'cancelled' && $oldStatus !== 'cancelled') {
+                    foreach ($order->items as $item) {
+                        if ($item->product) {
+                            $item->product->increment('stock', $item->quantity);
                         }
                     }
-                    
-                    // (Future) Reduce Stock if moving away from cancelled? 
-                    // Usually, cancelled is a terminal state, but for simplicity we only handle restoration.
                 }
 
                 // 2. Update the Order

@@ -126,11 +126,11 @@
                     </div>
 
                     <!-- Low Stock Alerts -->
-                    <div class="p-5 rounded-xl transition bg-white border border-gray-200 shadow-sm dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-md">
+                    <a href="{{ route('products.index', ['low_stock' => 1]) }}" class="p-5 rounded-xl transition bg-white border border-gray-200 shadow-sm dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-md hover:shadow-lg hover:scale-[1.02] transform block">
                         <div class="text-red-500 text-2xl mb-2">⚠️</div>
                         <h3 class="text-xs font-semibold text-gray-500 dark:text-white/60 uppercase tracking-wider">Low Stock Products</h3>
                         <p class="text-2xl font-bold mt-1 text-gray-900 dark:text-white">{{ $lowStockProducts }}</p>
-                    </div>
+                    </a>
                 </div>
             </div>
 

@@ -24,8 +24,8 @@ class UpdateSupportTicketRequest extends FormRequest
         return [
             'status' => 'required|string',
             'priority' => 'required|string',
-            'message' => 'required|string',
-            'admin_comment' => 'nullable|string',
+            'message' => 'required|string|min:10|max:100',
+            'admin_comment' => 'nullable|string|max:100',
         ];
     }
 }

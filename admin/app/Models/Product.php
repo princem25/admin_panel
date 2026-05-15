@@ -52,6 +52,10 @@ class Product extends Model
         $query->when($filters['price'] ?? false, function ($query, $price) {
             $query->where('price', '<=', $price);
         });
+
+        $query->when($filters['low_stock'] ?? false, function ($query) {
+            $query->where('stock', '<=', 5);
+        });
     }
 
     public function orderItems()

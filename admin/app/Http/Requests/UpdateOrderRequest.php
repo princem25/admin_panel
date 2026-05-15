@@ -23,9 +23,9 @@ class UpdateOrderRequest extends FormRequest
     {
         return [
             'status'          => 'required|in:pending,processing,shipped,delivered,cancelled',
-            'tracking_number' => 'nullable|string|max:10',
-            'admin_note'      => 'nullable|string|max:500',
-            'history_note'    => 'nullable|string|max:255',
+            'tracking_number' => 'required|string|max:10',
+            'admin_note'      => 'required|string|max:100',
+            'history_note'    => 'required|string|max:100',
         ];
     }
 }

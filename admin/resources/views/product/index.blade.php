@@ -51,7 +51,9 @@
                     class="mb-8 flex flex-wrap gap-4 items-end 
                     bg-white border border-gray-200 shadow-md
                     dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 
-                    p-5 rounded-xl w-full md:w-[80%] m-auto">
+                    p-5 rounded-xl w-full">
+
+
 
                     <!-- Name -->
                     <div>
@@ -95,6 +97,13 @@
                             class="border p-2 rounded-lg w-32 
                             bg-white border-gray-300 text-gray-900
                             dark:bg-white/10 dark:border-white/20 dark:text-white">
+                    </div>
+
+                    <!-- Low Stock -->
+                    <div class="flex items-center gap-2 h-10 mb-1">
+                        <input type="checkbox" id="low_stock" name="low_stock" value="1" {{ request('low_stock') ? 'checked' : '' }}
+                            class="rounded text-blue-600 focus:ring-blue-500 dark:bg-white/10 dark:border-white/20">
+                        <label for="low_stock" class="text-sm text-gray-600 dark:text-white/70">Low Stock Only</label>
                     </div>
 
                     <!-- Buttons -->

@@ -11,10 +11,21 @@ use Illuminate\Support\Facades\Log;
 
 class InvoiceController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $invoices = Invoice::with(['order', 'user'])->latest()->paginate(15);
+            $query = Invoice::with(['order', 'user']);
+
+            if ($search = $request->input('search')) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('invoice_number', 'like', '%'.$search.'%')
+                      ->orWhereHas('user', function ($uq) use ($search) {
+                          $uq->where('name', 'like', '%'.$search.'%');
+                      });
+                });
+            }
+
+            $invoices = $query->latest()->paginate(15)->withQueryString();
             
             // Enhance invoices with file size and modified date
             foreach ($invoices as $invoice) {

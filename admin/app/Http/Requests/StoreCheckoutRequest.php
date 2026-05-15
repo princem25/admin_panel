@@ -22,11 +22,11 @@ class StoreCheckoutRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'full_name'        => 'required|string|max:255',
+            'full_name'        => 'required|string|min:2|max:100|regex:/^[a-zA-Z\s]+$/',
             'phone'            => 'required|numeric|digits_between:10,15',
-            'shipping_address' => 'required|string|max:100',
+            'shipping_address' => 'required|string|min:5|max:100|regex:/^[a-zA-Z0-9\s]+$/',
             'payment_method'   => 'required|in:cod,card,upi',
-            'notes'            => 'nullable|string',
+            'notes'            => 'nullable|string|min:3|max:100|regex:/^[a-zA-Z0-9\s]+$/',
         ];
     }
 }

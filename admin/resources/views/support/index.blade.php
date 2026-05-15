@@ -41,7 +41,12 @@
                                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
                                             <td class="px-6 py-4">#{{ $ticket->id }}</td>
                                             <td class="px-6 py-4 font-medium text-gray-900 dark:text-gray-100">{{ $ticket->subject }}</td>
-                                            <td class="px-6 py-4">{{ $ticket->customer_name }}</td>
+                                            <td class="px-6 py-4">
+                                                {{ $ticket->customer_name }}
+                                                @if(auth()->user()->role === 'admin')
+                                                    <span class="text-xs text-gray-500">(ID: {{ $ticket->user_id }})</span>
+                                                @endif
+                                            </td>
                                             <td class="px-6 py-4">
                                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                                     @if($ticket->priority === 'high') bg-red-100 text-red-800 

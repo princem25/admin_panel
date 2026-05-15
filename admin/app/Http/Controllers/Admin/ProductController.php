@@ -40,7 +40,7 @@ class ProductController extends Controller
             Log::debug('Product index requested', $request->only(['search', 'category', 'price']));
 
             $greeting = Greeting::greet('Product Section');
-            $filters = $request->only(['search', 'category', 'price']);
+            $filters = $request->only(['search', 'category', 'price', 'low_stock']);
 
             $products = $this->productService->getProductsForAdmin($filters);
             $total_products = $products->total();

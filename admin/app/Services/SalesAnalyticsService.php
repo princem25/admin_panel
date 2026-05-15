@@ -60,7 +60,9 @@ class SalesAnalyticsService
     public function getTopProducts(): Collection
     {
         try {
-            $items = OrderItem::with('product')
+            $items = OrderItem::with(['product' => function ($query) {
+                    $query->withTrashed();
+                }])
                 ->whereHas('order', function ($query) {
                     $query->genuine();
                 })->get();
@@ -126,7 +128,9 @@ class SalesAnalyticsService
     public function getSalesByCategory(): Collection
     {
         try {
-            $items = OrderItem::with('product.category')
+            $items = OrderItem::with(['product' => function ($query) {
+                    $query->withTrashed()->with('category');
+                }])
                 ->whereHas('order', function ($query) {
                     $query->genuine();
                 })->get();

@@ -142,12 +142,22 @@
                 <div class="space-y-8">
                     
                     {{-- STATUS UPDATE ACTION --}}
-                    @if($order->status !== 'cancelled')
+                    @if($order->status !== 'cancelled' && $order->status !== 'delivered')
                         <div class="bg-white dark:bg-white/10 shadow-xl rounded-3xl p-8 border border-gray-200 dark:border-white/20">
                             <h3 class="text-lg font-bold mb-6 text-gray-800 dark:text-white flex items-center gap-2">
                                 Update Order ⚙️
                             </h3>
                             
+                            @if ($errors->any())
+                                <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-xl text-sm">
+                                    <ul class="list-disc list-inside">
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
+
                             <form action="{{ route('admin.orders.update', $order->id) }}" method="POST" class="space-y-6">
                                 @csrf
                                 @method('PUT')
@@ -182,13 +192,13 @@
 
                                 <div>
                                     <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-3">Public Timeline Note</label>
-                                    <input type="text" name="history_note" placeholder="Visible in timeline..." maxlength="255"
+                                    <input type="text" name="history_note" placeholder="Visible in timeline..." maxlength="100"
                                         class="w-full h-12 px-4 rounded-2xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white text-sm focus:ring-blue-500 focus:border-blue-500">
                                 </div>
 
                                 <div class="pt-4 border-t border-gray-100 dark:border-white/5">
                                     <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-3">Private Admin Note 🔓</label>
-                                    <textarea name="admin_note" rows="4" placeholder="Internal communication only..." maxlength="500"
+                                    <textarea name="admin_note" rows="4" placeholder="Internal communication only..." maxlength="100"
                                         class="w-full px-4 py-3 rounded-2xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white text-sm focus:ring-blue-500 focus:border-blue-500">{{ $order->admin_note }}</textarea>
                                 </div>
 
@@ -197,6 +207,18 @@
                                     Save Changes
                                 </button>
                             </form>
+                        </div>
+                    @elseif($order->status === 'delivered')
+                        <div class="bg-green-50 dark:bg-green-500/10 shadow-xl rounded-3xl p-8 border border-green-100 dark:border-green-500/20">
+                            <h3 class="text-lg font-bold mb-4 text-green-600 dark:text-green-400 flex items-center gap-2">
+                                Order Delivered 🎉
+                            </h3>
+                            <p class="text-sm text-green-500 dark:text-green-300 italic font-medium leading-relaxed">
+                                This order has been delivered and is now locked. No further modifications or status reverts are permitted.
+                            </p>
+                            <div class="mt-6 pt-6 border-t border-green-200 dark:border-green-500/20">
+                                <p class="text-[10px] text-green-400 uppercase tracking-widest font-black">Admin Access Locked</p>
+                            </div>
                         </div>
                     @else
                         <div class="bg-red-50 dark:bg-red-500/10 shadow-xl rounded-3xl p-8 border border-red-100 dark:border-red-500/20">
