@@ -17,13 +17,13 @@ class UpdateProductRequest extends FormRequest
         $productId = $this->route('product') ? $this->route('product')->id : null;
 
         return [
-            'name' => ['required', 'string', 'max:255', 'unique:products,name,' . $productId],
+            'name' => ['required', 'string', 'max:100', 'unique:products,name,' . $productId],
             'price' => ['required', 'numeric', 'min:0', 'max:999999.99'],
             'discount_price' => ['nullable', 'numeric', 'lt:price', new ValidDiscount],
             'stock' => ['required', 'integer', 'min:0'],
             'category_id' => ['required', 'exists:categories,id'],
-            'type' => ['nullable', 'string'],
-            'description' => ['required', 'max:500'],
+            'type' => ['nullable', 'string', 'max:100'],
+            'description' => ['required', 'max:100'],
             'file' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
         ];
     }
