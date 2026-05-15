@@ -49,7 +49,7 @@ class SendEmailToCustomer implements ShouldQueue
         try {
             // Sleep 5s to avoid Mailtrap rate limit
             sleep(5);
-            Mail::to($order->user->email)->send(new OrderStatusEmail($order, $status));
+            Mail::to($order->user->email)->send(new OrderStatusEmail($order, $status, $order->user));
 
             Log::channel('customer')->info("Listener handled: SendEmailToCustomer (OrderStatusUpdated) sent email", [
                 'event' => 'OrderStatusUpdated',

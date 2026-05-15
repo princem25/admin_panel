@@ -100,7 +100,7 @@ class CheckoutService
 
         // 2. Emails
         try {
-            Mail::to($order->user->email)->later(now()->addSeconds(15), new OrderConfirmation($order));
+            Mail::to($order->user->email)->later(now()->addSeconds(15), new OrderConfirmation($order, $order->user));
         } catch (\Exception $mailException) {
             Log::error('Failed to queue order confirmation email', [
                 'order_id' => $order->id,

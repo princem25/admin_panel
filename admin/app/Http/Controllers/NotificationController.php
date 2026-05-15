@@ -52,14 +52,14 @@ class NotificationController extends Controller
         try {
             $url = $this->notificationService->markAsRead(Auth::user(), $id);
 
-            if (request()->ajax()) {
+            if (request()->ajax() || request()->wantsJson()) {
                 return response()->json(['success' => true, 'redirect' => $url]);
             }
 
             return redirect($url);
         } catch (\Exception $e) {
             Log::error('NotificationController@markAsRead error', ['error' => $e->getMessage()]);
-            if (request()->ajax()) {
+            if (request()->ajax() || request()->wantsJson()) {
                 return response()->json(['success' => false, 'message' => 'Failed to mark notification as read.'], 500);
             }
             return back()->with('error', 'Failed to mark notification as read.');
@@ -74,14 +74,14 @@ class NotificationController extends Controller
         try {
             $this->notificationService->markAllAsRead(Auth::user());
 
-            if (request()->ajax()) {
+            if (request()->ajax() || request()->wantsJson()) {
                 return response()->json(['success' => true]);
             }
 
             return back()->with('success', 'All notifications marked as read.');
         } catch (\Exception $e) {
             Log::error('NotificationController@markAllAsRead error', ['error' => $e->getMessage()]);
-            if (request()->ajax()) {
+            if (request()->ajax() || request()->wantsJson()) {
                 return response()->json(['success' => false, 'message' => 'Failed to mark all notifications as read.'], 500);
             }
             return back()->with('error', 'Failed to mark all notifications as read.');

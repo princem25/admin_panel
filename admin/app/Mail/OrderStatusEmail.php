@@ -17,14 +17,16 @@ class OrderStatusEmail extends Mailable
 
     public Order $order;
     public string $status;
+    public $recipient;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(Order $order, string $status)
+    public function __construct(Order $order, string $status, $recipient = null)
     {
         $this->order = $order;
         $this->status = $status;
+        $this->recipient = $recipient;
     }
 
     /**
@@ -47,7 +49,9 @@ class OrderStatusEmail extends Mailable
             with: [
                 'order' => $this->order,
                 'status' => ucfirst($this->status),
-                'url' => route('orders.show', $this->order->id),
+                'url' => (isset($this->recipient->role) && $this->recipient->role === 'admin')
+                            ? url("/admin/orders/{$this->order->id}")
+                            : url("/user/orders/{$this->order->id}"),
             ],
         );
     }

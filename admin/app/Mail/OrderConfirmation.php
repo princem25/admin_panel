@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Storage;
 class OrderConfirmation extends Mailable implements ShouldQueue
 {
     public Order $order;
+    public $recipient;
 
     /**
      * The number of times the job may be attempted.
@@ -41,9 +42,10 @@ class OrderConfirmation extends Mailable implements ShouldQueue
     /**
      * Create a new message instance.
      */
-    public function __construct(Order $order)
+    public function __construct(Order $order, $recipient = null)
     {
         $this->order = $order;
+        $this->recipient = $recipient;
     }
 
     /**
@@ -65,7 +67,9 @@ class OrderConfirmation extends Mailable implements ShouldQueue
             markdown: 'emails.orders.confirmation',
             with: [
                 'order' => $this->order,
-                'url' => route('orders.show', $this->order->id),
+                'url' => (isset($this->recipient->role) && $this->recipient->role === 'admin')
+                            ? url("/admin/orders/{$this->order->id}")
+                            : url("/user/orders/{$this->order->id}"),
             ],
         );
     }

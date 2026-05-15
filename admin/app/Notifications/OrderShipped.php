@@ -73,7 +73,9 @@ class OrderShipped extends Notification implements ShouldQueue
             'order_id'        => $this->order->id,
             'tracking_number' => $this->order->tracking_number,
             'message'         => __('notifications.order_shipped_message'),
-            'url'             => "/orders/{$this->order->id}",
+            'url'             => (isset($notifiable->role) && $notifiable->role === 'admin')
+                                    ? url("/admin/orders/{$this->order->id}")
+                                    : url("/user/orders/{$this->order->id}"),
             'icon'            => 'truck',
         ];
     }
