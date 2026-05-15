@@ -138,6 +138,14 @@ class AppServiceProvider extends ServiceProvider
 
         if (! app()->isProduction()) {
             DB::listen(function ($query) {
+                // Log all queries to DBinteraction
+                Log::channel('DBinteraction')->info('Query executed', [
+                    'sql' => $query->sql,
+                    'bindings' => $query->bindings,
+                    'time' => $query->time . 'ms',
+                ]);
+
+                // Log slow queries to slow_queries
                 if ($query->time > 100) { // 100ms
                     Log::channel('slow_queries')->warning('Slow query detected', [
                         'sql' => $query->sql,

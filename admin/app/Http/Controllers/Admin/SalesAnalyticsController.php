@@ -88,7 +88,10 @@ class SalesAnalyticsController extends Controller
             $csvContent = stream_get_contents($handle);
             fclose($handle);
 
-            // Return response directly without saving file
+            $disk = Storage::disk('reports');
+            $disk->put($filename, $csvContent);
+
+            // Return response directly
             return response($csvContent)
                 ->header('Content-Type', 'text/csv')
                 ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');

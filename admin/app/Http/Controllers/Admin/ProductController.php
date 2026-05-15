@@ -233,6 +233,9 @@ class ProductController extends Controller
             
             $csvContent = $this->productService->getCsvString();
 
+            $disk = Storage::disk('reports');
+            $disk->put($filename, $csvContent);
+
             return response($csvContent)
                 ->header('Content-Type', 'text/csv')
                 ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
