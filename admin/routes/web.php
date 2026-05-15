@@ -93,6 +93,7 @@ Route::prefix('admin')->middleware(['role:admin', 'throttle:100,1'])->group(func
     
     // User Management
     Route::get('/users', [DashboardController::class, 'usersList'])->name('admin.users.index');
+    Route::delete('/users/{user}', [DashboardController::class, 'destroyUser'])->name('admin.users.destroy');
 
     // Order Management
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('admin.orders.index');

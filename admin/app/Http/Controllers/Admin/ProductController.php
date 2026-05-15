@@ -12,6 +12,7 @@ use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\OrderItem;
 use App\Services\ProductService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
@@ -165,11 +166,21 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         try {
+            // Check if product is in any order with status other than delivered or cancelled
+            $isInActiveOrder = OrderItem::where('product_id', $product->id)
+                ->whereHas('order', function ($query) {
+                    $query->whereNotIn('status', ['delivered', 'cancelled']);
+                })
+                ->exists();
+
+            if ($isInActiveOrder) {
+                return back()->with('error', 'Cannot delete product that is in active or non-delivered orders.');
+            }
+
             $this->productService->deleteProduct($product);
 
             return redirect()->route('products.index')->with('success', 'Product deleted!');
         } catch (\Exception $e) {
-            // Log::error
             Log::error('Product delete failed', ['error' => $e->getMessage()]);
 
             return back()->with('error', 'Could not delete product.');

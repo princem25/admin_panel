@@ -271,10 +271,6 @@ class ProductService
     {
         $productId = $product->id;
 
-        if ($product->image && Storage::disk('public')->exists('images/' . $product->image)) {
-            Storage::disk('public')->delete('images/' . $product->image);
-        }
-
         $product->delete();
 
         Log::channel('security')->warning('Product deleted', ['id' => $productId]);

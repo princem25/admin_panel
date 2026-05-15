@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSupportTicketRequest;
+use App\Http\Requests\UpdateSupportTicketRequest;
 use App\Services\Support\SupportTicketService;
 use App\Models\SupportTicket;
 use Illuminate\Http\Request;
@@ -89,7 +90,7 @@ class SupportTicketController extends Controller
         }
     }
 
-    public function update(Request $request, SupportTicket $supportTicket)
+    public function update(UpdateSupportTicketRequest $request, SupportTicket $supportTicket)
     {
         try {
             if (auth()->user()->role !== 'admin') {
@@ -100,14 +101,7 @@ class SupportTicketController extends Controller
                 return redirect()->route('support.index')->with('error', 'Closed tickets cannot be edited.');
             }
 
-            $request->validate([
-                'status' => 'required|string',
-                'priority' => 'required|string',
-                'message' => 'required|string',
-                'admin_comment' => 'nullable|string',
-            ]);
-
-            $supportTicket->update($request->only('status', 'priority', 'message', 'admin_comment'));
+            $supportTicket->update($request->validated());
 
             return redirect()->route('support.index')->with('success', 'Ticket updated successfully!');
         } catch (\Exception $e) {

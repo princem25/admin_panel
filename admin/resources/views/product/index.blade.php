@@ -141,13 +141,8 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 
                     @foreach ($products as $product)
-                        <div
-                            class="rounded-xl p-3 transition
-                        bg-white border border-gray-200 shadow hover:scale-105
-                        dark:bg-white/10 dark:backdrop-blur-xl dark:border-white/20 dark:shadow-lg">
-
+                        <div class="transition hover:scale-105">
                             <x-product-card :product="$product" />
-
                         </div>
                     @endforeach
 

@@ -62,7 +62,12 @@
                                         @endif
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <h4 class="text-xl font-bold text-gray-800 dark:text-white truncate">{{ $item->product->name }}</h4>
+                                        <h4 class="text-xl font-bold text-gray-800 dark:text-white truncate">
+                                            {{ $item->product->name }}
+                                            @if($item->product->trashed())
+                                                <span class="ml-2 px-2 py-0.5 text-xs bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-400 rounded-md font-bold uppercase">Deleted</span>
+                                            @endif
+                                        </h4>
                                         <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">₹{{ number_format($item->price, 2) }} × {{ $item->quantity }} units</p>
                                     </div>
                                     <div class="text-right">
@@ -107,7 +112,13 @@
                         </h3>
                         
                         <div class="relative space-y-8 pl-8 before:content-[''] before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-200 dark:before:bg-white/10">
-                            @forelse($order->statusHistories as $history)
+                            <div class="relative">
+                                    <div class="absolute -left-[2.15rem] top-1 w-4 h-4 rounded-full border-2 border-white dark:border-[#2f4f54] bg-green-500 shadow-sm z-10"></div>
+                                    <p class="text-sm font-black text-gray-800 dark:text-white">Order Placed</p>
+                                    <p class="text-xs text-gray-500 mt-1 font-medium">{{ $order->created_at->format('d M, Y • h:i A') }}</p>
+                            </div>
+
+                            @foreach($order->statusHistories as $history)
                                 <div class="relative">
                                     <div class="absolute -left-[2.15rem] top-1 w-4 h-4 rounded-full border-2 border-white dark:border-[#2f4f54] bg-blue-500 shadow-sm z-10"></div>
                                     <p class="text-sm font-black text-gray-800 dark:text-white flex items-center gap-2">
@@ -122,14 +133,7 @@
                                         </div>
                                     @endif
                                 </div>
-                            @empty
-                                <p class="text-gray-500 italic text-sm">Initial order placement.</p>
-                            @endforelse
-                            <div class="relative">
-                                    <div class="absolute -left-[2.15rem] top-1 w-4 h-4 rounded-full border-2 border-white dark:border-[#2f4f54] bg-green-500 shadow-sm z-10"></div>
-                                    <p class="text-sm font-black text-gray-800 dark:text-white">Order Placed</p>
-                                    <p class="text-xs text-gray-500 mt-1 font-medium">{{ $order->created_at->format('d M, Y • h:i A') }}</p>
-                            </div>
+                            @endforeach
                         </div>
                     </div>
                 </div>
@@ -151,29 +155,40 @@
                                 <div>
                                     <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-3">Order Status</label>
                                     <select name="status" class="w-full rounded-2xl border-gray-200 dark:border-white/10 dark:bg-[#2f4f54] dark:text-white font-bold h-12 focus:ring-blue-500 focus:border-blue-500">
-                                        <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>Pending</option>
-                                        <option value="processing" {{ $order->status === 'processing' ? 'selected' : '' }}>Processing</option>
-                                        <option value="shipped" {{ $order->status === 'shipped' ? 'selected' : '' }}>Shipped</option>
-                                        <option value="delivered" {{ $order->status === 'delivered' ? 'selected' : '' }}>Delivered</option>
-                                        <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                        @php
+                                            $statuses = ['pending', 'processing', 'shipped', 'delivered'];
+                                            $currentIndex = array_search($order->status, $statuses);
+                                        @endphp
+                                        @foreach($statuses as $index => $status)
+                                            @php
+                                                $isDisabled = false;
+                                                if ($currentIndex !== false) {
+                                                    $isDisabled = !($index === $currentIndex || $index === $currentIndex - 1 || $index === $currentIndex + 1);
+                                                }
+                                            @endphp
+                                            <option value="{{ $status }}" {{ $order->status === $status ? 'selected' : '' }} {{ $isDisabled ? 'disabled' : '' }}>
+                                                {{ ucfirst($status) }}
+                                            </option>
+                                        @endforeach
+                                        <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }} {{ $order->status === 'delivered' ? 'disabled' : '' }}>Cancelled</option>
                                     </select>
                                 </div>
 
                                 <div>
                                     <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-3">Tracking Number</label>
-                                    <input type="text" name="tracking_number" value="{{ $order->tracking_number }}" placeholder="TRK123456..." 
+                                    <input type="text" name="tracking_number" value="{{ $order->tracking_number }}" placeholder="TRK123456..." maxlength="10"
                                         class="w-full h-12 px-4 rounded-2xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white text-sm focus:ring-blue-500 focus:border-blue-500">
                                 </div>
 
                                 <div>
                                     <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-3">Public Timeline Note</label>
-                                    <input type="text" name="history_note" placeholder="Visible in timeline..." 
+                                    <input type="text" name="history_note" placeholder="Visible in timeline..." maxlength="255"
                                         class="w-full h-12 px-4 rounded-2xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white text-sm focus:ring-blue-500 focus:border-blue-500">
                                 </div>
 
                                 <div class="pt-4 border-t border-gray-100 dark:border-white/5">
                                     <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-3">Private Admin Note 🔓</label>
-                                    <textarea name="admin_note" rows="4" placeholder="Internal communication only..."
+                                    <textarea name="admin_note" rows="4" placeholder="Internal communication only..." maxlength="500"
                                         class="w-full px-4 py-3 rounded-2xl border-gray-200 dark:border-white/10 dark:bg-white/5 dark:text-white text-sm focus:ring-blue-500 focus:border-blue-500">{{ $order->admin_note }}</textarea>
                                 </div>
 

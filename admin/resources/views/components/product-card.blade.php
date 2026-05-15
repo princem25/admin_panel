@@ -1,21 +1,20 @@
 <div
     class="rounded-xl overflow-hidden shadow-sm transition duration-200
-
     bg-white border border-gray-200
     dark:bg-white/5 dark:border-white/10 dark:shadow-md
-
-    hover:shadow-md dark:hover:shadow-lg">
+    hover:shadow-md dark:hover:shadow-lg
+    h-[400px] flex flex-col">
 
     {{-- Image --}}
-    <img src="{{ $product->image ? Storage::url('images/' . $product->image) : 'https://via.placeholder.com/250' }}"
-        class="w-full h-44 object-cover">
+    <img src="{{ ($product->image && $product->image !== 'default.jpg') ? Storage::url('images/' . $product->image) : 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=250&h=250&fit=crop' }}"
+        class="w-full h-44 object-cover"
+        onerror="this.onerror=null;this.src='{{ asset('images/logo.png') }}';">
 
     {{-- Info --}}
-    <div class="p-4 flex flex-col justify-between h-[160px]">
+    <div class="p-4 flex flex-col justify-between flex-1">
 
         <div>
-            <h3 class="text-lg font-semibold mb-1 
-            text-gray-900 dark:text-white">
+            <h3 class="text-lg font-semibold mb-1 text-gray-900 dark:text-white line-clamp-1">
                 {{ $product->name }}
             </h3>
  

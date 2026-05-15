@@ -4,14 +4,14 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreCheckoutRequest extends FormRequest
+class UpdateOrderRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return true; // Authorization is handled in the controller or middleware
     }
 
     /**
@@ -22,11 +22,10 @@ class StoreCheckoutRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'full_name'        => 'required|string|max:255',
-            'phone'            => 'required|numeric|digits_between:10,15',
-            'shipping_address' => 'required|string|max:100',
-            'payment_method'   => 'required|in:cod,card,upi',
-            'notes'            => 'nullable|string',
+            'status'          => 'required|in:pending,processing,shipped,delivered,cancelled',
+            'tracking_number' => 'nullable|string|max:10',
+            'admin_note'      => 'nullable|string|max:500',
+            'history_note'    => 'nullable|string|max:255',
         ];
     }
 }

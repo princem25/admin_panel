@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Events\Admin\OrderStatusUpdated;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\UpdateOrderRequest;
 use App\Models\Order;
 use App\Models\OrderStatusHistory;
 use App\Notifications\OrderShipped;
@@ -70,22 +71,32 @@ class OrderController extends Controller
     /**
      * Update the order status and internal notes.
      */
-    public function update(Request $request, Order $order)
+    public function update(UpdateOrderRequest $request, Order $order)
     {
         // 🚀 terminal state: cancelled orders cannot be modified
         if ($order->status === 'cancelled') {
             return back()->with('error', 'This order is cancelled and cannot be modified further.');
         }
 
-        $request->validate([
-            'status'          => 'required|in:pending,processing,shipped,delivered,cancelled',
-            'tracking_number' => 'nullable|string|max:100',
-            'admin_note'      => 'nullable|string',
-            'history_note'    => 'nullable|string|max:255',
-        ]);
-
         $oldStatus = $order->status;
         $newStatus = $request->status;
+
+        $statuses = ['pending', 'processing', 'shipped', 'delivered'];
+        $currentIndex = array_search($oldStatus, $statuses);
+        $newIndex = array_search($newStatus, $statuses);
+
+        $allowed = false;
+        if ($newStatus === $oldStatus) {
+            $allowed = true;
+        } elseif ($currentIndex !== false && $newIndex !== false) {
+            $allowed = abs($currentIndex - $newIndex) <= 1;
+        } elseif ($newStatus === 'cancelled' && $oldStatus !== 'delivered') {
+            $allowed = true;
+        }
+
+        if (!$allowed) {
+            return back()->with('error', 'Invalid status transition. You can only move to the adjacent status or cancel the order.');
+        }
 
         try {
             DB::transaction(function () use ($order, $oldStatus, $newStatus, $request) {

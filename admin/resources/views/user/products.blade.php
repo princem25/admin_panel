@@ -118,9 +118,10 @@
                             
                             <!-- Image -->
                             <div class="h-40 mb-3 flex items-center justify-center overflow-hidden rounded-lg bg-gray-100 dark:bg-white/10">
-                                <img src="{{ $product->image ? Storage::url('images/' . $product->image) : 'https://via.placeholder.com/150' }}"
+                                <img src="{{ ($product->image && $product->image !== 'default.jpg') ? Storage::url('images/' . $product->image) : 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=250&h=250&fit=crop' }}"
                                      alt="{{ $product->name }}"
-                                     class="h-full object-contain transition duration-200 hover:scale-105">
+                                     class="h-full object-contain transition duration-200 hover:scale-105"
+                                     onerror="this.onerror=null;this.src='{{ asset('images/logo.png') }}';">
                             </div>
 
                             <!-- Name -->

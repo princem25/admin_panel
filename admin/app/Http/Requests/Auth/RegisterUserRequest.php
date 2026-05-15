@@ -1,10 +1,12 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Auth;
 
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules;
 
-class StoreCheckoutRequest extends FormRequest
+class RegisterUserRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,11 +24,9 @@ class StoreCheckoutRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'full_name'        => 'required|string|max:255',
-            'phone'            => 'required|numeric|digits_between:10,15',
-            'shipping_address' => 'required|string|max:100',
-            'payment_method'   => 'required|in:cod,card,upi',
-            'notes'            => 'nullable|string',
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ];
     }
 }

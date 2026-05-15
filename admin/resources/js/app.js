@@ -1,5 +1,6 @@
 import './bootstrap';
 import './products';    
+import './session-popup';
 
 import Alpine from 'alpinejs';
 

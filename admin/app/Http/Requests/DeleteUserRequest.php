@@ -4,8 +4,15 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreCheckoutRequest extends FormRequest
+class DeleteUserRequest extends FormRequest
 {
+    /**
+     * The key to be used for the view error bag.
+     *
+     * @var string
+     */
+    protected $errorBag = 'userDeletion';
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -22,11 +29,7 @@ class StoreCheckoutRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'full_name'        => 'required|string|max:255',
-            'phone'            => 'required|numeric|digits_between:10,15',
-            'shipping_address' => 'required|string|max:100',
-            'payment_method'   => 'required|in:cod,card,upi',
-            'notes'            => 'nullable|string',
+            'password' => ['required', 'current_password'],
         ];
     }
 }

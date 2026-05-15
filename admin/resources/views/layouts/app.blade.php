@@ -18,7 +18,7 @@
  
 </head>
 
-<body class="font-sans antialiased">
+<body class="font-sans antialiased" data-session-success="{{ session('success') }}" data-session-error="{{ session('error') }}">
     <!-- Loader Overlay -->
     <div id="loader-overlay">
         <div class="loader">
@@ -31,8 +31,7 @@
     <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
         @include('layouts.navigation')
 
-        {{-- Global Flash Notifications --}}
-        <x-flash-message />
+        {{-- Global Flash Notifications moved to JS --}}
 
         <!-- Page Heading -->
         @isset($header)

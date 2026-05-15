@@ -61,6 +61,9 @@ dark:bg-gradient-to-br dark:from-[#0f2027] dark:via-[#203a43] dark:to-[#2c5364]"
                     dark:bg-white/10 dark:border-white/20 
                     dark:placeholder-white/60 dark:text-white 
                     dark:focus:ring-cyan-400">
+                @error('name')
+                    <p class="text-red-500 dark:text-red-400 text-sm mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- Email -->
@@ -75,6 +78,9 @@ dark:bg-gradient-to-br dark:from-[#0f2027] dark:via-[#203a43] dark:to-[#2c5364]"
                     dark:bg-white/10 dark:border-white/20 
                     dark:placeholder-white/60 dark:text-white 
                     dark:focus:ring-cyan-400">
+                @error('email')
+                    <p class="text-red-500 dark:text-red-400 text-sm mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- Password -->
@@ -89,6 +95,9 @@ dark:bg-gradient-to-br dark:from-[#0f2027] dark:via-[#203a43] dark:to-[#2c5364]"
                     dark:bg-white/10 dark:border-white/20 
                     dark:placeholder-white/60 dark:text-white 
                     dark:focus:ring-cyan-400">
+                @error('password')
+                    <p class="text-red-500 dark:text-red-400 text-sm mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- Confirm Password -->
