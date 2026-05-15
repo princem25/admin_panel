@@ -49,15 +49,7 @@ class SalesAnalyticsController extends Controller
     {
         try {
             $filename = "sales_report_{$type}_" . date('Y-m-d') . ".csv";
-            $disk = Storage::disk('reports');
 
-            // 1 & 2: Check if file already exists in the reports disk
-            if ($disk->exists($filename)) {
-                // Return existing file directly, saving database and processing resources
-                return $disk->download($filename);
-            }
-
-            // 3: File does not exist, generate it
             $data = collect();
             $headers = [];
 
@@ -96,11 +88,10 @@ class SalesAnalyticsController extends Controller
             $csvContent = stream_get_contents($handle);
             fclose($handle);
 
-            // Store the generated file in the reports disk
-            $disk->put($filename, $csvContent);
-
-            // Return the newly stored file as a download
-            return $disk->download($filename);
+            // Return response directly without saving file
+            return response($csvContent)
+                ->header('Content-Type', 'text/csv')
+                ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
 
         } catch (\Exception $e) {
             Log::error('Sales analytics error', [
